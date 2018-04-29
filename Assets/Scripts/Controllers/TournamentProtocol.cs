@@ -11,6 +11,7 @@ public class TournamentProtocol {
 	}
 
 	private CalendarDate date;
+    private string name;
 	private List<float> prizes;
 	private int size;
 
@@ -26,8 +27,9 @@ public class TournamentProtocol {
     private bool priority;
     private bool quarterly;
 
-	public TournamentProtocol(CalendarDate dt, float topPrize, int size, Level lvl, bool qtr){
+	public TournamentProtocol(string name, CalendarDate dt, float topPrize, int size, Level lvl, bool qtr){
 		managerIndexes = new List<int> ();
+        this.name = name;
 		prizes = new List<float> ();
 		tournamentResults = new Dictionary<int, TournamentResult> ();
         schedule = new Dictionary<int, List<Vector2Int>>();
@@ -73,7 +75,7 @@ public class TournamentProtocol {
 	}
 
     public string getDetails(){
-        return level.ToString() + " - " + prizes[0] + " - " + date + " - " + managerIndexes.Count + "/" + size;
+        return name + " - " + level.ToString() + " - " + prizes[0] + " - " + date + " - " + managerIndexes.Count + "/" + size;
     }
 
     public void refreshTournament(bool quarterly){
@@ -214,6 +216,10 @@ public class TournamentProtocol {
 	public Level TournamentLevel {
 		get { return level; }
 	}
+
+    public string Name {
+        get { return name; }
+    }
 
 	public CalendarDate TournamentDate {
 		get { return date; }

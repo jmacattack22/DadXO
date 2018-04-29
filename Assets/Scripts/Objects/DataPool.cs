@@ -19,6 +19,8 @@ public class DataPool {
     private List<string> firstNames;
     private List<string> lastNames;
     private List<string> townNames;
+    private List<string> tournamentNames;
+    private List<string> backTournamentNames;
 
 	private Calendar calendar;
 
@@ -40,6 +42,8 @@ public class DataPool {
         firstNames = new List<string>();
         lastNames = new List<string>();
         townNames = new List<string>();
+        tournamentNames = new List<string>();
+        backTournamentNames = new List<string>();
 
 		calendar = new Calendar ();
 
@@ -70,6 +74,18 @@ public class DataPool {
         string townName = townNames[index];
         townNames.RemoveAt(index);
         return townName;
+    }
+
+    public string generateTournamentName(){
+        int index = Random.Range(0, tournamentNames.Count);
+        string name = tournamentNames[index];
+        tournamentNames.RemoveAt(index);
+
+        if (tournamentNames.Count < 2){
+            tournamentNames = backTournamentNames;
+        }
+
+        return name;
     }
 
 	public string getExerciseDescription(string exercise){
@@ -110,6 +126,16 @@ public class DataPool {
 
         using (StreamReader reader = new StreamReader("Assets/Resources/Places.txt")){
             townNameContents = reader.ReadToEnd();
+        }
+
+        using (StreamReader reader = new StreamReader("Assets/Resources/TournamentNames.txt"))
+        {
+            string line;
+            while ((line = reader.ReadLine()) != null)
+            {
+                tournamentNames.Add(line.Trim());
+                backTournamentNames.Add(line.Trim());
+            }
         }
 
         firstNames = firstNameContents.Split(';').ToList();
@@ -168,6 +194,10 @@ public class DataPool {
 
     public List<string> TownNames {
         get { return townNames; }
+    }
+
+    public List<string> TournamentNames {
+        get { return tournamentNames; }
     }
 
     public Region.TileType[,] WorldMap {

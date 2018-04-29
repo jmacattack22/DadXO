@@ -251,10 +251,10 @@ public static class WorldBuilderProtocol {
     }
 
     public static TournamentProtocol createQuarterlyTournament(TournamentProtocol.Level level, CalendarDate date){
-        return new TournamentProtocol(date, getPrizeMoney(level) + 1000.0f, 16, level, true);
+        return new TournamentProtocol("Regional " + level.ToString() + " Qualifier", date, getPrizeMoney(level) + 1000.0f, 16, level, true);
     }
 
-    public static TournamentProtocol createTournamentBasedOnRegion(TournamentProtocol.Level regionLevel, CalendarDate date){
+    public static TournamentProtocol createTournamentBasedOnRegion(ref DataPool worldData, TournamentProtocol.Level regionLevel, CalendarDate date){
         List<int> tournamentPercentages = getPercentagesForRegion(regionLevel);
 
         int rng = Random.Range(0, 100);
@@ -285,7 +285,7 @@ public static class WorldBuilderProtocol {
             tournamentLevel = TournamentProtocol.Level.E;
         }
 
-        return new TournamentProtocol(date, getPrizeMoney(tournamentLevel), getRandomTournamentSize((int)tournamentLevel), tournamentLevel, false);
+        return new TournamentProtocol(worldData.generateTournamentName() + " Cup", date, getPrizeMoney(tournamentLevel), getRandomTournamentSize((int)tournamentLevel), tournamentLevel, false);
     }
 
     public static void createTowns(
@@ -362,7 +362,7 @@ public static class WorldBuilderProtocol {
                             worldData.WorldMap[x, y] = Region.TileType.Town;
                             createManagerBasedOnTown(ref worldData, worldData.Towns.Count - 1);
                             worldData.Towns[worldData.Towns.Count - 1].setTournament(
-                                createTournamentBasedOnRegion(worldData.Towns[worldData.Towns.Count - 1].RegionLevel, generateDateFromOffset(x + y)));
+                                createTournamentBasedOnRegion(ref worldData, worldData.Towns[worldData.Towns.Count - 1].RegionLevel, generateDateFromOffset(x + y)));
                         }
                     }
                 }

@@ -7,11 +7,15 @@ public class TournamentTest : MonoBehaviour {
 
 	private DataPool worldData;
 
+    List<int> thisWeeksTournaments;
+
 	void Start () {
         worldData = new DataPool();
         WorldBuilderProtocol.createWorld(ref worldData, 220, 220);
 
         worldData.updateBoxerDistribution();
+
+        thisWeeksTournaments = new List<int>();
 
         //foreach (ManagerProtocol mp in worldData.ManagerProtocols){
         //    worldData.Boxers[mp.BoxerIndex].logBoxerStats(mp.Rank);
@@ -22,7 +26,7 @@ public class TournamentTest : MonoBehaviour {
 
     private void weeklyTest()
     {
-        List<int> thisWeeksTournaments = new List<int>();
+        thisWeeksTournaments = new List<int>();
 
         int index = 0;
         foreach (Town town in worldData.Towns)
@@ -193,6 +197,13 @@ public class TournamentTest : MonoBehaviour {
         foreach (TournamentProtocol.Level rank in worldData.Distribution.Keys)
         {
             Debug.Log(rank.ToString() + " - " + worldData.Distribution[rank]);
+        }
+    }
+
+    public void logWeekTournaments(){
+        foreach (int tIndex in thisWeeksTournaments)
+        {
+            Debug.Log(worldData.Towns[tIndex].Location.ToString() + " - " + worldData.Towns[tIndex].Tournament.getDetails());
         }
     }
 
