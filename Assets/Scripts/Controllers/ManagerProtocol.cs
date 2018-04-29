@@ -86,6 +86,10 @@ public class ManagerProtocol
         worldData.Boxers[BoxerIndex].Record.addWinBulk(result.Record.Wins);
         worldData.Boxers[BoxerIndex].Record.addLossBulk(result.Record.Losses);
         worldData.Boxers[BoxerIndex].Record.addTieBulk(result.Record.Ties);
+
+        if (result.QuarterlyWin){
+            currentRanking = (TournamentProtocol.Level)(((int)currentRanking) + 1);
+        }
     }
 
     public bool isBusy()
@@ -156,6 +160,10 @@ public class ManagerProtocol
     public float getManagerELOHistory()
     {
         return archivedManagerELO[0];
+    }
+
+    public string getManagerStats(ref DataPool worldData){
+        return currentManagerELO + " - " + currentRanking + " - " + tournamentPriority + " - " + worldData.Managers[managerIndex].getDetails();
     }
 
     public void logManagerStats(ref DataPool worldData){

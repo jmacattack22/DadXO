@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class TournamentProtocol {
@@ -23,10 +24,9 @@ public class TournamentProtocol {
 	private Dictionary<int, List<Vector2Int>> schedule;
 
     private bool priority;
+    private bool quarterly;
 
-	//TODO Location
-
-	public TournamentProtocol(CalendarDate dt, float topPrize, int size, Level lvl){
+	public TournamentProtocol(CalendarDate dt, float topPrize, int size, Level lvl, bool qtr){
 		managerIndexes = new List<int> ();
 		prizes = new List<float> ();
 		tournamentResults = new Dictionary<int, TournamentResult> ();
@@ -45,12 +45,16 @@ public class TournamentProtocol {
 
 		currentRound = 0;
         priority = false;
+        quarterly = qtr;
 	}
 
 	public void addContestant(int index){
 		if (managerIndexes.Count < size) {
-			managerIndexes.Add (index);
-			tournamentResults.Add (index, new TournamentResult ());
+            if (!managerIndexes.Contains(index))
+            {
+                managerIndexes.Add(index);
+                tournamentResults.Add(index, new TournamentResult());
+            }
 		}
 	}
 
@@ -61,9 +65,10 @@ public class TournamentProtocol {
         }
     }
 
-	public void logResults(){
+	public void logResults(ref DataPool worldData){
+        managerIndexes = managerIndexes.OrderByDescending(x => tournamentResults[x].Record.getWinPercentage()).ToList();
 		foreach (int index in managerIndexes) {
-			Debug.Log (tournamentResults [index].Record.getWinPercentage ());
+            Debug.Log(worldData.ManagerProtocols[index].getManagerStats(ref worldData) + " - " + tournamentResults[index].Record.getWinPercentage());
 		}
 	}
 
@@ -151,9 +156,50 @@ public class TournamentProtocol {
             }  
         }
 
+        rankResults();
+        if (quarterly)
+        {
+            tournamentResults[managerIndexes[0]].wonQuarterly();
+
+            float boxerPercentage = (float) worldData.Distribution[level] / worldData.ManagerProtocols.Count;
+
+            if (boxerPercentage > 0.1f)
+            {
+                tournamentResults[managerIndexes[1]].wonQuarterly();
+
+                if (boxerPercentage > 0.2f && managerIndexes.Count > 2)
+                {
+                    tournamentResults[managerIndexes[2]].wonQuarterly();
+
+                    if (boxerPercentage > 0.3f && managerIndexes.Count > 3)
+                    {
+                        tournamentResults[managerIndexes[3]].wonQuarterly();
+
+                        if (boxerPercentage > 0.4f && managerIndexes.Count > 4)
+                        {
+                            tournamentResults[managerIndexes[4]].wonQuarterly();
+
+                            if (boxerPercentage > 0.5f && managerIndexes.Count > 5)
+                            {
+                                tournamentResults[managerIndexes[5]].wonQuarterly();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         foreach (int index in tournamentResults.Keys){
             worldData.ManagerProtocols[index].completeTournament(ref worldData, tournamentResults[index]);
         }
+    }
+
+    private void rankResults(){
+        managerIndexes = managerIndexes.OrderByDescending(i => countPoints(tournamentResults[i].Record)).ToList();
+    }
+
+    private int countPoints(Record record){
+        return (record.Wins * 2) + record.Ties;
     }
 
 	public bool spaceLeft(){

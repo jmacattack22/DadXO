@@ -155,41 +155,43 @@ public static class WorldBuilderProtocol {
     }
 
     private static void createManagerBasedOnTown(ref DataPool worldData, int townIndex){
-        List<BoxerClass.Type> typeList = BoxerClass.getTypeList();
+        for (int j = 0; j < 2; j++){
+            List<BoxerClass.Type> typeList = BoxerClass.getTypeList();
 
-        Manager manager = new Manager(
-            worldData.generateFirstName(), worldData.generateLastName(), townIndex, Random.Range(145.0f, 225.0f), typeList[Random.Range(0, typeList.Count)]);
-        manager.Record.setELO(getEloFromRegion(worldData.Towns[townIndex].RegionLevel));
-        worldData.Managers.Add(manager);
+            Manager manager = new Manager(
+                worldData.generateFirstName(), worldData.generateLastName(), townIndex, Random.Range(145.0f, 225.0f), typeList[Random.Range(0, typeList.Count)]);
+            manager.Record.setELO(getEloFromRegion(worldData.Towns[townIndex].RegionLevel));
+            worldData.Managers.Add(manager);
 
-        ManagerProtocol mp = new ManagerProtocol(ref worldData, worldData.Managers.Count - 1);
+            ManagerProtocol mp = new ManagerProtocol(ref worldData, worldData.Managers.Count - 1);
 
-        List<Boxer> boxers = WorldBuilderProtocol.generateBoxerRecruits(ref worldData, manager.TownIndex, manager.Record.ELO);
+            List<Boxer> boxers = WorldBuilderProtocol.generateBoxerRecruits(ref worldData, manager.TownIndex, manager.Record.ELO);
 
-        int bIndex = 0;
-        float max = 0.0f;
+            int bIndex = 0;
+            float max = 0.0f;
 
-        for (int i = 0; i < boxers.Count; i++)
-        {
-            float boxerEval = EvaluationProtocol.evaluateBoxer(boxers[i], worldData.Managers[mp.ManagerIndex].Preference);
-
-            if (boxerEval > max)
+            for (int i = 0; i < boxers.Count; i++)
             {
-                max = boxerEval;
-                bIndex = i;
+                float boxerEval = EvaluationProtocol.evaluateBoxer(boxers[i], worldData.Managers[mp.ManagerIndex].Preference);
+
+                if (boxerEval > max)
+                {
+                    max = boxerEval;
+                    bIndex = i;
+                }
             }
+
+            TournamentProtocol.Level boxerLevel = (TournamentProtocol.Level)Random.Range(0, ((int)worldData.Towns[townIndex].RegionLevel) + 1);
+
+            worldData.Boxers.Add(boxers[bIndex]);
+            mp.recruitBoxer(worldData.Boxers.Count - 1);
+            mp.updateELO(ref worldData);
+            mp.upgradeFacilities(ref worldData);
+            mp.setRank(boxerLevel);
+            ageAndDevelop(ref worldData, worldData.Boxers.Count - 1, boxerLevel);
+
+            worldData.ManagerProtocols.Add(mp);
         }
-
-        TournamentProtocol.Level boxerLevel = (TournamentProtocol.Level)Random.Range(0, ((int)worldData.Towns[townIndex].RegionLevel) + 1);
-
-        worldData.Boxers.Add(boxers[bIndex]);
-        mp.recruitBoxer(worldData.Boxers.Count - 1);
-        mp.updateELO(ref worldData);
-        mp.upgradeFacilities(ref worldData);
-        mp.setRank(boxerLevel);
-        ageAndDevelop(ref worldData, worldData.Boxers.Count - 1, boxerLevel);
-
-        worldData.ManagerProtocols.Add(mp);
     }
 
     public static void createRegions(int width, int height, ref DataPool worldData){
@@ -249,7 +251,7 @@ public static class WorldBuilderProtocol {
     }
 
     public static TournamentProtocol createQuarterlyTournament(TournamentProtocol.Level level, CalendarDate date){
-        return new TournamentProtocol(date, getPrizeMoney(level) + 1000.0f, 16, level);
+        return new TournamentProtocol(date, getPrizeMoney(level) + 1000.0f, 16, level, true);
     }
 
     public static TournamentProtocol createTournamentBasedOnRegion(TournamentProtocol.Level regionLevel, CalendarDate date){
@@ -283,40 +285,76 @@ public static class WorldBuilderProtocol {
             tournamentLevel = TournamentProtocol.Level.E;
         }
 
-        return new TournamentProtocol(date, getPrizeMoney(tournamentLevel), getRandomTournamentSize((int)tournamentLevel), tournamentLevel);
+        return new TournamentProtocol(date, getPrizeMoney(tournamentLevel), getRandomTournamentSize((int)tournamentLevel), tournamentLevel, false);
     }
 
     public static void createTowns(
         ref DataPool worldData)
     {
-        bool leftTopRegion = false;
-        bool leftBottomRegion = false;
-        bool rightTopRegion = false;
-        bool rightBottomRegion = false;
+        int eCount = 0;
+        int dCount = 0;
+        int dcCount = 0;
+        int bCount = 0;
+        int eaCount = 0;
+        int baCount = 0;
+        int dcsCount = 0;
 
         for (int x = 10; x < worldData.WorldMap.GetLength(0) - 11; x++){
             for (int y = 10; y < worldData.WorldMap.GetLength(0) - 11; y++){
                 if (worldData.WorldMap[x,y].Equals(Region.TileType.Beach)){
                     if (townAccepatble(new Vector2Int(x,y), ref worldData)){
-                        if (leftTopRegion && x >= 220 && x <= 440 && y >= 220 && y <= 440)
+                        if (eCount < 11 &&
+                            ((x >= 0 && x <= 220 && y >= 220 && y <= 440) || (x >= 0 && x <= 220 && y >= 660 && y <= 880) ||
+                             (x >= 220 && x <= 440 && y >= 0 && y <= 220) || (x >= 220 && x <= 440 && y >= 440 && y <= 660) || (x >= 220 && x <= 440 && y >= 880 && y <= 1100) ||
+                             (x >= 440 && x <= 660 && y >= 220 && y <= 440) || (x >= 440 && x <= 660 && y >= 660 && y <= 880) ||
+                             (x >= 660 && x <= 880 && y >= 0 && y <= 220) || (x >= 660 && x <= 880 && y >= 440 && y <= 660) || (x >= 660 && x <= 880 && y >= 880 && y <= 1100) ||
+                             (x >= 880 && x <= 1100 && y >= 220 && y <= 440) || (x >= 880 && x <= 1100 && y >= 660 && y <= 880)))
                         {
-                            worldData.Capitols.Add(new Capitol(worldData.generateTownName(), new Vector2Int(x, y)));
+                            worldData.Capitols.Add(new Capitol(worldData.generateTownName(), new Vector2Int(x, y), 0));
                             worldData.WorldMap[x, y] = Region.TileType.Town;
+                            eCount++;
+                        } 
+                        else if (dCount < 4 && 
+                                   ((x >= 0 && x <= 220 && y >= 0 && y <= 220) || (x >= 880 && x <= 1100 && y >= 0 && y <= 220) ||
+                                  (x >= 0 && x <= 220 && y >= 880 && y <= 1100) || (x >= 880 && x <= 1100 && y >= 880 && y <= 1100)))
+                        {
+                            worldData.Capitols.Add(new Capitol(worldData.generateTownName(), new Vector2Int(x, y), 1));
+                            worldData.WorldMap[x, y] = Region.TileType.Town;
+                            dCount++;
                         }
-                        else if (leftBottomRegion && x >= 220 && x <= 440 && y >= 660 && y <= 880)
+                        else if (dcCount < 4 &&
+                                   ((x >= 0 && x <= 220 && y >= 440 && y <= 660) || (x >= 440 && x <= 660 && y >= 0 && y <= 220) ||
+                                  (x >= 880 && x <= 1100 && y >= 440 && y <= 660) || (x >= 440 && x <= 660 && y >= 880 && y <= 1100)))
                         {
-                            worldData.Capitols.Add(new Capitol(worldData.generateTownName(), new Vector2Int(x, y)));
+                            worldData.Capitols.Add(new Capitol(worldData.generateTownName(), new Vector2Int(x, y), 2));
                             worldData.WorldMap[x, y] = Region.TileType.Town;
+                            dcCount++;
                         }
-                        else if (rightTopRegion && x >= 660 && x <= 880 && y >= 220 && y <= 440)
+                        else if (bCount < 2 &&
+                                 ((x >= 220 && x <= 440 && y >= 220 && y <= 440) || (x >= 660 && x <= 880 && y >= 220 && y <= 440)))
                         {
-                            worldData.Capitols.Add(new Capitol(worldData.generateTownName(), new Vector2Int(x, y)));
+                            worldData.Capitols.Add(new Capitol(worldData.generateTownName(), new Vector2Int(x, y), 3));
                             worldData.WorldMap[x, y] = Region.TileType.Town;
+                            bCount++;
                         }
-                        else if (rightBottomRegion && x >= 660 && x <= 880 && y >= 660 && y <= 880)
+                        else if (eaCount == 0 && (x >= 440 && x <= 660 && y >= 220 && y <= 440))
                         {
-                            worldData.Capitols.Add(new Capitol(worldData.generateTownName(), new Vector2Int(x, y)));
+                            worldData.Capitols.Add(new Capitol(worldData.generateTownName(), new Vector2Int(x, y), 4));
                             worldData.WorldMap[x, y] = Region.TileType.Town;
+                            eaCount++;
+                        }
+                        else if (baCount < 2 &&
+                                 ((x >= 220 && x <= 440 && y >= 660 && y <= 880) || (x >= 660 && x <= 880 && y >= 660 && y <= 880)))
+                        {
+                            worldData.Capitols.Add(new Capitol(worldData.generateTownName(), new Vector2Int(x, y), 5));
+                            worldData.WorldMap[x, y] = Region.TileType.Town;
+                            baCount++;
+                        }
+                        else if (dcsCount == 0 && x >= 440 && x <= 660 && y <= 440 && x <= 660)
+                        {
+                            worldData.Capitols.Add(new Capitol(worldData.generateTownName(), new Vector2Int(x, y), 6));
+                            worldData.WorldMap[x, y] = Region.TileType.Town;
+                            dcsCount++;
                         }
                         else 
                         {

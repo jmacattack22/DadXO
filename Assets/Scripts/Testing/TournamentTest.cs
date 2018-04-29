@@ -11,18 +11,7 @@ public class TournamentTest : MonoBehaviour {
         worldData = new DataPool();
         WorldBuilderProtocol.createWorld(ref worldData, 220, 220);
 
-        Dictionary<TournamentProtocol.Level, int> dist = new Dictionary<TournamentProtocol.Level, int>();
-
-        foreach (ManagerProtocol mp in worldData.ManagerProtocols){
-            if (!dist.ContainsKey(mp.Rank))
-                dist.Add(mp.Rank, 0);
-
-            dist[mp.Rank] += 1;
-        }
-
-        foreach (TournamentProtocol.Level rank in dist.Keys){
-            Debug.Log(rank.ToString() + " - " + dist[rank]);
-        }
+        worldData.updateBoxerDistribution();
 
         //foreach (ManagerProtocol mp in worldData.ManagerProtocols){
         //    worldData.Boxers[mp.BoxerIndex].logBoxerStats(mp.Rank);
@@ -45,16 +34,27 @@ public class TournamentTest : MonoBehaviour {
             index++;
         }
 
-        if (worldData.Capitols[0].Quarterlies[TournamentProtocol.Level.E].TournamentDate.sameWeek(worldData.Calendar.GetCalendarDate())){
-            foreach (Capitol c in worldData.Capitols){
-                foreach (TournamentProtocol.Level level in c.Quarterlies.Keys){
-                    
+        if ((worldData.Calendar.getWeekOfYear() - 1) % 8 == 0){
+            foreach (Capitol c in worldData.Capitols)
+            {
+                foreach (TournamentProtocol.Level level in c.Quarterlies.Keys)
+                {
+                    List<int> recruits = recruit(level, c.Location, true);
+
+                    for (int i = 0; i < recruits.Count; i++)
+                    {
+                        if (c.Quarterlies[level].spaceLeft())
+                        {
+                            c.Quarterlies[level].addContestant(recruits[i]);
+                            worldData.ManagerProtocols[recruits[i]].attendTournament();
+                        }
+                    }
                 }
             }
         }
 
         foreach (int tIndex in thisWeeksTournaments){
-            List<int> recruits = recruit(worldData.Towns[tIndex].Tournament.TournamentLevel, worldData.Towns[tIndex].Location);
+            List<int> recruits = recruit(worldData.Towns[tIndex].Tournament.TournamentLevel, worldData.Towns[tIndex].Location, false);
 
             for (int i = 0; i < recruits.Count; i++){
                 if (worldData.Towns[tIndex].Tournament.spaceLeft()){
@@ -70,10 +70,33 @@ public class TournamentTest : MonoBehaviour {
             mp.executeWeek(ref worldData);
         }
 
+        if ((worldData.Calendar.getWeekOfYear() - 1) % 8 == 0)
+        {
+            foreach (Capitol c in worldData.Capitols)
+            {
+                foreach (TournamentProtocol.Level level in c.Quarterlies.Keys)
+                {
+                    if (c.Quarterlies[level].Attendees > 2)
+                    {
+                        //Debug.Log(c.Location.ToString() + " - " + c.Quarterlies[level].getDetails());
+                        c.Quarterlies[level].scheduleTournament();
+                        c.Quarterlies[level].SimWholeTournament(ref worldData);
+                        //c.Quarterlies[level].logResults(ref worldData);
+                    } else {
+                        c.Quarterlies[level].cancelTournament(ref worldData);
+                    }
+
+                    c.Quarterlies[level].refreshTournament(true);
+                }
+            }
+            //worldData.updateBoxerDistribution();
+            //distribution();
+        }
+
         foreach (int tIndex in thisWeeksTournaments)
         {
             if (worldData.Towns[tIndex].Tournament.Attendees > 2){
-                Debug.Log(worldData.Towns[tIndex].Location.ToString() + " - " + worldData.Towns[tIndex].Tournament.getDetails());
+                //Debug.Log(worldData.Towns[tIndex].Location.ToString() + " - " + worldData.Towns[tIndex].Tournament.getDetails());
                 worldData.Towns[tIndex].Tournament.scheduleTournament();
                 worldData.Towns[tIndex].Tournament.SimWholeTournament(ref worldData);
             } else {
@@ -84,7 +107,7 @@ public class TournamentTest : MonoBehaviour {
         }
     }
 
-    private List<int> recruit(TournamentProtocol.Level level, Vector2Int p1){
+    private List<int> recruit(TournamentProtocol.Level level, Vector2Int p1, bool highestRated){
         List<int> potentialRecruits = new List<int>();
 
         int index = 0;
@@ -94,14 +117,26 @@ public class TournamentTest : MonoBehaviour {
 
             float distance = Mathf.Sqrt(Mathf.Pow((p2.x - p1.x), 2) + Mathf.Pow((p2.y - p1.y), 2));
 
-            if (distance < getDistanceFromLevel(level) && mp.Rank.Equals(level) && !mp.isBusy())
-                potentialRecruits.Add(index);
+            if (level.Equals(TournamentProtocol.Level.S))
+            {
+                if (mp.Rank.Equals(level) && !mp.isBusy())
+                    potentialRecruits.Add(index);
+            }
+            else
+            {
+                if (distance < getDistanceFromLevel(level) && mp.Rank.Equals(level) && !mp.isBusy())
+                    potentialRecruits.Add(index);
+            }
 
             index++;
         }
 
         //potentialRecruits.Shuffle();
-        potentialRecruits.OrderByDescending(t => worldData.ManagerProtocols[t].TournamentPriority);
+        if (highestRated)
+            potentialRecruits.OrderByDescending(t => EvaluationProtocol.evaluateBoxer(worldData.Boxers[t]));
+        else
+            potentialRecruits.OrderByDescending(t => worldData.ManagerProtocols[t].TournamentPriority);
+        
         return potentialRecruits;
     }
 
@@ -120,17 +155,17 @@ public class TournamentTest : MonoBehaviour {
 
     private float getDistanceFromLevel(TournamentProtocol.Level level){
         if (level.Equals(TournamentProtocol.Level.S))
-            return 1000.0f;
+            return 1200.0f;
         else if (level.Equals(TournamentProtocol.Level.A))
-            return 700.0f;
+            return 900.0f;
         else if (level.Equals(TournamentProtocol.Level.B))
-            return 400.0f;
+            return 800.0f;
         else if (level.Equals(TournamentProtocol.Level.C))
-            return 300.0f;
+            return 700.0f;
         else if (level.Equals(TournamentProtocol.Level.D))
-            return 300.0f;
+            return 700.0f;
         else if (level.Equals(TournamentProtocol.Level.E))
-            return 350.0f;
+            return 700.0f;
 
         return 1200.0f;
     }
@@ -139,6 +174,26 @@ public class TournamentTest : MonoBehaviour {
         worldData.Calendar.progessWeek();
         Debug.Log(worldData.Calendar.getDate(Calendar.DateType.fullLong));
         weeklyTest();
+        worldData.updateBoxerDistribution();
+    }
+
+    public void progressFourYears(){
+
+        for (int i = 0; i < 4; i++){
+            for (int w = 0; w < 48; w++){
+                worldData.Calendar.progessWeek();
+                Debug.Log(worldData.Calendar.getDate(Calendar.DateType.fullLong));
+                weeklyTest();
+                worldData.updateBoxerDistribution();
+            }
+        }
+    }
+
+    public void distribution(){
+        foreach (TournamentProtocol.Level rank in worldData.Distribution.Keys)
+        {
+            Debug.Log(rank.ToString() + " - " + worldData.Distribution[rank]);
+        }
     }
 
     private void pollTest(){

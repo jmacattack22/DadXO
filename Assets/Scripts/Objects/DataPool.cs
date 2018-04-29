@@ -24,6 +24,8 @@ public class DataPool {
 
     Region.TileType[,] worldMap;
 
+    private Dictionary<TournamentProtocol.Level, int> distribution;
+
 	public DataPool(){
 		boxers = new List<Boxer> ();
 		managers = new List<Manager> ();
@@ -119,6 +121,18 @@ public class DataPool {
         this.worldMap = worldMap;
     }
 
+    public void updateBoxerDistribution(){
+        distribution = new Dictionary<TournamentProtocol.Level, int>();
+
+        foreach (ManagerProtocol mp in ManagerProtocols)
+        {
+            if (!distribution.ContainsKey(mp.Rank))
+                distribution.Add(mp.Rank, 0);
+
+            distribution[mp.Rank] += 1;
+        }
+    }
+
 	//Getters
 	public List<Boxer> Boxers {
 		get { return boxers; }
@@ -158,5 +172,9 @@ public class DataPool {
 
     public Region.TileType[,] WorldMap {
         get { return worldMap; }
+    }
+
+    public Dictionary<TournamentProtocol.Level, int> Distribution {
+        get { return distribution; }
     }
 }

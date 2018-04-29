@@ -26,6 +26,29 @@ public static class EvaluationProtocol
 		2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 7, 8, 9, 10, 11, 12, 13, 13, 14, 14, 15, 15, 16, 16, 16, 16, 16
 	});
 
+    public static float evaluateBoxer(Boxer boxer)
+    {
+        Dictionary<Stats, int> bestStats = identifyBestStats(boxer);
+
+        float average = (float)(bestStats.Values.Sum() / 3.0f);
+
+        int lower = Mathf.RoundToInt((average - (average % 5.0f)) / 5.0f);
+        int higher = Mathf.RoundToInt((average - (average % 5.0f)) / 5.0f) + 1;
+
+        lower = lower < 0 ? 0 : lower;
+        higher = higher < 0 ? 0 : higher;
+
+        float statValueLower = statValueCurve[lower];
+        float statValueHigher = statValueCurve[higher];
+
+        float distance = (average % 5.0f) / 5.0f;
+
+        float overallBooster = boxer.getOverall() / 990.0f;
+        float recordBooster = boxer.Record.getWinPercentage() * 0.2f;
+
+        return ((statValueLower * distance) + (statValueHigher * (1.0f - distance))) + (overallBooster + recordBooster);
+    }
+
 	public static float evaluateBoxer(Boxer boxer, BoxerClass.Type type){
 		Dictionary<Stats, int> bestStats = identifyBestStats (boxer);
 
