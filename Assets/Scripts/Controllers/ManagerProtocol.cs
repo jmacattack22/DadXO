@@ -31,6 +31,7 @@ public class ManagerProtocol
     //TODO Match Class
     public List<int> previousOpponents;
 
+    private int tournamentCount;
     private int tournamentPriority;
 
     private TournamentProtocol.Level currentRanking;
@@ -55,6 +56,7 @@ public class ManagerProtocol
 
         previousOpponents = new List<int>();
 
+        tournamentCount = 0;
         tournamentPriority = 0;
     }
 
@@ -62,7 +64,7 @@ public class ManagerProtocol
     {
         atTournament = true;
 
-        tournamentPriority = tournamentPriority - 2 < 0 ? 0 : tournamentPriority - 2;
+        tournamentPriority = tournamentPriority - 2;// < 0 ? 0 : tournamentPriority - 2;
     }
 
     public void backOutOfTournament(){
@@ -90,6 +92,7 @@ public class ManagerProtocol
         if (result.QuarterlyWin){
             currentRanking = (TournamentProtocol.Level)(((int)currentRanking) + 1);
         }
+        tournamentCount++;
     }
 
     public bool isBusy()
@@ -167,7 +170,7 @@ public class ManagerProtocol
     }
 
     public void logManagerStats(ref DataPool worldData){
-        Debug.Log(currentManagerELO + " - " + currentRanking + " - " + tournamentPriority + " - " + worldData.Managers[managerIndex].getDetails());
+        Debug.Log(currentManagerELO + " - " + currentRanking + " - " + tournamentPriority + " - " + worldData.Managers[managerIndex].getDetails() + " - " + tournamentCount);
     }
 
     public void setRank(TournamentProtocol.Level rank)

@@ -137,9 +137,9 @@ public class TournamentTest : MonoBehaviour {
 
         //potentialRecruits.Shuffle();
         if (highestRated)
-            potentialRecruits.OrderByDescending(t => EvaluationProtocol.evaluateBoxer(worldData.Boxers[t]));
+            potentialRecruits = potentialRecruits.OrderByDescending(t => EvaluationProtocol.evaluateBoxer(worldData.Boxers[t])).ToList();
         else
-            potentialRecruits.OrderByDescending(t => worldData.ManagerProtocols[t].TournamentPriority);
+            potentialRecruits = potentialRecruits.OrderByDescending(t => worldData.ManagerProtocols[t].TournamentPriority).ToList();
         
         return potentialRecruits;
     }
