@@ -135,7 +135,6 @@ public class TournamentTest : MonoBehaviour {
             index++;
         }
 
-        //potentialRecruits.Shuffle();
         if (highestRated)
             potentialRecruits = potentialRecruits.OrderByDescending(t => EvaluationProtocol.evaluateBoxer(worldData.Boxers[t])).ToList();
         else
