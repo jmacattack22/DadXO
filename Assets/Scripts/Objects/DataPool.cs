@@ -24,7 +24,8 @@ public class DataPool {
 
 	private Calendar calendar;
 
-    Region.TileType[,] worldMap;
+    private Dijkstras dijkstras;
+    private List<Region> regions;
 
     private Dictionary<TournamentProtocol.Level, int> distribution;
 
@@ -46,6 +47,9 @@ public class DataPool {
         backTournamentNames = new List<string>();
 
 		calendar = new Calendar ();
+
+        dijkstras = new Dijkstras();
+        regions = new List<Region>();
 
         loadNameData();
 	}
@@ -116,19 +120,19 @@ public class DataPool {
         string lastNameContents = "";
         string townNameContents = "";
 
-        using (StreamReader reader = new StreamReader("Assets/Resources/FirstNames.txt")){
+        using (StreamReader reader = new StreamReader("Assets/Resources/SourceMaterial/FirstNames.txt")){
             firstNameContents = reader.ReadToEnd();
         } 
 
-        using (StreamReader reader = new StreamReader("Assets/Resources/LastNames.txt")){
+        using (StreamReader reader = new StreamReader("Assets/Resources/SourceMaterial/LastNames.txt")){
             lastNameContents = reader.ReadToEnd();
         } 
 
-        using (StreamReader reader = new StreamReader("Assets/Resources/Places.txt")){
+        using (StreamReader reader = new StreamReader("Assets/Resources/SourceMaterial/Places.txt")){
             townNameContents = reader.ReadToEnd();
         }
 
-        using (StreamReader reader = new StreamReader("Assets/Resources/TournamentNames.txt"))
+        using (StreamReader reader = new StreamReader("Assets/Resources/SourceMaterial/TournamentNames.txt"))
         {
             string line;
             while ((line = reader.ReadLine()) != null)
@@ -143,10 +147,6 @@ public class DataPool {
         townNames = townNameContents.Split(';').ToList();
     }
 
-    public void setWorldMap(Region.TileType[,] worldMap){
-        this.worldMap = worldMap;
-    }
-
     public void updateBoxerDistribution(){
         distribution = new Dictionary<TournamentProtocol.Level, int>();
 
@@ -159,7 +159,34 @@ public class DataPool {
         }
     }
 
-	//Getters
+    public void updateDijkstras(){
+        dijkstras.clearVertices();
+        foreach (Region r in regions){
+            Dictionary<Vector2Int, int> edges = new Dictionary<Vector2Int, int>();
+            foreach (Region s in regions){
+                if (isAdjacent(r.Position, s.Position)){
+                    edges.Add(s.Position, 1);
+                }
+            }
+
+            dijkstras.addVertex(r.Position, edges);
+        }
+    }
+
+	private bool isAdjacent(Vector2Int pos1, Vector2Int pos2)
+    {
+        Vector2Int above = new Vector2Int(pos1.x, pos1.y + 1);
+        Vector2Int below = new Vector2Int(pos1.x, pos1.y - 1);
+        Vector2Int left = new Vector2Int(pos1.x - 1, pos1.y);
+        Vector2Int right = new Vector2Int(pos1.x + 1, pos1.y);
+
+        if (pos2.Equals(above) || pos2.Equals(below) || pos2.Equals(left) || pos2.Equals(right))
+            return true;
+
+        return false;
+    }
+
+    //Getters
 	public List<Boxer> Boxers {
 		get { return boxers; }
 	}
@@ -184,6 +211,10 @@ public class DataPool {
         get { return towns; }
     }
 
+    public List<Region> Regions {
+        get { return regions; }
+    }
+
     public List<string> FirstNames {
         get { return firstNames; }
     }
@@ -200,11 +231,11 @@ public class DataPool {
         get { return tournamentNames; }
     }
 
-    public Region.TileType[,] WorldMap {
-        get { return worldMap; }
-    }
-
     public Dictionary<TournamentProtocol.Level, int> Distribution {
         get { return distribution; }
+    }
+
+    public Dijkstras Dijkstras {
+        get { return dijkstras; }
     }
 }

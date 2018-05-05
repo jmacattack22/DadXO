@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-public static class Region
+public static class RegionCreator
 {
     public enum TileType
     {
@@ -58,8 +58,9 @@ public static class Region
         List<Vector2> gradientPoints = new List<Vector2>();
 
         //Choose gradient points to build island peaks
-        gradientPoints.Add(new Vector2(90, 90));
-        gradientPoints.Add(new Vector2(125, 125));
+        gradientPoints.Add(new Vector2(70, 70));
+        gradientPoints.Add(new Vector2(100, 100));
+        gradientPoints.Add(new Vector2(110, 80));
         //gradientPoints.Add(new Vector2(225, 175));
         //gradientPoints.Add(new Vector2(175, 125));
         //gradientPoints.Add(new Vector2(175, 225));

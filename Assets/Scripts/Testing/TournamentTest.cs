@@ -12,7 +12,6 @@ public class TournamentTest : MonoBehaviour {
 	void Start () {
         worldData = new DataPool();
         WorldBuilderProtocol.createWorld(ref worldData, 220, 220);
-
         worldData.updateBoxerDistribution();
 
         thisWeeksTournaments = new List<int>();

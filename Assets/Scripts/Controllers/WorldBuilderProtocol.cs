@@ -59,103 +59,102 @@ public static class WorldBuilderProtocol {
         worldData.Boxers[index].cutLife(Mathf.RoundToInt(worldData.Boxers[index].WeeksRemaining * (agePercentage / 100.0f)));
     }
 
-	public static Boxer createBoxerBasedOnFame(string firstName, string lastName, int townIndex, float elo, WeightClass.WClass wClass){
-		int pointsToGive = EvaluationProtocol.getBoxerPointsFromFame (elo);
+    public static Boxer createBoxerBasedOnFame(string firstName, string lastName, int townIndex, float elo, WeightClass.WClass wClass)
+    {
+        int pointsToGive = EvaluationProtocol.getBoxerPointsFromFame(elo);
 
-		int badStatRates = Mathf.RoundToInt ((pointsToGive / 3) / 2);
-		badStatRates = badStatRates < 1 ? 1 : badStatRates;
+        int badStatRates = Mathf.RoundToInt((pointsToGive / 3) / 2);
+        badStatRates = badStatRates < 1 ? 1 : badStatRates;
 
-		List<BoxerClass.Type> possibleClasses = BoxerClass.getClassesBasedOnWeight (wClass);
+        List<BoxerClass.Type> possibleClasses = BoxerClass.getClassesBasedOnWeight(wClass);
 
-		List<EvaluationProtocol.Stats> stats = new List<EvaluationProtocol.Stats> (new EvaluationProtocol.Stats[] {
-			EvaluationProtocol.Stats.AccuracyGrowth, EvaluationProtocol.Stats.EnduranceGrowth, EvaluationProtocol.Stats.HealthGrowth,
-			EvaluationProtocol.Stats.SpeedGrowth, EvaluationProtocol.Stats.StrengthGrowth
-		});
+        List<EvaluationProtocol.Stats> stats = new List<EvaluationProtocol.Stats>(new EvaluationProtocol.Stats[] {
+            EvaluationProtocol.Stats.AccuracyGrowth, EvaluationProtocol.Stats.EnduranceGrowth, EvaluationProtocol.Stats.HealthGrowth,
+            EvaluationProtocol.Stats.SpeedGrowth, EvaluationProtocol.Stats.StrengthGrowth
+        });
 
-		Dictionary<EvaluationProtocol.Stats, int> growthRates = new Dictionary<EvaluationProtocol.Stats, int> ();
-		Dictionary<EvaluationProtocol.Stats, int> statValues = new Dictionary<EvaluationProtocol.Stats, int> ();
+        Dictionary<EvaluationProtocol.Stats, int> growthRates = new Dictionary<EvaluationProtocol.Stats, int>();
+        Dictionary<EvaluationProtocol.Stats, int> statValues = new Dictionary<EvaluationProtocol.Stats, int>();
 
-		foreach (EvaluationProtocol.Stats stat in stats) {
-			growthRates.Add (stat, badStatRates);
-		}
-
-		BoxerClass.Type bClass = possibleClasses [Random.Range (0, possibleClasses.Count)];
-
-		List<EvaluationProtocol.Stats> bestStats = BoxerClass.getBuild (bClass);
-
-		for (int i = 0; i < 3; i++) {
-			int baseStat = Mathf.RoundToInt (pointsToGive / (3 - i));
-
-			if (pointsToGive > 1) {
-				baseStat = Random.Range (baseStat - 1, baseStat + 2);
-				baseStat = baseStat < 1 ? 1 : baseStat;
-				baseStat = baseStat > 10 ? 10 : baseStat;
-				baseStat = (pointsToGive - baseStat) < 2 ? baseStat - 1 : baseStat;
-				baseStat = baseStat < 1 ? 1 : baseStat;
-			} else
-				baseStat = pointsToGive;
-
-
-			EvaluationProtocol.Stats stat = bestStats [Random.Range (0, bestStats.Count)];
-
-			growthRates [stat] = baseStat;
-			bestStats.RemoveAt (bestStats.IndexOf (stat));
-			pointsToGive -= baseStat;
-		}
-
-		int acc = EvaluationProtocol.getStatValueFromGrowthRate (growthRates [EvaluationProtocol.Stats.AccuracyGrowth]);
-		int end = EvaluationProtocol.getStatValueFromGrowthRate (growthRates [EvaluationProtocol.Stats.EnduranceGrowth]);
-		int hlt = EvaluationProtocol.getStatValueFromGrowthRate (growthRates [EvaluationProtocol.Stats.HealthGrowth]);
-		int spd = EvaluationProtocol.getStatValueFromGrowthRate (growthRates [EvaluationProtocol.Stats.SpeedGrowth]);
-		int str = EvaluationProtocol.getStatValueFromGrowthRate (growthRates [EvaluationProtocol.Stats.StrengthGrowth]);
-
-		statValues.Add(EvaluationProtocol.Stats.Accuracy, Random.Range(acc - 4, acc + 4));
-		statValues.Add(EvaluationProtocol.Stats.Endurance, Random.Range(end - 4, end + 4));
-		statValues.Add(EvaluationProtocol.Stats.Health, Random.Range(hlt - 4, hlt + 4));
-		statValues.Add(EvaluationProtocol.Stats.Speed, Random.Range(spd - 4, spd + 4));
-		statValues.Add(EvaluationProtocol.Stats.Strength, Random.Range(str - 4, str + 4));
-
-		return new Boxer (
-			new Vector2Int(0,1), firstName, lastName, townIndex, generateWeightFromClass(wClass), bClass,
-			statValues [EvaluationProtocol.Stats.Accuracy], growthRates [EvaluationProtocol.Stats.AccuracyGrowth],
-			statValues [EvaluationProtocol.Stats.Endurance], growthRates [EvaluationProtocol.Stats.EnduranceGrowth],
-			statValues [EvaluationProtocol.Stats.Health], growthRates [EvaluationProtocol.Stats.HealthGrowth],
-			statValues [EvaluationProtocol.Stats.Speed], growthRates [EvaluationProtocol.Stats.SpeedGrowth],
-			statValues [EvaluationProtocol.Stats.Strength], growthRates [EvaluationProtocol.Stats.StrengthGrowth]);
-
-	}
-
-    private static float getEloFromRegion(TournamentProtocol.Level rank){
-        if (rank.Equals(TournamentProtocol.Level.E))
+        foreach (EvaluationProtocol.Stats stat in stats)
         {
-            return Random.Range(1.0f, 375.0f);
-        } 
-        else if (rank.Equals(TournamentProtocol.Level.D))
-        {
-            return Random.Range(350.0f, 750.0f);
-        } 
-        else if (rank.Equals(TournamentProtocol.Level.C))
-        {
-            return Random.Range(750.0f, 1125.0f);
-        } 
-        else if (rank.Equals(TournamentProtocol.Level.B))
-        {
-            return Random.Range(1125.0f, 1500.0f);
-        } 
-        else if (rank.Equals(TournamentProtocol.Level.A))
-        {
-            return Random.Range(1500.0f, 1875.0f);
-        }
-        else if (rank.Equals(TournamentProtocol.Level.S))
-        {
-            return Random.Range(1875.0f, 2250.0f);
+            growthRates.Add(stat, badStatRates);
         }
 
-        return Random.Range(2250.0f, 2450.0f);
+        BoxerClass.Type bClass = possibleClasses[Random.Range(0, possibleClasses.Count)];
+
+        List<EvaluationProtocol.Stats> bestStats = BoxerClass.getBuild(bClass);
+
+        for (int i = 0; i < 3; i++)
+        {
+            int baseStat = Mathf.RoundToInt(pointsToGive / (3 - i));
+
+            if (pointsToGive > 1)
+            {
+                baseStat = Random.Range(baseStat - 1, baseStat + 2);
+                baseStat = baseStat < 1 ? 1 : baseStat;
+                baseStat = baseStat > 10 ? 10 : baseStat;
+                baseStat = (pointsToGive - baseStat) < 2 ? baseStat - 1 : baseStat;
+                baseStat = baseStat < 1 ? 1 : baseStat;
+            }
+            else
+                baseStat = pointsToGive;
+
+
+            EvaluationProtocol.Stats stat = bestStats[Random.Range(0, bestStats.Count)];
+
+            growthRates[stat] = baseStat;
+            bestStats.RemoveAt(bestStats.IndexOf(stat));
+            pointsToGive -= baseStat;
+        }
+
+        int acc = EvaluationProtocol.getStatValueFromGrowthRate(growthRates[EvaluationProtocol.Stats.AccuracyGrowth]);
+        int end = EvaluationProtocol.getStatValueFromGrowthRate(growthRates[EvaluationProtocol.Stats.EnduranceGrowth]);
+        int hlt = EvaluationProtocol.getStatValueFromGrowthRate(growthRates[EvaluationProtocol.Stats.HealthGrowth]);
+        int spd = EvaluationProtocol.getStatValueFromGrowthRate(growthRates[EvaluationProtocol.Stats.SpeedGrowth]);
+        int str = EvaluationProtocol.getStatValueFromGrowthRate(growthRates[EvaluationProtocol.Stats.StrengthGrowth]);
+
+        statValues.Add(EvaluationProtocol.Stats.Accuracy, Random.Range(acc - 4, acc + 4));
+        statValues.Add(EvaluationProtocol.Stats.Endurance, Random.Range(end - 4, end + 4));
+        statValues.Add(EvaluationProtocol.Stats.Health, Random.Range(hlt - 4, hlt + 4));
+        statValues.Add(EvaluationProtocol.Stats.Speed, Random.Range(spd - 4, spd + 4));
+        statValues.Add(EvaluationProtocol.Stats.Strength, Random.Range(str - 4, str + 4));
+
+        return new Boxer(
+            new Vector2Int(0, 1), firstName, lastName, townIndex, generateWeightFromClass(wClass), bClass,
+            statValues[EvaluationProtocol.Stats.Accuracy], growthRates[EvaluationProtocol.Stats.AccuracyGrowth],
+            statValues[EvaluationProtocol.Stats.Endurance], growthRates[EvaluationProtocol.Stats.EnduranceGrowth],
+            statValues[EvaluationProtocol.Stats.Health], growthRates[EvaluationProtocol.Stats.HealthGrowth],
+            statValues[EvaluationProtocol.Stats.Speed], growthRates[EvaluationProtocol.Stats.SpeedGrowth],
+            statValues[EvaluationProtocol.Stats.Strength], growthRates[EvaluationProtocol.Stats.StrengthGrowth]);
+
     }
 
-    private static void createManagerBasedOnTown(ref DataPool worldData, int townIndex){
-        for (int j = 0; j < 2; j++){
+    private static void createCapitol(ref DataPool worldData, int regionIndex)
+    {
+        bool capitolCreated = false;
+        for (int x = 10; x < worldData.Regions[regionIndex].Map.GetLength(0) - 11; x++)
+        {
+            for (int y = 10; y < worldData.Regions[regionIndex].Map.GetLength(0) - 11; y++)
+            {
+                if (worldData.Regions[regionIndex].Map[x, y].Equals(RegionCreator.TileType.Beach))
+                {
+                    if (blueHit(new Vector2Int(x, y), worldData.Regions[regionIndex].Map) && Random.Range(0, 100) < 35 && !capitolCreated)
+                    {
+                        int regionDistance = Mathf.Abs(worldData.Regions[regionIndex].Position.x) + Mathf.Abs(worldData.Regions[regionIndex].Position.y);
+                        worldData.Capitols.Add(new Capitol(worldData.generateTownName(), new Vector2Int(x, y), regionDistance));
+                        worldData.Regions[regionIndex].addCapitol(worldData.Capitols.Count - 1);
+                        capitolCreated = true;
+                    }
+                }
+            }
+        }
+    }
+
+    private static void createManagerBasedOnTown(ref DataPool worldData, int townIndex)
+    {
+        for (int j = 0; j < 2; j++)
+        {
             List<BoxerClass.Type> typeList = BoxerClass.getTypeList();
 
             Manager manager = new Manager(
@@ -194,60 +193,96 @@ public static class WorldBuilderProtocol {
         }
     }
 
+    public static void createRegion(ref DataPool worldData, int width, int height, Vector2Int position){
+        Region origin = new Region("", position);
+        RegionCreator.TileType[,] originMap = RegionCreator.CreateRegion(width, height);
+        origin.addWorldMap(originMap);
+        worldData.Regions.Add(origin);
+    }
+
     public static void createRegions(int width, int height, ref DataPool worldData){
-        Region.TileType[,] worldMap = new Region.TileType[width * 5, height * 5];
         List<int> landMass = new List<int>();
 
-        for (int i = 0; i < 5; i++){
-            for (int j = 0; j < 5; j++){
-                Region.TileType[,] map = Region.CreateRegion(width, height);
-                landMass.Add(Region.calculateLandMass(width, height, ref map));
-
-                for (int x = 0; x < width; x++){
-                    for (int y = 0; y < height; y++){
-                        worldMap[x + (width * i), y + (height * j)] = map[x, y];
-                    }
-                }
-            }
-        }
-
-        worldData.setWorldMap(worldMap);
-        createTowns(ref worldData);
-
-        Dictionary<TournamentProtocol.Level, int> townByRegion = new Dictionary<TournamentProtocol.Level, int>();
-
-        foreach (Town t in worldData.Towns){
-            if (!townByRegion.ContainsKey(t.RegionLevel))
-                townByRegion.Add(t.RegionLevel, 0);
-
-            townByRegion[t.RegionLevel] += 1;
-        }
-
-        using (StreamWriter writer =
-            new StreamWriter("important.txt"))
-        {
-            writer.WriteLine(worldData.Towns.Count);
-            foreach (int mass in landMass){
-                writer.Write(mass + ",");
-            }
-            writer.Write("\n");
-            foreach (TournamentProtocol.Level r in townByRegion.Keys){
-                writer.WriteLine(r.ToString() + " - " + townByRegion[r].ToString());
-            }
-
-            for (int x = 0; x < worldMap.GetLength(0); x++){
-                for (int y = 0; y < worldMap.GetLength(0); y++){
-                    writer.Write((int)worldMap[x, y]);
-                }
-                writer.Write("\n");
-            }
-        }
-
-        //foreach (Town t in worldData.Towns){
-        //    if (t.Tournament.TournamentLevel.Equals(TournamentProtocol.Level.E)){
-        //        Debug.Log(t.Location.ToString() + " - " + t.Tournament.getDetails());
+        createRegion(ref worldData, width, height, new Vector2Int(0, 0));
+        //createRegion(ref worldData, width, height, new Vector2Int(0, 1));
+        //createRegion(ref worldData, width, height, new Vector2Int(0, -1));
+        //createRegion(ref worldData, width, height, new Vector2Int(-1, 0));
+        //createRegion(ref worldData, width, height, new Vector2Int(1, 0));
+        //Dictionary<int, Vector2Int> newRegions = new Dictionary<int, Vector2Int>();
+        //newRegions.Add(0, new Vector2Int(0, 1));
+        //newRegions.Add(1, new Vector2Int(0, -1));
+        //newRegions.Add(2, new Vector2Int(-1, 0));
+        //newRegions.Add(3, new Vector2Int(1, 0));
+        //Dictionary<int, int> mulligans = new Dictionary<int, int>();
+        //mulligans.Add(0, 3);
+        //mulligans.Add(1, 3);
+        //mulligans.Add(2, 3);
+        //mulligans.Add(3, 3);
+        //int zeroMulliganCount = 4;
+        //while (zeroMulliganCount > 0){
+        //    zeroMulliganCount = 4;
+        //    for (int i = 0; i < 4; i++)
+        //    {
+        //        if (mulligans[i] > 0)
+        //        {
+        //            List<Vector2Int> directions = getDirections(newRegions[i]);
+        //            Vector2Int moveTo = directions[Random.Range(0, directions.Count)];
+        //            if (!doesRegionExistAt(ref worldData, moveTo))
+        //            {
+        //                newRegions[i] = moveTo;
+        //                createRegion(ref worldData, width, height, moveTo);
+        //            }
+        //            else
+        //            {
+        //                mulligans[i]--;
+        //            }
+        //        } else {
+        //            zeroMulliganCount--;
+        //        }
         //    }
         //}
+
+        List<int> newlyCreatedRegionIndexes = new List<int>();
+        newlyCreatedRegionIndexes.Add(0);
+
+        int regionCount = 0;
+
+        List<int> temporaryNewIndexes = new List<int>();
+
+        while (regionCount < 30){
+            temporaryNewIndexes = new List<int>();
+            foreach (int index in newlyCreatedRegionIndexes){
+                List<Vector2Int> newRegionsToAdd = getAdjacents(ref worldData, worldData.Regions[index].Position);
+
+                if (newRegionsToAdd.Count > 0){
+                    foreach (Vector2Int pos in newRegionsToAdd)
+                    {
+                        createRegion(ref worldData, width, height, pos);
+                        temporaryNewIndexes.Add(worldData.Regions.Count - 1);
+                        regionCount++;
+                    }
+                } else {
+                    temporaryNewIndexes.Add(index);
+                }
+            }
+
+            newlyCreatedRegionIndexes = temporaryNewIndexes;
+        }
+
+        worldData.updateDijkstras();
+
+        for (int i = 0; i < worldData.Regions.Count; i++){
+            createCapitol(ref worldData, i);
+            createTowns(ref worldData, i);
+        }
+
+        foreach (Region region in worldData.Regions){
+            Dictionary<TournamentProtocol.Level, bool> qualifierMap = generateQualifierMap(ref worldData, region.Position);
+
+            worldData.Capitols[region.CapitolIndex].setupQualifier(qualifierMap);
+        }
+
+        //createTowns(ref worldData);
     }
 
     public static TournamentProtocol createQuarterlyTournament(TournamentProtocol.Level level, CalendarDate date){
@@ -288,86 +323,38 @@ public static class WorldBuilderProtocol {
         return new TournamentProtocol(worldData.generateTournamentName() + " Cup", date, getPrizeMoney(tournamentLevel), getRandomTournamentSize((int)tournamentLevel), tournamentLevel, false);
     }
 
-    public static void createTowns(
-        ref DataPool worldData)
-    {
-        int eCount = 0;
-        int dCount = 0;
-        int dcCount = 0;
-        int bCount = 0;
-        int eaCount = 0;
-        int baCount = 0;
-        int dcsCount = 0;
-
-        for (int x = 10; x < worldData.WorldMap.GetLength(0) - 11; x++){
-            for (int y = 10; y < worldData.WorldMap.GetLength(0) - 11; y++){
-                if (worldData.WorldMap[x,y].Equals(Region.TileType.Beach)){
-                    if (townAccepatble(new Vector2Int(x,y), ref worldData)){
-                        if (eCount < 11 &&
-                            ((x >= 0 && x <= 220 && y >= 220 && y <= 440) || (x >= 0 && x <= 220 && y >= 660 && y <= 880) ||
-                             (x >= 220 && x <= 440 && y >= 0 && y <= 220) || (x >= 220 && x <= 440 && y >= 440 && y <= 660) || (x >= 220 && x <= 440 && y >= 880 && y <= 1100) ||
-                             (x >= 440 && x <= 660 && y >= 220 && y <= 440) || (x >= 440 && x <= 660 && y >= 660 && y <= 880) ||
-                             (x >= 660 && x <= 880 && y >= 0 && y <= 220) || (x >= 660 && x <= 880 && y >= 440 && y <= 660) || (x >= 660 && x <= 880 && y >= 880 && y <= 1100) ||
-                             (x >= 880 && x <= 1100 && y >= 220 && y <= 440) || (x >= 880 && x <= 1100 && y >= 660 && y <= 880)))
-                        {
-                            worldData.Capitols.Add(new Capitol(worldData.generateTownName(), new Vector2Int(x, y), 0));
-                            worldData.WorldMap[x, y] = Region.TileType.Town;
-                            eCount++;
-                        } 
-                        else if (dCount < 4 && 
-                                   ((x >= 0 && x <= 220 && y >= 0 && y <= 220) || (x >= 880 && x <= 1100 && y >= 0 && y <= 220) ||
-                                  (x >= 0 && x <= 220 && y >= 880 && y <= 1100) || (x >= 880 && x <= 1100 && y >= 880 && y <= 1100)))
-                        {
-                            worldData.Capitols.Add(new Capitol(worldData.generateTownName(), new Vector2Int(x, y), 1));
-                            worldData.WorldMap[x, y] = Region.TileType.Town;
-                            dCount++;
-                        }
-                        else if (dcCount < 4 &&
-                                   ((x >= 0 && x <= 220 && y >= 440 && y <= 660) || (x >= 440 && x <= 660 && y >= 0 && y <= 220) ||
-                                  (x >= 880 && x <= 1100 && y >= 440 && y <= 660) || (x >= 440 && x <= 660 && y >= 880 && y <= 1100)))
-                        {
-                            worldData.Capitols.Add(new Capitol(worldData.generateTownName(), new Vector2Int(x, y), 2));
-                            worldData.WorldMap[x, y] = Region.TileType.Town;
-                            dcCount++;
-                        }
-                        else if (bCount < 2 &&
-                                 ((x >= 220 && x <= 440 && y >= 220 && y <= 440) || (x >= 660 && x <= 880 && y >= 220 && y <= 440)))
-                        {
-                            worldData.Capitols.Add(new Capitol(worldData.generateTownName(), new Vector2Int(x, y), 3));
-                            worldData.WorldMap[x, y] = Region.TileType.Town;
-                            bCount++;
-                        }
-                        else if (eaCount == 0 && (x >= 440 && x <= 660 && y >= 220 && y <= 440))
-                        {
-                            worldData.Capitols.Add(new Capitol(worldData.generateTownName(), new Vector2Int(x, y), 4));
-                            worldData.WorldMap[x, y] = Region.TileType.Town;
-                            eaCount++;
-                        }
-                        else if (baCount < 2 &&
-                                 ((x >= 220 && x <= 440 && y >= 660 && y <= 880) || (x >= 660 && x <= 880 && y >= 660 && y <= 880)))
-                        {
-                            worldData.Capitols.Add(new Capitol(worldData.generateTownName(), new Vector2Int(x, y), 5));
-                            worldData.WorldMap[x, y] = Region.TileType.Town;
-                            baCount++;
-                        }
-                        else if (dcsCount == 0 && x >= 440 && x <= 660 && y <= 440 && x <= 660)
-                        {
-                            worldData.Capitols.Add(new Capitol(worldData.generateTownName(), new Vector2Int(x, y), 6));
-                            worldData.WorldMap[x, y] = Region.TileType.Town;
-                            dcsCount++;
-                        }
-                        else 
-                        {
-                            worldData.Towns.Add(new Town(worldData.generateTownName(), new Vector2Int(x, y)));
-                            worldData.WorldMap[x, y] = Region.TileType.Town;
-                            createManagerBasedOnTown(ref worldData, worldData.Towns.Count - 1);
-                            worldData.Towns[worldData.Towns.Count - 1].setTournament(
-                                createTournamentBasedOnRegion(ref worldData, worldData.Towns[worldData.Towns.Count - 1].RegionLevel, generateDateFromOffset(x + y)));
-                        }
+    public static void createTowns(ref DataPool worldData, int regionIndex){
+        for (int x = 10; x < worldData.Regions[regionIndex].Map.GetLength(0) - 11; x++)
+        {
+            for (int y = 10; y < worldData.Regions[regionIndex].Map.GetLength(0) - 11; y++)
+            {
+                if (worldData.Regions[regionIndex].Map[x, y].Equals(RegionCreator.TileType.Beach))
+                {
+                    if (townAccepatble(new Vector2Int(x, y), regionIndex, ref worldData))
+                    {
+                        int regionDistance = Mathf.Abs(worldData.Regions[regionIndex].Position.x) + Mathf.Abs(worldData.Regions[regionIndex].Position.y);
+                        worldData.Towns.Add(new Town(worldData.generateTownName(), new Vector2Int(x, y), regionDistance));
+                        //worldData.WorldMap[x, y] = Region.TileType.Town;
+                        createManagerBasedOnTown(ref worldData, worldData.Towns.Count - 1);
+                        worldData.Towns[worldData.Towns.Count - 1].setTournament(
+                            createTournamentBasedOnRegion(ref worldData, worldData.Towns[worldData.Towns.Count - 1].RegionLevel, generateDateFromOffset(x + y)));
+                        worldData.Regions[regionIndex].addTown(worldData.Towns.Count - 1);
                     }
                 }
             }
         }
+    }
+
+    public static bool doesRegionExistAt(ref DataPool worldData, Vector2Int position)
+    {
+        bool regionExists = false;
+        foreach (Region region in worldData.Regions)
+        {
+            if (region.Position.Equals(position))
+                regionExists = true;
+        }
+
+        return regionExists;
     }
 
 	public static List<WeightClass.WClass> generateBoxersToCreate(float elo){
@@ -436,7 +423,70 @@ public static class WorldBuilderProtocol {
         return new CalendarDate(date.Week, date.Month, 1602);
     }
 
-	public static float generateWeightFromClass(WeightClass.WClass wClass){
+    public static Dictionary<TournamentProtocol.Level, bool> generateQualifierMap(ref DataPool worldData, Vector2Int pos)
+    {
+        Dictionary<TournamentProtocol.Level, bool> qMap = new Dictionary<TournamentProtocol.Level, bool>();
+
+        qMap.Add(TournamentProtocol.Level.E, false);
+        qMap.Add(TournamentProtocol.Level.D, false);
+        qMap.Add(TournamentProtocol.Level.C, false);
+        qMap.Add(TournamentProtocol.Level.B, false);
+        qMap.Add(TournamentProtocol.Level.A, false);
+        qMap.Add(TournamentProtocol.Level.S, false);
+
+        qMap[TournamentProtocol.Level.E] = addQualifier(ref worldData, pos, TournamentProtocol.Level.E);
+        qMap[TournamentProtocol.Level.D] = addQualifier(ref worldData, pos, TournamentProtocol.Level.D);
+        qMap[TournamentProtocol.Level.C] = addQualifier(ref worldData, pos, TournamentProtocol.Level.C);
+        qMap[TournamentProtocol.Level.B] = addQualifier(ref worldData, pos, TournamentProtocol.Level.B);
+        qMap[TournamentProtocol.Level.A] = addQualifier(ref worldData, pos, TournamentProtocol.Level.A);
+        if (pos.Equals(new Vector2Int(0, 0)))
+            qMap[TournamentProtocol.Level.S] = true;
+
+        return qMap;
+    }
+
+    private static bool addQualifier(ref DataPool worldData, Vector2Int pos, TournamentProtocol.Level level)
+    {
+        List<int> qualifiers = new List<int>();
+
+        for (int i = 0; i < worldData.Regions.Count; i++){
+            if (worldData.Capitols[worldData.Regions[i].CapitolIndex].Quarterlies.ContainsKey(level))
+                qualifiers.Add(i);
+        }
+
+        bool tooClose = false;
+        foreach (int index in qualifiers){
+            List<Vector2Int> path = worldData.Dijkstras.shortestPath(pos, worldData.Regions[index].Position);
+
+            if (path.Count < getSpacing(level))
+                tooClose = true;
+        }
+
+        if (qualifiers.Count == 0)
+            return true;
+
+        return !tooClose;
+    }
+
+    private static float getSpacing(TournamentProtocol.Level level)
+    {
+        switch (level){
+            case TournamentProtocol.Level.E:
+                return 1.5f;
+            case TournamentProtocol.Level.D:
+                return 2.5f;
+            case TournamentProtocol.Level.C:
+                return 3.0f;
+            case TournamentProtocol.Level.B:
+                return 3.5f;
+            case TournamentProtocol.Level.A:
+                return 4.5f;
+        }
+
+        return 6.5f;
+    }
+
+    public static float generateWeightFromClass(WeightClass.WClass wClass){
 		if (wClass.Equals (WeightClass.WClass.FlyWeight))
 			return (float)Random.Range (100, 118);
 		else if (wClass.Equals (WeightClass.WClass.LightWeight))
@@ -452,6 +502,75 @@ public static class WorldBuilderProtocol {
 
 		return (float)Random.Range (100, 118);
 	}
+
+    public static List<Vector2Int> getAdjacents(ref DataPool worldData, Vector2Int newRegion)
+    {
+        List<Vector2Int> adjacents = new List<Vector2Int>();
+
+        Vector2Int above = new Vector2Int(newRegion.x, newRegion.y + 1);
+        Vector2Int below = new Vector2Int(newRegion.x, newRegion.y - 1);
+        Vector2Int left = new Vector2Int(newRegion.x - 1, newRegion.y);
+        Vector2Int right = new Vector2Int(newRegion.x + 1, newRegion.y);
+
+        bool aboveExists = false;
+        bool belowExists = false;
+        bool leftExists = false;
+        bool rightExists = false;
+
+        foreach (Region region in worldData.Regions)
+        {
+            if (region.Position.Equals(above))
+                aboveExists = true;
+
+            if (region.Position.Equals(below))
+                belowExists = true;
+
+            if (region.Position.Equals(left))
+                leftExists = true;
+
+            if (region.Position.Equals(right))
+                rightExists = true;
+        }
+
+        if (!aboveExists && shouldAddRegion(worldData.Regions.Count))
+        {
+            adjacents.Add(above);
+        }
+
+        if (!belowExists && shouldAddRegion(worldData.Regions.Count))
+        {
+            adjacents.Add(below);
+        }
+
+        if (!leftExists && shouldAddRegion(worldData.Regions.Count))
+        {
+            adjacents.Add(left);
+        }
+
+        if (!rightExists && shouldAddRegion(worldData.Regions.Count))
+        {
+            adjacents.Add(right);
+        }
+
+        return adjacents;
+    }
+
+    public static List<Vector2Int> getDirections(Vector2Int newRegion)
+    {
+        List<Vector2Int> directions = new List<Vector2Int>();
+
+        Vector2Int above = new Vector2Int(newRegion.x, newRegion.y + 1);
+        Vector2Int below = new Vector2Int(newRegion.x, newRegion.y - 1);
+        Vector2Int left = new Vector2Int(newRegion.x - 1, newRegion.y);
+        Vector2Int right = new Vector2Int(newRegion.x + 1, newRegion.y);
+
+        directions.Add(above);
+        directions.Add(below);
+        directions.Add(left);
+        directions.Add(right);
+
+        return directions;
+    }
 
     private static float getAgeFromLevel(TournamentProtocol.Level level){
         if (level.Equals(TournamentProtocol.Level.S))
@@ -497,6 +616,36 @@ public static class WorldBuilderProtocol {
         }
 
         return new List<int>(new int[] { 98, 95, 90, 80, 60 });
+    }
+
+    private static float getEloFromRegion(TournamentProtocol.Level rank)
+    {
+        if (rank.Equals(TournamentProtocol.Level.E))
+        {
+            return Random.Range(1.0f, 375.0f);
+        }
+        else if (rank.Equals(TournamentProtocol.Level.D))
+        {
+            return Random.Range(350.0f, 750.0f);
+        }
+        else if (rank.Equals(TournamentProtocol.Level.C))
+        {
+            return Random.Range(750.0f, 1125.0f);
+        }
+        else if (rank.Equals(TournamentProtocol.Level.B))
+        {
+            return Random.Range(1125.0f, 1500.0f);
+        }
+        else if (rank.Equals(TournamentProtocol.Level.A))
+        {
+            return Random.Range(1500.0f, 1875.0f);
+        }
+        else if (rank.Equals(TournamentProtocol.Level.S))
+        {
+            return Random.Range(1875.0f, 2250.0f);
+        }
+
+        return Random.Range(2250.0f, 2450.0f);
     }
 
     private static float getPrimaryStatFromLevel(TournamentProtocol.Level level){
@@ -573,60 +722,73 @@ public static class WorldBuilderProtocol {
         return 4;
     }
 
-	private static void initExercises(ref DataPool worldData){
-		string strengthExercise = "Punching Bag";
-		string speedExercise = "Sprints";
-		string enduranceExercise = "Punch Glove";
-		string accuracyExercise = "Double End Bag";
-		string healthExercise = "Laps";
-
-		worldData.addExerciseDescription (strengthExercise, "Strength Training");
-		worldData.addExerciseDescription (speedExercise, "Speed Training");
-		worldData.addExerciseDescription (enduranceExercise, "Endurance Training");
-		worldData.addExerciseDescription (accuracyExercise, "Accuracy Training");
-		worldData.addExerciseDescription (healthExercise, "Health Training");
-
-		worldData.addExerciseProgress(strengthExercise, new List<int>(new int[]{ 0, 0, 0, 0, 1}));
-		worldData.addExerciseProgress(strengthExercise, new List<int>(new int[]{ 0, 0, 0, 0, 1}));
-		worldData.addExerciseProgress(strengthExercise, new List<int>(new int[]{ 0, 0, 0, 0, 2}));
-		worldData.addExerciseProgress(strengthExercise, new List<int>(new int[]{ 0, 0, 0, 0, 2}));
-		worldData.addExerciseProgress(strengthExercise, new List<int>(new int[]{ 0, 0, 0, 0, 3}));
-		worldData.addExerciseProgress(strengthExercise, new List<int>(new int[]{ 0, 0, 0, 0, 3}));
-
-		worldData.addExerciseProgress(speedExercise, new List<int>(new int[]{ 0, 0, 0, 1, 0}));
-		worldData.addExerciseProgress(speedExercise, new List<int>(new int[]{ 0, 0, 0, 1, 0}));
-		worldData.addExerciseProgress(speedExercise, new List<int>(new int[]{ 0, 0, 0, 2, 0}));
-		worldData.addExerciseProgress(speedExercise, new List<int>(new int[]{ 0, 0, 0, 2, 0}));
-		worldData.addExerciseProgress(speedExercise, new List<int>(new int[]{ 0, 0, 0, 3, 0}));
-		worldData.addExerciseProgress(speedExercise, new List<int>(new int[]{ 0, 0, 0, 3, 0}));
-
-		worldData.addExerciseProgress(enduranceExercise, new List<int>(new int[]{ 0, 1, 0, 0, 0}));
-		worldData.addExerciseProgress(enduranceExercise, new List<int>(new int[]{ 0, 1, 0, 0, 0}));
-		worldData.addExerciseProgress(enduranceExercise, new List<int>(new int[]{ 0, 2, 0, 0, 0}));
-		worldData.addExerciseProgress(enduranceExercise, new List<int>(new int[]{ 0, 2, 0, 0, 0}));
-		worldData.addExerciseProgress(enduranceExercise, new List<int>(new int[]{ 0, 3, 0, 0, 0}));
-		worldData.addExerciseProgress(enduranceExercise, new List<int>(new int[]{ 0, 3, 0, 0, 0}));
-
-		worldData.addExerciseProgress(accuracyExercise, new List<int>(new int[]{ 1, 0, 0, 0, 0}));
-		worldData.addExerciseProgress(accuracyExercise, new List<int>(new int[]{ 1, 0, 0, 0, 0}));
-		worldData.addExerciseProgress(accuracyExercise, new List<int>(new int[]{ 2, 0, 0, 0, 0}));
-		worldData.addExerciseProgress(accuracyExercise, new List<int>(new int[]{ 2, 0, 0, 0, 0}));
-		worldData.addExerciseProgress(accuracyExercise, new List<int>(new int[]{ 3, 0, 0, 0, 0}));
-		worldData.addExerciseProgress(accuracyExercise, new List<int>(new int[]{ 3, 0, 0, 0, 0}));
-
-		worldData.addExerciseProgress(healthExercise, new List<int>(new int[]{ 0, 0, 1, 0, 0}));
-		worldData.addExerciseProgress(healthExercise, new List<int>(new int[]{ 0, 0, 1, 0, 0}));
-		worldData.addExerciseProgress(healthExercise, new List<int>(new int[]{ 0, 0, 2, 0, 0}));
-		worldData.addExerciseProgress(healthExercise, new List<int>(new int[]{ 0, 0, 2, 0, 0}));
-		worldData.addExerciseProgress(healthExercise, new List<int>(new int[]{ 0, 0, 3, 0, 0}));
-		worldData.addExerciseProgress(healthExercise, new List<int>(new int[]{ 0, 0, 3, 0, 0}));
-	}
-
-    private static bool townAccepatble(Vector2Int p, ref DataPool worldData)
+    private static void initExercises(ref DataPool worldData)
     {
-        foreach (Town t in worldData.Towns){
+        string strengthExercise = "Punching Bag";
+        string speedExercise = "Sprints";
+        string enduranceExercise = "Punch Glove";
+        string accuracyExercise = "Double End Bag";
+        string healthExercise = "Laps";
+
+        worldData.addExerciseDescription(strengthExercise, "Strength Training");
+        worldData.addExerciseDescription(speedExercise, "Speed Training");
+        worldData.addExerciseDescription(enduranceExercise, "Endurance Training");
+        worldData.addExerciseDescription(accuracyExercise, "Accuracy Training");
+        worldData.addExerciseDescription(healthExercise, "Health Training");
+
+        worldData.addExerciseProgress(strengthExercise, new List<int>(new int[] { 0, 0, 0, 0, 1 }));
+        worldData.addExerciseProgress(strengthExercise, new List<int>(new int[] { 0, 0, 0, 0, 1 }));
+        worldData.addExerciseProgress(strengthExercise, new List<int>(new int[] { 0, 0, 0, 0, 2 }));
+        worldData.addExerciseProgress(strengthExercise, new List<int>(new int[] { 0, 0, 0, 0, 2 }));
+        worldData.addExerciseProgress(strengthExercise, new List<int>(new int[] { 0, 0, 0, 0, 3 }));
+        worldData.addExerciseProgress(strengthExercise, new List<int>(new int[] { 0, 0, 0, 0, 3 }));
+
+        worldData.addExerciseProgress(speedExercise, new List<int>(new int[] { 0, 0, 0, 1, 0 }));
+        worldData.addExerciseProgress(speedExercise, new List<int>(new int[] { 0, 0, 0, 1, 0 }));
+        worldData.addExerciseProgress(speedExercise, new List<int>(new int[] { 0, 0, 0, 2, 0 }));
+        worldData.addExerciseProgress(speedExercise, new List<int>(new int[] { 0, 0, 0, 2, 0 }));
+        worldData.addExerciseProgress(speedExercise, new List<int>(new int[] { 0, 0, 0, 3, 0 }));
+        worldData.addExerciseProgress(speedExercise, new List<int>(new int[] { 0, 0, 0, 3, 0 }));
+
+        worldData.addExerciseProgress(enduranceExercise, new List<int>(new int[] { 0, 1, 0, 0, 0 }));
+        worldData.addExerciseProgress(enduranceExercise, new List<int>(new int[] { 0, 1, 0, 0, 0 }));
+        worldData.addExerciseProgress(enduranceExercise, new List<int>(new int[] { 0, 2, 0, 0, 0 }));
+        worldData.addExerciseProgress(enduranceExercise, new List<int>(new int[] { 0, 2, 0, 0, 0 }));
+        worldData.addExerciseProgress(enduranceExercise, new List<int>(new int[] { 0, 3, 0, 0, 0 }));
+        worldData.addExerciseProgress(enduranceExercise, new List<int>(new int[] { 0, 3, 0, 0, 0 }));
+
+        worldData.addExerciseProgress(accuracyExercise, new List<int>(new int[] { 1, 0, 0, 0, 0 }));
+        worldData.addExerciseProgress(accuracyExercise, new List<int>(new int[] { 1, 0, 0, 0, 0 }));
+        worldData.addExerciseProgress(accuracyExercise, new List<int>(new int[] { 2, 0, 0, 0, 0 }));
+        worldData.addExerciseProgress(accuracyExercise, new List<int>(new int[] { 2, 0, 0, 0, 0 }));
+        worldData.addExerciseProgress(accuracyExercise, new List<int>(new int[] { 3, 0, 0, 0, 0 }));
+        worldData.addExerciseProgress(accuracyExercise, new List<int>(new int[] { 3, 0, 0, 0, 0 }));
+
+        worldData.addExerciseProgress(healthExercise, new List<int>(new int[] { 0, 0, 1, 0, 0 }));
+        worldData.addExerciseProgress(healthExercise, new List<int>(new int[] { 0, 0, 1, 0, 0 }));
+        worldData.addExerciseProgress(healthExercise, new List<int>(new int[] { 0, 0, 2, 0, 0 }));
+        worldData.addExerciseProgress(healthExercise, new List<int>(new int[] { 0, 0, 2, 0, 0 }));
+        worldData.addExerciseProgress(healthExercise, new List<int>(new int[] { 0, 0, 3, 0, 0 }));
+        worldData.addExerciseProgress(healthExercise, new List<int>(new int[] { 0, 0, 3, 0, 0 }));
+    }
+
+    public static bool shouldAddRegion(int numRegions)
+    {
+        int baseChance = 70;
+        baseChance -= (numRegions * 2);
+
+        return Random.Range(0, 100) < baseChance;
+    }
+
+    private static bool townAccepatble(Vector2Int p, int regionIndex, ref DataPool worldData)
+    {
+        Vector2Int cPos = worldData.Capitols[worldData.Regions[regionIndex].CapitolIndex].Location;
+        if (Mathf.Sqrt(Mathf.Pow((float)(cPos.x - p.x), 2.0f) + Mathf.Pow((float)(cPos.y - p.y), 2.0f)) < 15)
+            return false;
+
+        foreach (int index in worldData.Regions[regionIndex].getRegionsTownIndexes()){
             Vector2Int p1 = p;
-            Vector2Int p2 = t.Location;
+            Vector2Int p2 = worldData.Towns[index].Location;
 
             float distance = Mathf.Sqrt(Mathf.Pow((float)(p2.x - p1.x), 2.0f) + Mathf.Pow((float)(p2.y - p1.y), 2.0f));
 
@@ -634,17 +796,22 @@ public static class WorldBuilderProtocol {
                 return false;
         }
 
-        int blueHit = 0;
-        if (worldData.WorldMap[p.x - 1, p.y].Equals(Region.TileType.Shallows))
-            blueHit++;
-        if (worldData.WorldMap[p.x + 1, p.y].Equals(Region.TileType.Shallows))
-            blueHit++;
-        if (worldData.WorldMap[p.x, p.y - 1].Equals(Region.TileType.Shallows))
-            blueHit++;
-        if (worldData.WorldMap[p.x, p.y + 1].Equals(Region.TileType.Shallows))
-            blueHit++;
+        return blueHit(p, worldData.Regions[regionIndex].Map);
+    }
 
-        if (blueHit > 0 && blueHit < 3)
+    private static bool blueHit(Vector2Int p, RegionCreator.TileType[,] map)
+    {
+        int waterHit = 0;
+        if (map[p.x - 1, p.y].Equals(RegionCreator.TileType.Shallows))
+            waterHit++;
+        if (map[p.x + 1, p.y].Equals(RegionCreator.TileType.Shallows))
+            waterHit++;
+        if (map[p.x, p.y - 1].Equals(RegionCreator.TileType.Shallows))
+            waterHit++;
+        if (map[p.x, p.y + 1].Equals(RegionCreator.TileType.Shallows))
+            waterHit++;
+
+        if (waterHit > 0 && waterHit < 3)
             return true;
 
         return false;

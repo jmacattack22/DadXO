@@ -8,42 +8,38 @@ public class Town
     private TournamentProtocol.Level regionLevel;
     private TournamentProtocol tournament;
 
-	public Town (string name, Vector2Int loc)
+	public Town (string name, Vector2Int loc, int regionDistance)
 	{
 		this.name = name;
 		location = loc;
 
-        determineRegion();
+        determineRegion(regionDistance);
 	}
 
-    private void determineRegion()
+    private void determineRegion(int regionDistance)
     {
-        int x = (location.x - (location.x % 220)) / 220;
-        int y = (location.y - (location.y % 220)) / 220;
-
-        if ((x == 0 && y == 0) || (x == 0 && y == 4) || (x == 4 && y == 0) || (x == 4 && y == 4))
+        if (regionDistance < 2)
         {
-            regionLevel = TournamentProtocol.Level.S;
+            regionLevel = TournamentProtocol.Level.E;
         }
-        else if ((x == 0 && y == 1) || (x == 0 && y == 3) || (x == 1 && y == 0) || (x == 1 && y == 4) ||
-                 (x == 3 && y == 0) || (x == 3 && y == 4) || (x == 4 && y == 1) || (x == 4 && y == 3))
-        {
-            regionLevel = TournamentProtocol.Level.A;
-        }
-        else if ((x == 0 && y == 2) | (x == 2 && y == 0) || (x == 2 && y == 4) || (x == 4 && y == 2)) {
-            regionLevel = TournamentProtocol.Level.B;
-        } 
-        else if ((x == 1 && y == 1) || (x == 1 && y == 3) || (x == 3 && y == 1) || (x == 3 && y == 3))
-        {
-            regionLevel = TournamentProtocol.Level.C;
-        } 
-        else if ((x == 1 && y == 2) || (x == 2 && y == 1) || (x == 2 && y == 3) || (x == 2 && y == 3) || (x == 3 && y == 2))
+        else if (regionDistance < 4)
         {
             regionLevel = TournamentProtocol.Level.D;
         }
-        else if (x == 2 && y == 2)
+        else if (regionDistance < 6)
         {
-            regionLevel = TournamentProtocol.Level.E;
+            regionLevel = TournamentProtocol.Level.C;
+        }
+        else if (regionDistance < 7)
+        {
+            regionLevel = TournamentProtocol.Level.B;
+        }
+        else if (regionDistance < 8)
+        {
+            regionLevel = TournamentProtocol.Level.A;
+        } else 
+        {
+            regionLevel = TournamentProtocol.Level.S;
         }
     }
 
