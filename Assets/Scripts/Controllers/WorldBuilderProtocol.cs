@@ -133,18 +133,21 @@ public static class WorldBuilderProtocol {
     private static void createCapitol(ref DataPool worldData, int regionIndex)
     {
         bool capitolCreated = false;
-        for (int x = 10; x < worldData.Regions[regionIndex].Map.GetLength(0) - 11; x++)
+        while (!capitolCreated)
         {
-            for (int y = 10; y < worldData.Regions[regionIndex].Map.GetLength(0) - 11; y++)
+            for (int x = 10; x < worldData.Regions[regionIndex].Map.GetLength(0) - 11; x++)
             {
-                if (worldData.Regions[regionIndex].Map[x, y].Equals(RegionCreator.TileType.Beach))
+                for (int y = 10; y < worldData.Regions[regionIndex].Map.GetLength(0) - 11; y++)
                 {
-                    if (blueHit(new Vector2Int(x, y), worldData.Regions[regionIndex].Map) && Random.Range(0, 100) < 35 && !capitolCreated)
+                    if (worldData.Regions[regionIndex].Map[x, y].Equals(RegionCreator.TileType.Beach))
                     {
-                        int regionDistance = Mathf.Abs(worldData.Regions[regionIndex].Position.x) + Mathf.Abs(worldData.Regions[regionIndex].Position.y);
-                        worldData.Capitols.Add(new Capitol(worldData.generateTownName(), new Vector2Int(x, y), regionDistance));
-                        worldData.Regions[regionIndex].addCapitol(worldData.Capitols.Count - 1);
-                        capitolCreated = true;
+                        if (blueHit(new Vector2Int(x, y), worldData.Regions[regionIndex].Map) && Random.Range(0, 100) < 60 && !capitolCreated)
+                        {
+                            int regionDistance = Mathf.Abs(worldData.Regions[regionIndex].Position.x) + Mathf.Abs(worldData.Regions[regionIndex].Position.y);
+                            worldData.Capitols.Add(new Capitol(worldData.generateTownName(), new Vector2Int(x, y), regionDistance));
+                            worldData.Regions[regionIndex].addCapitol(worldData.Capitols.Count - 1);
+                            capitolCreated = true;
+                        }
                     }
                 }
             }

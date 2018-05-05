@@ -85,7 +85,7 @@ public class DataPool {
         string name = tournamentNames[index];
         tournamentNames.RemoveAt(index);
 
-        if (tournamentNames.Count < 2){
+        if (tournamentNames.Count < 3){
             tournamentNames = backTournamentNames;
         }
 
