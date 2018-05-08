@@ -22,19 +22,19 @@ public class Town
         {
             regionLevel = TournamentProtocol.Level.E;
         }
-        else if (regionDistance < 4)
+        else if (regionDistance < 3)
         {
             regionLevel = TournamentProtocol.Level.D;
         }
-        else if (regionDistance < 6)
+        else if (regionDistance < 4)
         {
             regionLevel = TournamentProtocol.Level.C;
         }
-        else if (regionDistance < 7)
+        else if (regionDistance < 5)
         {
             regionLevel = TournamentProtocol.Level.B;
         }
-        else if (regionDistance < 8)
+        else if (regionDistance < 6)
         {
             regionLevel = TournamentProtocol.Level.A;
         } else 

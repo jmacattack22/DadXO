@@ -23,51 +23,37 @@ public static class TournamentHandlerProtocol {
         simTournaments(ref worldData, townTournaments);
     }
 
-    private static float getDistanceFromLevel(TournamentProtocol.Level level)
-    {
+    private static int getDistanceFromLevel(TournamentProtocol.Level level){
         if (level.Equals(TournamentProtocol.Level.S))
-            return 1200.0f;
+            return 10;
         else if (level.Equals(TournamentProtocol.Level.A))
-            return 900.0f;
+            return 4;
         else if (level.Equals(TournamentProtocol.Level.B))
-            return 800.0f;
+            return 3;
         else if (level.Equals(TournamentProtocol.Level.C))
-            return 700.0f;
+            return 3;
         else if (level.Equals(TournamentProtocol.Level.D))
-            return 700.0f;
+            return 2;
         else if (level.Equals(TournamentProtocol.Level.E))
-            return 700.0f;
+            return 2;
 
-        return 1200.0f;
+        return 10;
     }
 
     public static bool isQualifyingWeek(ref DataPool worldData){
         return ((worldData.Calendar.getWeekOfYear() - 1) % 8 == 0);
     }
 
-    private static List<int> recruit(DataPool worldData, TournamentProtocol.Level level, Vector2Int p1, bool highestRated)
+    private static List<int> recruit(DataPool worldData, TournamentProtocol.Level level, List<int> regionsWithinJurisdiction, bool highestRated)
     {
         List<int> potentialRecruits = new List<int>();
 
-        int index = 0;
-        foreach (ManagerProtocol mp in worldData.ManagerProtocols)
-        {
-            Vector2Int p2 = worldData.Towns[worldData.Managers[mp.ManagerIndex].TownIndex].Location;
-
-            float distance = Mathf.Sqrt(Mathf.Pow((p2.x - p1.x), 2) + Mathf.Pow((p2.y - p1.y), 2));
-
-            if (level.Equals(TournamentProtocol.Level.S))
-            {
-                if (mp.Rank.Equals(level) && !mp.isBusy())
-                    potentialRecruits.Add(index);
+        foreach (int rIndex in regionsWithinJurisdiction){
+            foreach (int mIndex in worldData.Regions[rIndex].getRegionsManagerIndexes()){
+                if (worldData.ManagerProtocols[mIndex].Rank.Equals(level) && !worldData.ManagerProtocols[mIndex].isBusy()){
+                    potentialRecruits.Add(mIndex);   
+                }
             }
-            else
-            {
-                if (distance < getDistanceFromLevel(level) && mp.Rank.Equals(level) && !mp.isBusy())
-                    potentialRecruits.Add(index);
-            }
-
-            index++;
         }
 
         if (highestRated)
@@ -79,17 +65,25 @@ public static class TournamentHandlerProtocol {
     }
 
     private static void recruitForQualifiers(ref DataPool worldData){
-        foreach (Capitol c in worldData.Capitols)
-        {
-            foreach (TournamentProtocol.Level level in c.Quarterlies.Keys)
-            {
-                List<int> recruits = recruit(worldData, level, c.Location, true);
+        foreach (Region region in worldData.Regions){
+            foreach (TournamentProtocol.Level level in worldData.Capitols[region.CapitolIndex].Quarterlies.Keys){
+                List<int> regionsWithinJurisdiction = new List<int>();
+
+                for (int i = 0; i < worldData.Regions.Count; i++){
+                    List<Vector2Int> path = worldData.Dijkstras.shortestPath(region.Position, worldData.Regions[i].Position);
+
+                    if (path.Count < getDistanceFromLevel(level)){
+                        regionsWithinJurisdiction.Add(i);
+                    }
+                }
+
+                List<int> recruits = recruit(worldData, level, regionsWithinJurisdiction, true);
 
                 for (int i = 0; i < recruits.Count; i++)
                 {
-                    if (c.Quarterlies[level].spaceLeft())
+                    if (worldData.Capitols[region.CapitolIndex].Quarterlies[level].spaceLeft())
                     {
-                        c.Quarterlies[level].addContestant(recruits[i]);
+                        worldData.Capitols[region.CapitolIndex].Quarterlies[level].addContestant(recruits[i]);
                         worldData.ManagerProtocols[recruits[i]].attendTournament();
                     }
                 }
@@ -100,29 +94,39 @@ public static class TournamentHandlerProtocol {
     private static List<int> recruitForTournaments(ref DataPool worldData){
         List<int> townTournaments = new List<int>();
 
-        int townIndex = 0;
-        foreach (Town town in worldData.Towns)
-        {
-            if (town.Tournament.TournamentDate.sameWeek(worldData.Calendar.GetCalendarDate()))
-            {
-                townTournaments.Add(townIndex);
+        foreach (Region region in worldData.Regions){
+            foreach (int tIndex in region.getRegionsTownIndexes()){
+                if (worldData.Towns[tIndex].Tournament.TournamentDate.sameWeek(worldData.Calendar.GetCalendarDate())){
+                    townTournaments.Add(tIndex);
 
-                List<int> recruits = recruit(worldData, worldData.Towns[townIndex].Tournament.TournamentLevel, worldData.Towns[townIndex].Location, false);
+                    List<int> regionsWithinJurisdiction = new List<int>();
 
-                for (int i = 0; i < recruits.Count; i++)
-                {
-                    if (worldData.Towns[townIndex].Tournament.spaceLeft())
+                    for (int i = 0; i < worldData.Regions.Count; i++)
                     {
-                        worldData.Towns[townIndex].Tournament.addContestant(recruits[i]);
-                        worldData.ManagerProtocols[recruits[i]].attendTournament();
+                        List<Vector2Int> path = worldData.Dijkstras.shortestPath(region.Position, worldData.Regions[i].Position);
+
+                        if (path.Count < getDistanceFromLevel(worldData.Towns[tIndex].Tournament.TournamentLevel))
+                        {
+                            regionsWithinJurisdiction.Add(i);
+                        }
                     }
-                    else
+
+                    List<int> recruits = recruit(worldData, worldData.Towns[tIndex].Tournament.TournamentLevel, regionsWithinJurisdiction, false);
+
+                    for (int i = 0; i < recruits.Count; i++)
                     {
-                        worldData.ManagerProtocols[recruits[i]].bumpTournamentPriority();
+                        if (worldData.Towns[tIndex].Tournament.spaceLeft())
+                        {
+                            worldData.Towns[tIndex].Tournament.addContestant(recruits[i]);
+                            worldData.ManagerProtocols[recruits[i]].attendTournament();
+                        }
+                        else
+                        {
+                            worldData.ManagerProtocols[recruits[i]].bumpTournamentPriority();
+                        }
                     }
                 }
             }
-            townIndex++;
         }
 
         return townTournaments;

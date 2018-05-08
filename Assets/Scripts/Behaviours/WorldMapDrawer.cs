@@ -92,7 +92,7 @@ public class WorldMapDrawer : MonoBehaviour {
                 if (regionIndex != -1)
                 {
                    // print(worldData.Capitols[worldData.Regions[regionIndex].CapitolIndex].Quarterlies.Keys);
-                    if (worldData.Capitols[worldData.Regions[regionIndex].CapitolIndex].Quarterlies.ContainsKey(TournamentProtocol.Level.S)){
+                    if (worldData.Capitols[worldData.Regions[regionIndex].CapitolIndex].Quarterlies.ContainsKey(TournamentProtocol.Level.A)){
                         tile = Instantiate(content[RegionCreator.TileType.Beach], new Vector3(x, y), Quaternion.identity) as Transform;
                     } else {
                         tile = Instantiate(content[RegionCreator.TileType.Land], new Vector3(x, y), Quaternion.identity) as Transform;
