@@ -16,6 +16,11 @@ public class Town
         determineRegion(regionDistance);
 	}
 
+    public void changeName(string newName)
+	{
+		this.name = newName;
+	}
+
     private void determineRegion(int regionDistance)
     {
         if (regionDistance < 2)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using System;
 
 public static class WorldBuilderProtocol {
 
@@ -81,9 +82,15 @@ public static class WorldBuilderProtocol {
 
         worldData.Boxers[index].cutLife(Mathf.RoundToInt(worldData.Boxers[index].WeeksRemaining * (agePercentage / 100.0f)));
     }
+    
+    private static int generateRandomInt(int min, int max)
+	{
+		return new System.Random((int)DateTime.Now.Ticks).Next(min, max);
+	}
 
     public static Boxer createBoxerBasedOnFame(string firstName, string lastName, int townIndex, float elo, WeightClass.WClass wClass)
     {
+		
         int pointsToGive = EvaluationProtocol.getBoxerPointsFromFame(elo);
 
         int badStatRates = Mathf.RoundToInt((pointsToGive / 3) / 2);
@@ -104,17 +111,17 @@ public static class WorldBuilderProtocol {
             growthRates.Add(stat, badStatRates);
         }
 
-        BoxerClass.Type bClass = possibleClasses[Random.Range(0, possibleClasses.Count)];
+		BoxerClass.Type bClass = possibleClasses[generateRandomInt(0, possibleClasses.Count - 1)];
 
         List<EvaluationProtocol.Stats> bestStats = BoxerClass.getBuild(bClass);
-
+        
         for (int i = 0; i < 3; i++)
         {
             int baseStat = Mathf.RoundToInt(pointsToGive / (3 - i));
 
             if (pointsToGive > 1)
             {
-                baseStat = Random.Range(baseStat - 1, baseStat + 2);
+				baseStat = generateRandomInt(baseStat - 1, baseStat + 1);
                 baseStat = baseStat < 1 ? 1 : baseStat;
                 baseStat = baseStat > 10 ? 10 : baseStat;
                 baseStat = (pointsToGive - baseStat) < 2 ? baseStat - 1 : baseStat;
@@ -124,7 +131,7 @@ public static class WorldBuilderProtocol {
                 baseStat = pointsToGive;
 
 
-            EvaluationProtocol.Stats stat = bestStats[Random.Range(0, bestStats.Count)];
+            EvaluationProtocol.Stats stat = bestStats[generateRandomInt(0, bestStats.Count - 1)];
 
             growthRates[stat] = baseStat;
             bestStats.RemoveAt(bestStats.IndexOf(stat));
@@ -137,11 +144,11 @@ public static class WorldBuilderProtocol {
         int spd = EvaluationProtocol.getStatValueFromGrowthRate(growthRates[EvaluationProtocol.Stats.SpeedGrowth]);
         int str = EvaluationProtocol.getStatValueFromGrowthRate(growthRates[EvaluationProtocol.Stats.StrengthGrowth]);
 
-        statValues.Add(EvaluationProtocol.Stats.Accuracy, Random.Range(acc - 4, acc + 4));
-        statValues.Add(EvaluationProtocol.Stats.Endurance, Random.Range(end - 4, end + 4));
-        statValues.Add(EvaluationProtocol.Stats.Health, Random.Range(hlt - 4, hlt + 4));
-        statValues.Add(EvaluationProtocol.Stats.Speed, Random.Range(spd - 4, spd + 4));
-        statValues.Add(EvaluationProtocol.Stats.Strength, Random.Range(str - 4, str + 4));
+        statValues.Add(EvaluationProtocol.Stats.Accuracy, generateRandomInt(acc - 4, acc + 4));
+		statValues.Add(EvaluationProtocol.Stats.Endurance, generateRandomInt(end - 4, end + 4));
+		statValues.Add(EvaluationProtocol.Stats.Health, generateRandomInt(hlt - 4, hlt + 4));
+		statValues.Add(EvaluationProtocol.Stats.Speed, generateRandomInt(spd - 4, spd + 4));
+		statValues.Add(EvaluationProtocol.Stats.Strength, generateRandomInt(str - 4, str + 4));
 
         return new Boxer(
             new Vector2Int(0, 1), firstName, lastName, townIndex, generateWeightFromClass(wClass), bClass,
@@ -153,7 +160,7 @@ public static class WorldBuilderProtocol {
 
     }
 
-    private static void createCapitol(ref DataPool worldData, int regionIndex)
+    public static void createCapitol(ref DataPool worldData, int regionIndex)
     {
         bool capitolCreated = false;
         while (!capitolCreated)
@@ -164,7 +171,7 @@ public static class WorldBuilderProtocol {
                 {
                     if (worldData.Regions[regionIndex].Map[x, y].Equals(RegionCreator.TileType.Beach))
                     {
-                        if (blueHit(new Vector2Int(x, y), worldData.Regions[regionIndex].Map) && Random.Range(0, 100) < 60 && !capitolCreated)
+                        if (blueHit(new Vector2Int(x, y), worldData.Regions[regionIndex].Map) && generateRandomInt(0,100) < 60 && !capitolCreated)
                         {
                             int regionDistance = Mathf.Abs(worldData.Regions[regionIndex].Position.x) + Mathf.Abs(worldData.Regions[regionIndex].Position.y);
                             worldData.Capitols.Add(new Capitol(worldData.generateTownName(), new Vector2Int(x, y), regionDistance));
@@ -184,7 +191,7 @@ public static class WorldBuilderProtocol {
             List<BoxerClass.Type> typeList = BoxerClass.getTypeList();
 
             Manager manager = new Manager(
-                worldData.generateFirstName(), worldData.generateLastName(), townIndex, Random.Range(145.0f, 225.0f), typeList[Random.Range(0, typeList.Count)]);
+				worldData.generateFirstName(), worldData.generateLastName(), townIndex, generateRandomInt(145, 225), typeList[generateRandomInt(0, typeList.Count - 1)]);
             manager.Record.setELO(getEloFromRegion(worldData.Towns[townIndex].RegionLevel));
             worldData.Managers.Add(manager);
 
@@ -206,7 +213,7 @@ public static class WorldBuilderProtocol {
                 }
             }
 
-            TournamentProtocol.Level boxerLevel = (TournamentProtocol.Level)Random.Range(0, ((int)worldData.Towns[townIndex].RegionLevel) + 1);
+			TournamentProtocol.Level boxerLevel = (TournamentProtocol.Level)generateRandomInt(0, (int)worldData.Towns[townIndex].RegionLevel);
 
             worldData.Boxers.Add(boxers[bIndex]);
             mp.recruitBoxer(worldData.Boxers.Count - 1);
@@ -227,47 +234,100 @@ public static class WorldBuilderProtocol {
         worldData.Regions.Add(origin);
     }
 
+	public static void createRegion(ref DataPool worldData, Vector2Int position, RegionCreator.TileType[,] map){
+		Region region = new Region("", position);
+		region.addWorldMap(map);
+		worldData.Regions.Add(region);
+	}
+
+    public static void createRegions(ref DataPool worldData, List<Region> regions)
+	{
+		foreach (Region r in regions)
+		{
+			worldData.Regions.Add(r);
+		}
+
+		Debug.Log(worldData.Regions.Count);
+		worldData.updateDijkstras();
+
+        for (int i = 0; i < worldData.Regions.Count; i++)
+        {
+            createCapitol(ref worldData, i);
+            createTowns(ref worldData, i);
+        }
+
+        foreach (Region region in worldData.Regions)
+        {
+            Dictionary<TournamentProtocol.Level, bool> qualifierMap = generateQualifierMap(ref worldData, region.Position);
+
+            worldData.Capitols[region.CapitolIndex].setupQualifier(qualifierMap);
+        }
+
+        setRegionLevels(ref worldData);
+	}
+
+	public static void createRegions(ref DataPool worldData, List<RegionCreator.TileType[,]> regions){
+		int rIndex = generateRandomInt(0, regions.Count - 1);
+		createRegion(ref worldData, new Vector2Int(0, 0), regions[rIndex]);
+		regions.RemoveAt(rIndex);
+
+		List<int> newlyCreatedRegionIndexes = new List<int>();
+        newlyCreatedRegionIndexes.Add(0);
+
+        int regionCount = 0;
+		int regionsToAdd = regions.Count;
+
+        List<int> temporaryNewIndexes = new List<int>();
+
+		while (regionCount < regionsToAdd)
+        {
+            temporaryNewIndexes = new List<int>();
+            foreach (int index in newlyCreatedRegionIndexes)
+            {
+                List<Vector2Int> newRegionsToAdd = getAdjacents(ref worldData, worldData.Regions[index].Position);
+
+                if (newRegionsToAdd.Count > 0)
+                {
+                    foreach (Vector2Int pos in newRegionsToAdd)
+                    {
+						rIndex = generateRandomInt(0, regions.Count - 1);
+						createRegion(ref worldData, pos, regions[rIndex]);
+						regions.RemoveAt(rIndex);
+                        temporaryNewIndexes.Add(worldData.Regions.Count - 1);
+                        regionCount++;
+                    }
+                }
+                else
+                {
+                    temporaryNewIndexes.Add(index);
+                }
+            }
+
+            newlyCreatedRegionIndexes = temporaryNewIndexes;
+        }
+
+		worldData.updateDijkstras();
+
+        for (int i = 0; i < worldData.Regions.Count; i++)
+        {
+            createCapitol(ref worldData, i);
+            createTowns(ref worldData, i);
+        }
+
+        foreach (Region region in worldData.Regions)
+        {
+            Dictionary<TournamentProtocol.Level, bool> qualifierMap = generateQualifierMap(ref worldData, region.Position);
+
+            worldData.Capitols[region.CapitolIndex].setupQualifier(qualifierMap);
+        }
+
+		setRegionLevels(ref worldData);
+	}
+
     public static void createRegions(int width, int height, ref DataPool worldData){
         List<int> landMass = new List<int>();
 
         createRegion(ref worldData, width, height, new Vector2Int(0, 0));
-        //createRegion(ref worldData, width, height, new Vector2Int(0, 1));
-        //createRegion(ref worldData, width, height, new Vector2Int(0, -1));
-        //createRegion(ref worldData, width, height, new Vector2Int(-1, 0));
-        //createRegion(ref worldData, width, height, new Vector2Int(1, 0));
-        //Dictionary<int, Vector2Int> newRegions = new Dictionary<int, Vector2Int>();
-        //newRegions.Add(0, new Vector2Int(0, 1));
-        //newRegions.Add(1, new Vector2Int(0, -1));
-        //newRegions.Add(2, new Vector2Int(-1, 0));
-        //newRegions.Add(3, new Vector2Int(1, 0));
-        //Dictionary<int, int> mulligans = new Dictionary<int, int>();
-        //mulligans.Add(0, 3);
-        //mulligans.Add(1, 3);
-        //mulligans.Add(2, 3);
-        //mulligans.Add(3, 3);
-        //int zeroMulliganCount = 4;
-        //while (zeroMulliganCount > 0){
-        //    zeroMulliganCount = 4;
-        //    for (int i = 0; i < 4; i++)
-        //    {
-        //        if (mulligans[i] > 0)
-        //        {
-        //            List<Vector2Int> directions = getDirections(newRegions[i]);
-        //            Vector2Int moveTo = directions[Random.Range(0, directions.Count)];
-        //            if (!doesRegionExistAt(ref worldData, moveTo))
-        //            {
-        //                newRegions[i] = moveTo;
-        //                createRegion(ref worldData, width, height, moveTo);
-        //            }
-        //            else
-        //            {
-        //                mulligans[i]--;
-        //            }
-        //        } else {
-        //            zeroMulliganCount--;
-        //        }
-        //    }
-        //}
 
         List<int> newlyCreatedRegionIndexes = new List<int>();
         newlyCreatedRegionIndexes.Add(0);
@@ -319,7 +379,7 @@ public static class WorldBuilderProtocol {
     public static TournamentProtocol createTournamentBasedOnRegion(ref DataPool worldData, TournamentProtocol.Level regionLevel, CalendarDate date){
         List<int> tournamentPercentages = getPercentagesForRegion(regionLevel);
 
-        int rng = Random.Range(0, 100);
+		int rng = generateRandomInt(0, 100);
         TournamentProtocol.Level tournamentLevel = TournamentProtocol.Level.E;
 
         if (rng >= tournamentPercentages[0])
@@ -371,6 +431,18 @@ public static class WorldBuilderProtocol {
             }
         }
     }
+
+    public static void defineQualifiers(ref DataPool worldData)
+	{
+		foreach (Region region in worldData.Regions)
+        {
+            Dictionary<TournamentProtocol.Level, bool> qualifierMap = generateQualifierMap(ref worldData, region.Position);
+
+            worldData.Capitols[region.CapitolIndex].setupQualifier(qualifierMap);
+        }
+
+        setRegionLevels(ref worldData);
+	}
 
     public static bool doesRegionExistAt(ref DataPool worldData, Vector2Int position)
     {
@@ -439,8 +511,8 @@ public static class WorldBuilderProtocol {
     private static CalendarDate generateDateFromOffset(int offset){
         CalendarDate date = new CalendarDate(1, 1, 1602);
 
-        int rng = Random.Range(0, 100);
-        int weeks = Random.Range(offset - 9, offset + 9);
+		int rng = generateRandomInt(0, 100);
+		int weeks = generateRandomInt(offset - 9, offset + 9);
 
         if (rng > 50)
             date.addWeeks(weeks);
@@ -514,20 +586,20 @@ public static class WorldBuilderProtocol {
     }
 
     public static float generateWeightFromClass(WeightClass.WClass wClass){
-		if (wClass.Equals (WeightClass.WClass.FlyWeight))
-			return (float)Random.Range (100, 118);
-		else if (wClass.Equals (WeightClass.WClass.LightWeight))
-			return (float)Random.Range (120, 138);
-		else if (wClass.Equals (WeightClass.WClass.WelterWeight))
-			return (float)Random.Range (140, 158);
-		else if (wClass.Equals (WeightClass.WClass.MiddleWeight))
-			return (float)Random.Range (160, 173);
-		else if (wClass.Equals (WeightClass.WClass.CruiserWeight))
-			return (float)Random.Range (175, 198);
-		else if (wClass.Equals (WeightClass.WClass.HeavyWeight))
-			return (float)Random.Range (200, 225);
+		if (wClass.Equals(WeightClass.WClass.FlyWeight))
+			return (float)generateRandomInt(100, 118);
+		else if (wClass.Equals(WeightClass.WClass.LightWeight))
+			return (float)generateRandomInt(120, 138);
+		else if (wClass.Equals(WeightClass.WClass.WelterWeight))
+			return (float)generateRandomInt(140, 158);
+		else if (wClass.Equals(WeightClass.WClass.MiddleWeight))
+			return (float)generateRandomInt(160, 173);
+		else if (wClass.Equals(WeightClass.WClass.CruiserWeight))
+			return (float)generateRandomInt(175, 198);
+		else if (wClass.Equals(WeightClass.WClass.HeavyWeight))
+			return (float)generateRandomInt(200, 225);
 
-		return (float)Random.Range (100, 118);
+		return (float)generateRandomInt(100, 118);
 	}
 
     public static List<Vector2Int> getAdjacents(ref DataPool worldData, Vector2Int newRegion)
@@ -600,19 +672,19 @@ public static class WorldBuilderProtocol {
     }
 
     private static float getAgeFromLevel(TournamentProtocol.Level level){
-        if (level.Equals(TournamentProtocol.Level.S))
-            return Random.Range(50.0f, 88.0f);
+		if (level.Equals(TournamentProtocol.Level.S))
+			return (float)generateRandomInt(50, 88);
         else if (level.Equals(TournamentProtocol.Level.A))
-            return Random.Range(50.0f, 88.0f);
+			return (float)generateRandomInt(50, 88);
         else if (level.Equals(TournamentProtocol.Level.B))
-            return Random.Range(40.0f, 85.0f);
+			return (float)generateRandomInt(40, 85);
         else if (level.Equals(TournamentProtocol.Level.C))
-            return Random.Range(35.0f, 85.0f);
+			return (float)generateRandomInt(35, 85);
         else if (level.Equals(TournamentProtocol.Level.D))
-            return Random.Range(30.0f, 85.0f);
+			return (float)generateRandomInt(30, 85);
         else if (level.Equals(TournamentProtocol.Level.E))
-            return Random.Range(10.0f, 85.0f);
-
+			return (float)generateRandomInt(10, 85);
+        
         return 85.0f;
     }
 
@@ -649,62 +721,62 @@ public static class WorldBuilderProtocol {
     {
         if (rank.Equals(TournamentProtocol.Level.E))
         {
-            return Random.Range(1.0f, 375.0f);
+			return (float)generateRandomInt(1, 375);
         }
         else if (rank.Equals(TournamentProtocol.Level.D))
         {
-            return Random.Range(350.0f, 750.0f);
+			return (float)generateRandomInt(350, 750);
         }
         else if (rank.Equals(TournamentProtocol.Level.C))
         {
-            return Random.Range(750.0f, 1125.0f);
+			return (float)generateRandomInt(750, 1125);
         }
         else if (rank.Equals(TournamentProtocol.Level.B))
         {
-            return Random.Range(1125.0f, 1500.0f);
+			return (float)generateRandomInt(1125, 1500);
         }
         else if (rank.Equals(TournamentProtocol.Level.A))
         {
-            return Random.Range(1500.0f, 1875.0f);
+			return (float)generateRandomInt(1500, 1875);
         }
         else if (rank.Equals(TournamentProtocol.Level.S))
         {
-            return Random.Range(1875.0f, 2250.0f);
+			return (float)generateRandomInt(1875, 2250);
         }
 
-        return Random.Range(2250.0f, 2450.0f);
+		return (float)generateRandomInt(2250, 2450);
     }
 
     private static float getPrimaryStatFromLevel(TournamentProtocol.Level level){
         if (level.Equals(TournamentProtocol.Level.S))
-            return Random.Range(700.0f, 850.0f);
+			return (float)generateRandomInt(700, 850);
         else if (level.Equals(TournamentProtocol.Level.A))
-            return Random.Range(600.0f, 750.0f);
+			return (float)generateRandomInt(600, 750);
         else if (level.Equals(TournamentProtocol.Level.B))
-            return Random.Range(500.0f, 700.0f);
+			return (float)generateRandomInt(500, 700);
         else if (level.Equals(TournamentProtocol.Level.C))
-            return Random.Range(400.0f, 575.0f);
+			return (float)generateRandomInt(400, 575);
         else if (level.Equals(TournamentProtocol.Level.D))
-            return Random.Range(300.0f, 400.0f);
+			return (float)generateRandomInt(300, 400);
         else if (level.Equals(TournamentProtocol.Level.E))
-            return Random.Range(200.0f, 300.0f);
+			return (float)generateRandomInt(200, 300);
 
         return 850.0f;
     }
 
     private static float getSecondaryStatFromLevel(TournamentProtocol.Level level){
         if (level.Equals(TournamentProtocol.Level.S))
-            return Random.Range(300.0f, 650.0f);
+			return (float)generateRandomInt(300, 650);
         else if (level.Equals(TournamentProtocol.Level.A))
-            return Random.Range(250.0f, 600.0f);
+			return (float)generateRandomInt(250, 600);
         else if (level.Equals(TournamentProtocol.Level.B))
-            return Random.Range(200.0f, 550.0f);
+			return (float)generateRandomInt(200, 550);
         else if (level.Equals(TournamentProtocol.Level.C))
-            return Random.Range(175.0f, 450.0f);
+			return (float)generateRandomInt(175, 450);
         else if (level.Equals(TournamentProtocol.Level.D))
-            return Random.Range(125.0f, 300.0f);
+			return (float)generateRandomInt(125, 300);
         else if (level.Equals(TournamentProtocol.Level.E))
-            return Random.Range(100.0f, 200.0f);
+			return (float)generateRandomInt(100, 200);
 
         return 650.0f;
     }
@@ -712,34 +784,34 @@ public static class WorldBuilderProtocol {
     private static float getPrizeMoney(TournamentProtocol.Level level){
         if (level.Equals(TournamentProtocol.Level.E))
         {
-            return Random.Range(800.0f, 1200.0f);
+			return (float)generateRandomInt(800, 1200);
         } 
         else if (level.Equals(TournamentProtocol.Level.D))
         {
-            return Random.Range(1400.0f, 2000.0f);
+			return (float)generateRandomInt(1400, 2000);
         } 
         else if (level.Equals(TournamentProtocol.Level.C))
         {
-            return Random.Range(2200.0f, 3000.0f);
+			return (float)generateRandomInt(2200, 3000);
         }
         else if (level.Equals(TournamentProtocol.Level.B))
         {
-            return Random.Range(3300.0f, 4500.0f);
+			return (float)generateRandomInt(3300, 4500);
         }
         else if (level.Equals(TournamentProtocol.Level.A))
         {
-            return Random.Range(4800.0f, 6500.0f);
+			return (float)generateRandomInt(4800, 6500);
         }
         else if (level.Equals(TournamentProtocol.Level.S))
         {
-            return Random.Range(7000.0f, 11000.0f);
+			return (float)generateRandomInt(7000, 11000);
         }
 
-        return Random.Range(11500.0f, 14000.0f);
+		return (float)generateRandomInt(11500, 14000);
     }
 
     private static int getRandomTournamentSize(int level){
-        int rng = Random.Range(0, 100);
+		int rng = generateRandomInt(0, 100);
 
         if (rng > 66 + (20 - (level * 4)))
             return 8;
@@ -749,7 +821,7 @@ public static class WorldBuilderProtocol {
         return 4;
     }
 
-    private static void initExercises(ref DataPool worldData)
+    public static void initExercises(ref DataPool worldData)
     {
         string strengthExercise = "Punching Bag";
         string speedExercise = "Sprints";
@@ -804,7 +876,7 @@ public static class WorldBuilderProtocol {
         int baseChance = 70;
         baseChance -= (numRegions * 2);
 
-        return Random.Range(0, 100) < baseChance;
+		return generateRandomInt(0, 100) < baseChance;
     }
 
     private static bool townAccepatble(Vector2Int p, int regionIndex, ref DataPool worldData)

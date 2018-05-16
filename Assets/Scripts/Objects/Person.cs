@@ -20,7 +20,7 @@ public class Person : WeightClass {
 		this.townIndex = townId;
 		this.weight = wt;
 
-		weeksRemaining = Random.Range (280, 400);
+		weeksRemaining = generateRandomInt(280, 400);
 	}
 
 	public void ageWeek(){
@@ -39,6 +39,11 @@ public class Person : WeightClass {
         for (int week = 0; week < cut; week++){
             ageWeek();
         }
+    }
+
+	private static int generateRandomInt(int min, int max)
+    {
+        return new System.Random((int)System.DateTime.Now.Ticks).Next(min, max);
     }
 
 	public string getName(){

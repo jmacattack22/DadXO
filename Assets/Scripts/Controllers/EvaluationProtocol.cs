@@ -71,9 +71,15 @@ public static class EvaluationProtocol
 		return ((statValueLower * distance) + (statValueHigher * (1.0f - distance))) + (preferenceBooster + overallBooster);
 	}
 
-	public static int getStatValueFromGrowthRate(int rate){
-		return 40 + Random.Range(statValues [rate - 1] - 5, statValues[rate - 1] + 6);
+	public static int getStatValueFromGrowthRate(int rate)
+	{
+		return 40 + generateRandomInt(statValues[rate - 1] - 5, statValues[rate - 1] + 5);
 	}
+
+	private static int generateRandomInt(int min, int max)
+    {
+        return new System.Random((int)System.DateTime.Now.Ticks).Next(min, max);
+    }
 
 	public static int getBoxerPointsFromFame(float elo){
 		float fame = (elo / 2500.0f) * 1000.0f;

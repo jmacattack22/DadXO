@@ -16,6 +16,11 @@ public class Homebase {
 		initializeBasicFacilities (ref worldData);
 	}
 
+	private static int generateRandomInt(int min, int max)
+    {
+        return new System.Random((int)System.DateTime.Now.Ticks).Next(min, max);
+    }
+
 	public void initializeBasicFacilities(ref DataPool worldData){
 		initializeHomebaseFacility (ref worldData, ManagerProtocol.FacilityShortcut.DoubleEndBag);
 		initializeHomebaseFacility (ref worldData, ManagerProtocol.FacilityShortcut.PunchGlove);
@@ -81,7 +86,7 @@ public class Homebase {
 
 		for (int i = 0; i < pointsToGive; i++) {
 			if (upgrades.Count > 0) {
-				ManagerProtocol.FacilityShortcut upgrade = upgrades [Random.Range (0, upgrades.Count)];
+				ManagerProtocol.FacilityShortcut upgrade = upgrades [generateRandomInt(0, upgrades.Count - 1)];
 
 				homeBaseFacilities [upgrade].upgradeFacility (ref worldData);
 

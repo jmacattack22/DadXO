@@ -66,28 +66,35 @@ public class DataPool {
 	}
 
     public string generateFirstName(){
-        return firstNames[Random.Range(0, firstNames.Count)];
+		return firstNames[generateRandomInt(0, firstNames.Count - 1)];
     }
 
     public string generateLastName(){
-        return lastNames[Random.Range(0, lastNames.Count)];
+		return lastNames[generateRandomInt(0, lastNames.Count - 1)];
     }
 
+	private static int generateRandomInt(int min, int max)
+    {
+        return new System.Random((int)System.DateTime.Now.Ticks).Next(min, max);
+    }
+    
     public string generateTownName(){
-        int index = Random.Range(0, townNames.Count);
+		int index = generateRandomInt(0, townNames.Count - 1);
         string townName = townNames[index];
         townNames.RemoveAt(index);
         return townName;
     }
 
     public string generateTournamentName(){
-        int index = Random.Range(0, tournamentNames.Count);
-        string name = tournamentNames[index];
-        tournamentNames.RemoveAt(index);
-
-        if (tournamentNames.Count < 3){
-            tournamentNames = backTournamentNames;
+		if (tournamentNames.Count < 5)
+        {
+            tournamentNames = new List<string>(backTournamentNames);
         }
+
+		int index = generateRandomInt(0, tournamentNames.Count - 1); 
+              
+        string name = tournamentNames[index];
+        tournamentNames.RemoveAt(index);      
 
         return name;
     }
@@ -164,7 +171,7 @@ public class DataPool {
         foreach (Region r in regions){
             Dictionary<Vector2Int, int> edges = new Dictionary<Vector2Int, int>();
             foreach (Region s in regions){
-                if (isAdjacent(r.Position, s.Position)){
+                if (isAdjacent(r.Position, s.Position) && !edges.ContainsKey(s.Position)){
                     edges.Add(s.Position, 1);
                 }
             }

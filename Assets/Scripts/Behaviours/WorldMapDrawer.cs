@@ -41,14 +41,7 @@ public class WorldMapDrawer : MonoBehaviour {
         populateTileMapWithRegion(map);
     }
 
-    public void drawRegions(List<Region> regions){
-        if (transform.childCount > 0)
-            cleanTileMap();
-
-        populateTileMapWithRegions(regions);
-    }
-
-    public void drawRegionsTemp(ref DataPool worldData){
+    public void drawRegions(ref DataPool worldData){
         if (transform.childCount > 0)
             cleanTileMap();
 
@@ -100,50 +93,6 @@ public class WorldMapDrawer : MonoBehaviour {
                 }
                 else
                 {
-                    tile = Instantiate(content[RegionCreator.TileType.Water], new Vector3(x, y), Quaternion.identity) as Transform;
-                }
-
-                if (tile != null)
-                    tile.parent = transform;
-            }
-        }
-    }
-
-    private void populateTileMapWithRegions(List<Region> regions)
-    {
-        for (int x = -6; x < 7; x++){
-            for (int y = -6; y < 7; y++){
-                Transform tile = null;
-                Vector2Int currentPos = new Vector2Int(x, y);
-                bool regionExists = false;
-                int regionIndex = -1;
-
-                for (int i = 0; i < regions.Count; i++){
-                    if (regions[i].Position.Equals(currentPos)){
-                        regionIndex = i;
-                    }
-                }
-
-                if (regionIndex != -1){
-                    
-                } else {
-                    tile = Instantiate(content[RegionCreator.TileType.Water], new Vector3(x, y), Quaternion.identity) as Transform;
-                }
-
-                foreach (Region region in regions){
-                    if (region.Position.Equals(currentPos)){
-                        regionExists = true;
-
-                    }
-                }
-
-                if (regionExists){
-                    if (currentPos.Equals(new Vector2Int(0,0))){
-                        tile = Instantiate(content[RegionCreator.TileType.Peak], new Vector3(x, y), Quaternion.identity) as Transform;
-                    } else {
-                        tile = Instantiate(content[RegionCreator.TileType.Land], new Vector3(x, y), Quaternion.identity) as Transform;
-                    }
-                } else {
                     tile = Instantiate(content[RegionCreator.TileType.Water], new Vector3(x, y), Quaternion.identity) as Transform;
                 }
 

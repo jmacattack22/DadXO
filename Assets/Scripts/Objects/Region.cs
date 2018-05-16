@@ -68,6 +68,23 @@ public class Region {
         }
     }
 
+    public int getLandmass()
+	{
+		int mass = 0;
+		for (int x = 0; x < worldMap.GetLength(0); x++)
+		{
+			for (int y = 0; y < worldMap.GetLength(0); y++)
+			{
+				if (!worldMap[x,y].Equals(RegionCreator.TileType.Water) || !worldMap[x, y].Equals(RegionCreator.TileType.Shallows))
+				{
+					mass++;
+				}
+			}
+		}
+
+		return mass;
+	}
+
     public List<int> getRegionsManagerIndexes(){
         return managerProtocolIndexes;
     }
