@@ -58,16 +58,16 @@ public static class RegionCreator
         List<Vector2> gradientPoints = new List<Vector2>();
 
         //Choose gradient points to build island peaks
-        gradientPoints.Add(new Vector2(70, 70));
         gradientPoints.Add(new Vector2(100, 100));
-        gradientPoints.Add(new Vector2(110, 80));
+        gradientPoints.Add(new Vector2(150, 130));
+        gradientPoints.Add(new Vector2(110, 125));
         //gradientPoints.Add(new Vector2(225, 175));
         //gradientPoints.Add(new Vector2(175, 125));
         //gradientPoints.Add(new Vector2(175, 225));
 
         double[,] gradientNoise = new double[width, height];
 
-        for (int x = 0; x < width; x++)
+		for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
             {
@@ -107,7 +107,7 @@ public static class RegionCreator
             }
         }
 
-        if (calculateLandMass(width, height, ref map) < 1000){
+        if (calculateLandMass(width, height, ref map) < 1600){
             raiseLand(width, height, ref perlinMap, ref map);
         }
 
@@ -122,7 +122,7 @@ public static class RegionCreator
         {
             for (int y = 0; y < height; y++)
             {
-                if (!map[x, y].Equals(TileType.Water))
+                if (!map[x, y].Equals(TileType.Water) && !map[x,y].Equals(TileType.Shallows))
                     landMass++;
             }
         }
@@ -170,7 +170,7 @@ public static class RegionCreator
             {
                 double currentHeight = perlinMap[x, y] * 1000;
 
-                map[x, y] = getTileFromHeight(currentHeight + 100);
+                map[x, y] = getTileFromHeight(currentHeight * 1.7);
             }
         }
     }

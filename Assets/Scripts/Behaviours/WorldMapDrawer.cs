@@ -66,9 +66,9 @@ public class WorldMapDrawer : MonoBehaviour {
 
     private void populateTileMapWithRegions(ref DataPool worldData)
     {
-        for (int x = -6; x < 7; x++)
+        for (int x = -8; x < 9; x++)
         {
-            for (int y = -6; y < 7; y++)
+            for (int y = -8; y < 9; y++)
             {
                 Transform tile = null;
                 Vector2Int currentPos = new Vector2Int(x, y);
@@ -84,12 +84,43 @@ public class WorldMapDrawer : MonoBehaviour {
 
                 if (regionIndex != -1)
                 {
-                   // print(worldData.Capitols[worldData.Regions[regionIndex].CapitolIndex].Quarterlies.Keys);
-                    if (worldData.Capitols[worldData.Regions[regionIndex].CapitolIndex].Quarterlies.ContainsKey(TournamentProtocol.Level.A)){
-                        tile = Instantiate(content[RegionCreator.TileType.Beach], new Vector3(x, y), Quaternion.identity) as Transform;
-                    } else {
+					if (worldData.Regions[regionIndex].Level.Equals(TournamentProtocol.Level.S))
+                    {
+                        tile = Instantiate(content[RegionCreator.TileType.Peak], new Vector3(x, y), Quaternion.identity) as Transform;
+                    }
+					else if (worldData.Regions[regionIndex].Level.Equals(TournamentProtocol.Level.A))
+                    {
+                        tile = Instantiate(content[RegionCreator.TileType.Rise], new Vector3(x, y), Quaternion.identity) as Transform;
+                    }
+					else if (worldData.Regions[regionIndex].Level.Equals(TournamentProtocol.Level.B))
+                    {
+                        tile = Instantiate(content[RegionCreator.TileType.Mountain], new Vector3(x, y), Quaternion.identity) as Transform;
+                    }
+					else if (worldData.Regions[regionIndex].Level.Equals(TournamentProtocol.Level.C))
+                    {
                         tile = Instantiate(content[RegionCreator.TileType.Land], new Vector3(x, y), Quaternion.identity) as Transform;
                     }
+					else if (worldData.Regions[regionIndex].Level.Equals(TournamentProtocol.Level.D))
+                    {
+                        tile = Instantiate(content[RegionCreator.TileType.Coastal], new Vector3(x, y), Quaternion.identity) as Transform;
+                    }
+					else if (worldData.Regions[regionIndex].Level.Equals(TournamentProtocol.Level.E))
+                    {
+                        tile = Instantiate(content[RegionCreator.TileType.Shallows], new Vector3(x, y), Quaternion.identity) as Transform;
+                    }
+
+
+     //               if (worldData.Capitols[worldData.Regions[regionIndex].CapitolIndex].Quarterlies.ContainsKey(TournamentProtocol.Level.D)){
+     //                   tile = Instantiate(content[RegionCreator.TileType.Beach], new Vector3(x, y), Quaternion.identity) as Transform;
+     //               }
+					//else if (worldData.Regions[regionIndex].Level.Equals(TournamentProtocol.Level.S))
+					//{
+					//	tile = Instantiate(content[RegionCreator.TileType.Mountain], new Vector3(x, y), Quaternion.identity) as Transform;
+					//}
+					//else 
+					//{
+                    //    tile = Instantiate(content[RegionCreator.TileType.Land], new Vector3(x, y), Quaternion.identity) as Transform;
+                    //}
                 }
                 else
                 {

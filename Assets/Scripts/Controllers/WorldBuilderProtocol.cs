@@ -173,7 +173,8 @@ public static class WorldBuilderProtocol {
                     {
                         if (blueHit(new Vector2Int(x, y), worldData.Regions[regionIndex].Map) && generateRandomInt(0,100) < 60 && !capitolCreated)
                         {
-                            int regionDistance = Mathf.Abs(worldData.Regions[regionIndex].Position.x) + Mathf.Abs(worldData.Regions[regionIndex].Position.y);
+							List<Vector2Int> path = worldData.Dijkstras.shortestPath(new Vector2Int(0, 0), worldData.Regions[regionIndex].Position);
+                            int regionDistance = path.Count;
                             worldData.Capitols.Add(new Capitol(worldData.generateTownName(), new Vector2Int(x, y), regionDistance));
                             worldData.Regions[regionIndex].addCapitol(worldData.Capitols.Count - 1);
                             capitolCreated = true;
@@ -186,7 +187,7 @@ public static class WorldBuilderProtocol {
 
     private static void createManagerBasedOnTown(ref DataPool worldData, int townIndex, int regionIndex)
     {
-        for (int j = 0; j < 2; j++)
+        for (int j = 0; j < 1; j++)
         {
             List<BoxerClass.Type> typeList = BoxerClass.getTypeList();
 
@@ -419,7 +420,8 @@ public static class WorldBuilderProtocol {
                 {
                     if (townAccepatble(new Vector2Int(x, y), regionIndex, ref worldData))
                     {
-                        int regionDistance = Mathf.Abs(worldData.Regions[regionIndex].Position.x) + Mathf.Abs(worldData.Regions[regionIndex].Position.y);
+						List<Vector2Int> path = worldData.Dijkstras.shortestPath(new Vector2Int(0,0), worldData.Regions[regionIndex].Position);
+						int regionDistance = path.Count;
                         worldData.Towns.Add(new Town(worldData.generateTownName(), new Vector2Int(x, y), regionDistance));
                         //worldData.WorldMap[x, y] = Region.TileType.Town;
                         createManagerBasedOnTown(ref worldData, worldData.Towns.Count - 1, regionIndex);
@@ -567,22 +569,22 @@ public static class WorldBuilderProtocol {
         return !tooClose;
     }
 
-    private static float getSpacing(TournamentProtocol.Level level)
+    private static int getSpacing(TournamentProtocol.Level level)
     {
         switch (level){
             case TournamentProtocol.Level.E:
-                return 1.5f;
+                return 2;
             case TournamentProtocol.Level.D:
-                return 2.5f;
+                return 3;
             case TournamentProtocol.Level.C:
-                return 3.0f;
+                return generateRandomInt(3,4);
             case TournamentProtocol.Level.B:
-                return 3.5f;
+                return generateRandomInt(3,4);
             case TournamentProtocol.Level.A:
-                return 4.5f;
+                return generateRandomInt(4,5);
         }
 
-        return 6.5f;
+        return 7;
     }
 
     public static float generateWeightFromClass(WeightClass.WClass wClass){
@@ -891,7 +893,7 @@ public static class WorldBuilderProtocol {
 
             float distance = Mathf.Sqrt(Mathf.Pow((float)(p2.x - p1.x), 2.0f) + Mathf.Pow((float)(p2.y - p1.y), 2.0f));
 
-            if (distance < 15)
+            if (distance < 23)
                 return false;
         }
 

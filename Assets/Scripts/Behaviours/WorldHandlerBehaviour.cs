@@ -10,12 +10,17 @@ public class WorldHandlerBehaviour : MonoBehaviour
 	public WorldBuilderBehaviour worldBuilder;
 	private Thread worldBuilderThread;
 
+	private bool tournamentsInProgress;
+	public TournamentHandlerBehaviour tournamentHandler;
+	private Thread tournamentHandlerThread;
+
     private DataPool worldData;
 
 	void Start()
 	{
 		worldBuilder.createNewWorld();
 		creatingNewWorld = true;
+		tournamentsInProgress = false;
 	}
 
 	void Update()
@@ -29,11 +34,37 @@ public class WorldHandlerBehaviour : MonoBehaviour
 	}
 
     public void advanceWeek(){
-        TournamentHandlerProtocol.simTournamentsAndTraining(ref worldData);
-        worldData.updateBoxerDistribution();
+		if (!tournamentsInProgress)
+		{
+			tournamentsInProgress = true;
+			tournamentHandler.updateWorldData(worldData);
+			tournamentHandlerThread = new Thread(new ThreadStart(tournamentHandler.simTournamentsAndTraining));
+			tournamentHandlerThread.Start();
+		}
+    }
 
-        worldData.Calendar.progessWeek();
-        Debug.Log(worldData.Calendar.getDate(Calendar.DateType.fullLong));
+	public void logBoxerResults()
+    {
+        foreach (ManagerProtocol mp in worldData.ManagerProtocols)
+        {
+            worldData.Boxers[mp.BoxerIndex].logBoxerStats(mp.Rank);
+        }
+    }
+
+    public void logManagerResults()
+    {
+        foreach (ManagerProtocol mp in worldData.ManagerProtocols)
+        {
+            mp.logManagerStats(ref worldData);
+        }
+    }
+
+	public void distribution()
+    {
+        foreach (TournamentProtocol.Level rank in worldData.Distribution.Keys)
+        {
+            Debug.Log(rank.ToString() + " - " + worldData.Distribution[rank]);
+        }
     }
 
     //Getters

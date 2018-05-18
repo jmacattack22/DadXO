@@ -7,6 +7,8 @@ public class Region {
     private Vector2Int position;
     private string regionName;
 
+	private int landMass;
+
     private int capitolIndex;
     private List<int> townIndexes;
     private List<int> managerProtocolIndexes;
@@ -18,6 +20,7 @@ public class Region {
     public Region(string name, Vector2Int pos){
         position = pos;
         regionName = name;
+		landMass = 0;
 
         capitolIndex = -1;
         managerProtocolIndexes = new List<int>();
@@ -38,6 +41,8 @@ public class Region {
 
     public void addWorldMap(RegionCreator.TileType[,] worldMap){
         this.worldMap = worldMap;
+
+		landMass = getLandmass();
     }
 
     private void determineRegionLevel(int regionDistance)
@@ -68,14 +73,14 @@ public class Region {
         }
     }
 
-    public int getLandmass()
+    private int getLandmass()
 	{
 		int mass = 0;
 		for (int x = 0; x < worldMap.GetLength(0); x++)
 		{
 			for (int y = 0; y < worldMap.GetLength(0); y++)
 			{
-				if (!worldMap[x,y].Equals(RegionCreator.TileType.Water) || !worldMap[x, y].Equals(RegionCreator.TileType.Shallows))
+				if (!worldMap[x,y].Equals(RegionCreator.TileType.Water) && !worldMap[x, y].Equals(RegionCreator.TileType.Shallows))
 				{
 					mass++;
 				}
@@ -117,4 +122,9 @@ public class Region {
     public RegionCreator.TileType[,] Map {
         get { return worldMap; }
     }
+
+    public int LandMass 
+	{
+		get { return landMass; }
+	}
 }

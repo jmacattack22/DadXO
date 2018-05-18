@@ -107,6 +107,7 @@ public class RegionCreatorThread : MonoBehaviour
         { }
 
         locationLock = true;
+      
         Region region = new Region("", regionLocations[0]);
         regionLocations.RemoveAt(0);
         locationLock = false;
@@ -156,7 +157,7 @@ public class RegionCreatorThread : MonoBehaviour
             foreach (Vector2Int pos in newlyCreatedRegionLocations)
 			{
 				List<Vector2Int> newLocationsToAdd = getAdjacents(pos);
-
+                
 				if (newLocationsToAdd.Count > 0)
 				{
 					foreach (Vector2Int newPos in newLocationsToAdd)
@@ -164,6 +165,7 @@ public class RegionCreatorThread : MonoBehaviour
 						temporaryLocations.Add(newPos);
 						regionLocations.Add(newPos);
 					}
+
 				}
 				else
 				{
@@ -242,7 +244,7 @@ public class RegionCreatorThread : MonoBehaviour
 
 	private bool shouldAddRegion(int numRegions)
     {
-        int baseChance = 95;
+        int baseChance = 105;
         baseChance -= (numRegions * 2);
 		int chance = new System.Random().Next(100);
 

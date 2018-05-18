@@ -384,7 +384,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57dc1ddd485494e7ca1ace39dd187e9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  regionCreatorThread: {fileID: 283155965}
+  regionTarget: 60
+  regionWidth: 250
+  regionHeight: 250
 --- !u!4 &274938806
 Transform:
   m_ObjectHideFlags: 0
@@ -394,55 +396,10 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.28132638, y: 0.05759705, z: -0.12788297}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 283155964}
-  - {fileID: 1251351528}
+  m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &283155963
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 283155964}
-  - component: {fileID: 283155965}
-  m_Layer: 0
-  m_Name: RegionCreator
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &283155964
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 283155963}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.28132638, y: -0.05759705, z: 0.12788297}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 274938806}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &283155965
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 283155963}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bc814e5d17c364d14981867241dbbda8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  regionWidth: 250
-  regionHeight: 250
-  regionsToCreate: 40
 --- !u!1 &320202807
 GameObject:
   m_ObjectHideFlags: 0
@@ -472,6 +429,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mapDrawer: {fileID: 1332880746}
   worldBuilder: {fileID: 274938805}
+  tournamentHandler: {fileID: 1589867685}
 --- !u!4 &320202809
 Transform:
   m_ObjectHideFlags: 0
@@ -573,7 +531,7 @@ GameObject:
   - component: {fileID: 462424733}
   - component: {fileID: 462424732}
   m_Layer: 0
-  m_Name: Button
+  m_Name: AdvanceWeek
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -637,8 +595,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_MethodName: progressWeek
+      - m_Target: {fileID: 320202808}
+        m_MethodName: advanceWeek
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -798,7 +756,7 @@ GameObject:
   - component: {fileID: 886783320}
   - component: {fileID: 886783319}
   m_Layer: 0
-  m_Name: Button (2)
+  m_Name: ManagerStats
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -862,7 +820,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 320202808}
         m_MethodName: logManagerResults
         m_Mode: 1
         m_Arguments:
@@ -1044,47 +1002,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1251351527
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 1251351528}
-  - component: {fileID: 1251351529}
-  m_Layer: 0
-  m_Name: TownCreator
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1251351528
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1251351527}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 274938806}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1251351529
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1251351527}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f607e154c030f42ffbd7a72a6a4a7868, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  batchSize: 4
 --- !u!1 &1305845435
 GameObject:
   m_ObjectHideFlags: 0
@@ -1434,6 +1351,46 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1514866731}
+--- !u!1 &1589867684
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 1589867686}
+  - component: {fileID: 1589867685}
+  m_Layer: 0
+  m_Name: TournamentHandler
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1589867685
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1589867684}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ccd4fe2869714a6a9eb4b43707a8c08, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &1589867686
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1589867684}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.1781058, y: 1.1792727, z: 0.25124323}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1660045747
 GameObject:
   m_ObjectHideFlags: 0
@@ -1446,7 +1403,7 @@ GameObject:
   - component: {fileID: 1660045750}
   - component: {fileID: 1660045749}
   m_Layer: 0
-  m_Name: Button (1)
+  m_Name: BoxerStats
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1510,7 +1467,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 320202808}
         m_MethodName: logBoxerResults
         m_Mode: 1
         m_Arguments:
@@ -1568,7 +1525,7 @@ GameObject:
   - component: {fileID: 1735649040}
   - component: {fileID: 1735649039}
   m_Layer: 0
-  m_Name: Button (2)
+  m_Name: Distribution
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1632,7 +1589,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 320202808}
         m_MethodName: distribution
         m_Mode: 1
         m_Arguments:

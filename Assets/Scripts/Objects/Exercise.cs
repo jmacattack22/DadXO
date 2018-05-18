@@ -56,6 +56,11 @@ public class Exercise {
 		coachIndex = newCoachIndex;
 	}
 
+	private static int generateRandomInt(int min, int max)
+    {
+        return new System.Random((int)System.DateTime.Now.Ticks).Next(min, max);
+    }
+
 	private int getAgeBonus(Vector2Int age){
 		float lower = ageCurve [age.x];
 		float higher = ageCurve [age.x + 1];
@@ -120,7 +125,7 @@ public class Exercise {
 	private TrainingResult.Outcome getOutcome(ref DataPool worldData, int boxerIndex){
 		int failFactor = Mathf.RoundToInt ((worldData.Boxers [boxerIndex].Maturity / 100.0f) * 25.0f);
 
-		int outcome = Random.Range (0, 100);
+		int outcome = generateRandomInt(0, 100);
 
 		if (outcome <= (25 - failFactor))
 			return TrainingResult.Outcome.Failure;
@@ -133,11 +138,11 @@ public class Exercise {
 	private TrainingResult getResult(TrainingResult.Outcome outcome, int acc, int end, int hlt, int spd, int str){
 		int newAcc = 0; int newEnd = 0; int newHlt = 0; int newSpd = 0; int newStr = 0;
 
-		newAcc = acc > 0 ? Random.Range (getLowerBound (acc, outcome), getUpperBound (acc, outcome)) : 0;
-		newEnd = end > 0 ? Random.Range (getLowerBound (end, outcome), getUpperBound (end, outcome)) : 0;
-		newHlt = hlt > 0 ? Random.Range (getLowerBound (hlt, outcome), getUpperBound (hlt, outcome)) : 0;
-		newSpd = spd > 0 ? Random.Range (getLowerBound (spd, outcome), getUpperBound (spd, outcome)) : 0;
-		newStr = str > 0 ? Random.Range (getLowerBound (str, outcome), getUpperBound (str, outcome)) : 0;
+		newAcc = acc > 0 ? generateRandomInt(getLowerBound(acc, outcome), getUpperBound(acc, outcome)) : 0;
+		newEnd = end > 0 ? generateRandomInt(getLowerBound(end, outcome), getUpperBound(end, outcome)) : 0;
+		newHlt = hlt > 0 ? generateRandomInt(getLowerBound(hlt, outcome), getUpperBound(hlt, outcome)) : 0;
+		newSpd = spd > 0 ? generateRandomInt(getLowerBound(spd, outcome), getUpperBound(spd, outcome)) : 0;
+		newStr = str > 0 ? generateRandomInt(getLowerBound(str, outcome), getUpperBound(str, outcome)) : 0;
 
 		return new TrainingResult (outcome, newAcc, newEnd, newHlt, newSpd, newStr, fatigue);
 	}

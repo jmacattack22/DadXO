@@ -97,7 +97,7 @@ public class ManagerProtocol
 
     private FacilityShortcut chooseTraining()
     {
-        return trainingRegime[Random.Range(0, trainingRegime.Count)];
+		return trainingRegime[generateRandomInt(0, trainingRegime.Count - 1)];
     }
 
     private void disposeAndRenewBoxer(ref DataPool worldData)
@@ -148,6 +148,11 @@ public class ManagerProtocol
     public bool fightRecently(int oppIndex)
     {
         return previousOpponents.Contains(oppIndex);
+    }
+
+	private static int generateRandomInt(int min, int max)
+    {
+        return new System.Random((int)System.DateTime.Now.Ticks).Next(min, max);
     }
 
     public float getBoxerELOHistory()
