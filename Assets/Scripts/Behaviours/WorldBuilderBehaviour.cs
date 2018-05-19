@@ -13,6 +13,8 @@ public class WorldBuilderBehaviour : MonoBehaviour
 
 	private BuilderState state;
 
+	public WorldMapDrawer mapDrawer;
+
 	private bool startQualifierThread;
 	private Thread qualifierThread;
 
@@ -24,8 +26,11 @@ public class WorldBuilderBehaviour : MonoBehaviour
 	private string debugState = "";
 
 	private bool regionsCreated = false;
-	private List<Vector2Int> regionLocations;
 	private Thread regionThread;
+
+	private int drawnRegions = 0;
+	private bool drawingRegions = false;
+	private List<int> regionLocationIndexes;
     
 	private Thread distanceThread;
 
@@ -35,31 +40,13 @@ public class WorldBuilderBehaviour : MonoBehaviour
 
 	private Stopwatch stopwatch;
 
-    void Start()
-    {
+	void Start()
+	{
 		stopwatch = new Stopwatch();
 		state = BuilderState.None;
 		startQualifierThread = false;
-		regionLocations = new List<Vector2Int>();
-    }
-
-	private void addRegionsToWorld()
-    {
-        foreach (Vector2Int pos in regionLocations)
-		{
-			Region region = new Region("", pos);
-			region.addWorldMap(RegionCreator.CreateRegion(regionWidth, regionHeight));
-
-			worldData.Regions.Add(region);
-		}
-
-        worldData.updateDijkstras();
-
-		distanceThread = new Thread(new ThreadStart(worldData.calculateRegionDistances));
-		distanceThread.Start();
-
-		//worldData.calculateRegionDistances();
-    }
+		regionLocationIndexes = new List<int>();
+	}
 
     private float calculateQualifierSetupCompletePercentage()
 	{
@@ -86,7 +73,7 @@ public class WorldBuilderBehaviour : MonoBehaviour
     private float calculateTownCompletePercentage()
     {
         float current = worldData.Towns.Count;
-        float target = regionTarget * 21.0f;
+        float target = regionTarget * 17.0f;
 
         return (current / target);
     }
@@ -124,6 +111,7 @@ public class WorldBuilderBehaviour : MonoBehaviour
     private void generateRegions()
 	{
 		createRegion("", new Vector2Int(0, 0));
+		regionLocationIndexes.Add(0);
 
 		List<int> regionIndexes = new List<int>();
 		regionIndexes.Add(0);
@@ -143,6 +131,7 @@ public class WorldBuilderBehaviour : MonoBehaviour
 					foreach (Vector2Int pos in newRegionsToAdd)
 					{
 						createRegion("", pos);
+						regionLocationIndexes.Add(regionLocationIndexes.Count - 1);
 						temporaryNewIndexes.Add(worldData.Regions.Count - 1);
 					}
 				}
@@ -248,8 +237,6 @@ public class WorldBuilderBehaviour : MonoBehaviour
         {
 			debugRegionID = i;
 
-			//if (worldData.Regions[i].getLandmass() >= 1600)
-			//WorldBuilderProtocol.createCapitol(ref worldData, i);
 			debugState = "capitol";
 			WorldBuilderProtocol.createCapitol(ref worldData, i);
 			debugState = "town";
@@ -268,13 +255,29 @@ public class WorldBuilderBehaviour : MonoBehaviour
         return chance < baseChance;
     }
 
+    private void drawRegions()
+	{
+		drawingRegions = true;
+
+		for (int i = drawnRegions; i < regionLocationIndexes.Count; i++)
+		{
+			print(i + " - " + worldData.Regions.Count);
+			mapDrawer.addPlainRegionTileToWorldMap(
+				new Vector3(worldData.Regions[regionLocationIndexes[i]].Position.x, worldData.Regions[regionLocationIndexes[i]].Position.y));
+		}
+		drawnRegions = regionLocationIndexes.Count;
+
+		drawingRegions = false;
+	}
+
 	void Update()
 	{
 		if (regionsCreated && state.Equals(BuilderState.Regions))
 		{
-			print(regionLocations + " Regions created");
+			worldData.updateDijkstras();
 
-			addRegionsToWorld();
+            distanceThread = new Thread(new ThreadStart(worldData.calculateRegionDistances));
+            distanceThread.Start();
 
 			state = BuilderState.PopulatingTowns;
 			townThread = new Thread(new ThreadStart(populateWorldWithTowns));
@@ -294,22 +297,23 @@ public class WorldBuilderBehaviour : MonoBehaviour
 		{
 			
 		}
+
+        if (state.Equals(BuilderState.Regions))
+		{
+            if (!drawingRegions)
+			{
+				drawRegions();
+			}        
+		}
 			
 
 		if (!state.Equals(BuilderState.None) && !state.Equals(BuilderState.Complete))
 		{
-			//if (worldData != null)
-			//{
-			//	if (worldData.Regions.Count > 0)
-			//	{
-			//		print(debugRegionID + " - " + worldData.Regions[debugRegionID].getLandmass());
-			//	}
-			//}
+			//print(debugRegionID + " - " + worldData.Regions[debugRegionID].LandMass + " - " + 
+			// debugState + " - " + worldData.Regions[debugRegionID].getRegionsTownIndexes().Count + " - " +
+			//worldData.Towns.Count);
 
-			print(debugRegionID + " - " + worldData.Regions[debugRegionID].LandMass + " - " + 
-			      debugState + " - " + worldData.Regions[debugRegionID].getRegionsTownIndexes().Count + " - " +
-			     worldData.Towns.Count);
-			print(state + " " + getPercentage() + "% Complete.");
+			print("World " + getPercentage() + "% Complete. Current Focus " + state);
 		}
 	}
 

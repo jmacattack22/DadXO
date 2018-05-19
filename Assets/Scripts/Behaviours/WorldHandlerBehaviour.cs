@@ -25,7 +25,7 @@ public class WorldHandlerBehaviour : MonoBehaviour
 			worldData = worldBuilder.getWorldData();
 			mapDrawer.drawRegions(ref worldData);
 			creatingNewWorld = false;
-		}
+		}       
 	}
 
     public void advanceWeek(){

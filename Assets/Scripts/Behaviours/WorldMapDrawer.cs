@@ -41,6 +41,45 @@ public class WorldMapDrawer : MonoBehaviour {
         populateTileMapWithRegion(map);
     }
 
+	public void addPlainRegionTileToWorldMap(Vector3 pos)
+	{
+		Transform tile = Instantiate(content[RegionCreator.TileType.Land], pos, Quaternion.identity) as Transform;
+		tile.parent = transform;      
+	}
+
+	public void addRegionTileToWorldMap(DataPool worldData, int regionIndex, Vector3 pos)
+	{
+		Transform tile = null;
+
+		if (worldData.Regions[regionIndex].Level.Equals(TournamentProtocol.Level.S))
+        {
+            tile = Instantiate(content[RegionCreator.TileType.Peak], pos, Quaternion.identity) as Transform;
+        }
+        else if (worldData.Regions[regionIndex].Level.Equals(TournamentProtocol.Level.A))
+        {
+			tile = Instantiate(content[RegionCreator.TileType.Rise], pos, Quaternion.identity) as Transform;
+        }
+        else if (worldData.Regions[regionIndex].Level.Equals(TournamentProtocol.Level.B))
+        {
+			tile = Instantiate(content[RegionCreator.TileType.Mountain], pos, Quaternion.identity) as Transform;
+        }
+        else if (worldData.Regions[regionIndex].Level.Equals(TournamentProtocol.Level.C))
+        {
+			tile = Instantiate(content[RegionCreator.TileType.Land], pos, Quaternion.identity) as Transform;
+        }
+        else if (worldData.Regions[regionIndex].Level.Equals(TournamentProtocol.Level.D))
+        {
+			tile = Instantiate(content[RegionCreator.TileType.Coastal], pos, Quaternion.identity) as Transform;
+        }
+        else if (worldData.Regions[regionIndex].Level.Equals(TournamentProtocol.Level.E))
+        {
+			tile = Instantiate(content[RegionCreator.TileType.Shallows], pos, Quaternion.identity) as Transform;
+        }
+
+		if (tile != null)
+            tile.parent = transform;
+	}
+
     public void drawRegions(ref DataPool worldData){
         if (transform.childCount > 0)
             cleanTileMap();
@@ -84,43 +123,7 @@ public class WorldMapDrawer : MonoBehaviour {
 
                 if (regionIndex != -1)
                 {
-					if (worldData.Regions[regionIndex].Level.Equals(TournamentProtocol.Level.S))
-                    {
-                        tile = Instantiate(content[RegionCreator.TileType.Peak], new Vector3(x, y), Quaternion.identity) as Transform;
-                    }
-					else if (worldData.Regions[regionIndex].Level.Equals(TournamentProtocol.Level.A))
-                    {
-                        tile = Instantiate(content[RegionCreator.TileType.Rise], new Vector3(x, y), Quaternion.identity) as Transform;
-                    }
-					else if (worldData.Regions[regionIndex].Level.Equals(TournamentProtocol.Level.B))
-                    {
-                        tile = Instantiate(content[RegionCreator.TileType.Mountain], new Vector3(x, y), Quaternion.identity) as Transform;
-                    }
-					else if (worldData.Regions[regionIndex].Level.Equals(TournamentProtocol.Level.C))
-                    {
-                        tile = Instantiate(content[RegionCreator.TileType.Land], new Vector3(x, y), Quaternion.identity) as Transform;
-                    }
-					else if (worldData.Regions[regionIndex].Level.Equals(TournamentProtocol.Level.D))
-                    {
-                        tile = Instantiate(content[RegionCreator.TileType.Coastal], new Vector3(x, y), Quaternion.identity) as Transform;
-                    }
-					else if (worldData.Regions[regionIndex].Level.Equals(TournamentProtocol.Level.E))
-                    {
-                        tile = Instantiate(content[RegionCreator.TileType.Shallows], new Vector3(x, y), Quaternion.identity) as Transform;
-                    }
-
-
-     //               if (worldData.Capitols[worldData.Regions[regionIndex].CapitolIndex].Quarterlies.ContainsKey(TournamentProtocol.Level.D)){
-     //                   tile = Instantiate(content[RegionCreator.TileType.Beach], new Vector3(x, y), Quaternion.identity) as Transform;
-     //               }
-					//else if (worldData.Regions[regionIndex].Level.Equals(TournamentProtocol.Level.S))
-					//{
-					//	tile = Instantiate(content[RegionCreator.TileType.Mountain], new Vector3(x, y), Quaternion.identity) as Transform;
-					//}
-					//else 
-					//{
-                    //    tile = Instantiate(content[RegionCreator.TileType.Land], new Vector3(x, y), Quaternion.identity) as Transform;
-                    //}
+					addRegionTileToWorldMap(worldData, regionIndex, new Vector3(x,y));
                 }
                 else
                 {

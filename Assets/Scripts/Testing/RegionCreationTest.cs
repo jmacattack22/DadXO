@@ -8,7 +8,7 @@ public class RegionCreationTest : MonoBehaviour
     void Start()
     {
         worldData = new DataPool();
-        WorldBuilderProtocol.createRegions(250, 250, ref worldData);
+        //WorldBuilderProtocol.createRegions(250, 250, ref worldData);
 
         print(worldData.Regions.Count);
 
