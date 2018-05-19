@@ -67,6 +67,11 @@ public class TournamentProtocol {
         }
     }
 
+	private static int generateRandomInt(int min, int max)
+    {
+        return new System.Random((int)System.DateTime.Now.Ticks).Next(min, max);
+    }
+
 	public void logResults(ref DataPool worldData){
         managerIndexes = managerIndexes.OrderByDescending(x => tournamentResults[x].Record.getWinPercentage()).ToList();
 		foreach (int index in managerIndexes) {
@@ -106,7 +111,8 @@ public class TournamentProtocol {
 
 			float ovr1Chance = (ovr1 / (ovr1 + ovr2)) * 100.0f;
 
-			if (Random.Range (0.0f, 100.0f) < ovr1Chance) {
+			float chance = generateRandomInt(0, 100);
+			if (chance < ovr1Chance) {
 				tournamentResults [managerIndexes [match.x]].Record.addWin (
 					worldData.ManagerProtocols [managerIndexes [match.y]].CurrentBoxerELO);
 				tournamentResults [managerIndexes [match.y]].Record.addLoss (
@@ -137,7 +143,8 @@ public class TournamentProtocol {
 
                     float ovr1Chance = (ovr1 / (ovr1 + ovr2)) * 100.0f;
 
-                    if (Random.Range(0.0f, 100.0f) < ovr1Chance)
+					float chance = generateRandomInt(0, 100);
+                    if (chance < ovr1Chance)
                     {
                         tournamentResults[managerIndexes[match.x]].Record.addWin(
                             worldData.ManagerProtocols[managerIndexes[match.y]].CurrentBoxerELO);

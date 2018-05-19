@@ -187,16 +187,16 @@ public static class WorldBuilderProtocol {
 
     private static void createManagerBasedOnTown(ref DataPool worldData, int townIndex, int regionIndex)
     {
-        for (int j = 0; j < 1; j++)
-        {
-            List<BoxerClass.Type> typeList = BoxerClass.getTypeList();
+		for (int j = 0; j < 1; j++)
+		{
+			List<BoxerClass.Type> typeList = BoxerClass.getTypeList();
 
-            Manager manager = new Manager(
+			Manager manager = new Manager(
 				worldData.generateFirstName(), worldData.generateLastName(), townIndex, generateRandomInt(145, 225), typeList[generateRandomInt(0, typeList.Count - 1)]);
-            manager.Record.setELO(getEloFromRegion(worldData.Towns[townIndex].RegionLevel));
-            worldData.Managers.Add(manager);
+			manager.Record.setELO(getEloFromRegion(worldData.Towns[townIndex].RegionLevel));
+			worldData.Managers.Add(manager);
 
-            ManagerProtocol mp = new ManagerProtocol(ref worldData, worldData.Managers.Count - 1);
+			ManagerProtocol mp = new ManagerProtocol(ref worldData, worldData.Managers.Count - 1, true);
 
             List<Boxer> boxers = WorldBuilderProtocol.generateBoxerRecruits(ref worldData, manager.TownIndex, manager.Record.ELO);
 
@@ -893,7 +893,7 @@ public static class WorldBuilderProtocol {
 
             float distance = Mathf.Sqrt(Mathf.Pow((float)(p2.x - p1.x), 2.0f) + Mathf.Pow((float)(p2.y - p1.y), 2.0f));
 
-            if (distance < 23)
+            if (distance < 28)
                 return false;
         }
 

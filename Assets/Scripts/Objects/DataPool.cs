@@ -65,6 +65,21 @@ public class DataPool {
 		exerciseProgress [exercise].Add (progress);
 	}
 
+    public void calculateRegionDistances()
+	{
+		for (int i = 0; i < regions.Count; i++)
+		{
+			for (int j = 0; j < regions.Count; j++)
+			{
+				if (i != j)
+				{
+					regions[i].addDistance(j, dijkstras.shortestPath(regions[i].Position, regions[j].Position).Count);
+				}
+				else regions[i].addDistance(i, 0);
+			}
+		}
+	}
+
     public string generateFirstName(){
 		return firstNames[generateRandomInt(0, firstNames.Count - 1)];
     }

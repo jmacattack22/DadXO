@@ -1,5 +1,6 @@
 using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 public class WorldHandlerBehaviour : MonoBehaviour
@@ -8,19 +9,13 @@ public class WorldHandlerBehaviour : MonoBehaviour
 
 	private bool creatingNewWorld = false;
 	public WorldBuilderBehaviour worldBuilder;
-	private Thread worldBuilderThread;
 
-	private bool tournamentsInProgress;
-	public TournamentHandlerBehaviour tournamentHandler;
-	private Thread tournamentHandlerThread;
-
-    private DataPool worldData;
+	private DataPool worldData;
 
 	void Start()
 	{
 		worldBuilder.createNewWorld();
 		creatingNewWorld = true;
-		tournamentsInProgress = false;
 	}
 
 	void Update()
@@ -34,21 +29,21 @@ public class WorldHandlerBehaviour : MonoBehaviour
 	}
 
     public void advanceWeek(){
-		if (!tournamentsInProgress)
-		{
-			tournamentsInProgress = true;
-			tournamentHandler.updateWorldData(worldData);
-			tournamentHandlerThread = new Thread(new ThreadStart(tournamentHandler.simTournamentsAndTraining));
-			tournamentHandlerThread.Start();
-		}
+		TournamentHandlerProtocol.simTournamentsAndTraining(ref worldData);
+		worldData.updateBoxerDistribution();
+
+        worldData.Calendar.progessWeek();
+        Debug.Log(worldData.Calendar.getDate(Calendar.DateType.fullLong));
     }
 
 	public void logBoxerResults()
     {
-        foreach (ManagerProtocol mp in worldData.ManagerProtocols)
-        {
-            worldData.Boxers[mp.BoxerIndex].logBoxerStats(mp.Rank);
-        }
+		List<ManagerProtocol> managers = worldData.ManagerProtocols.OrderByDescending(m => EvaluationProtocol.evaluateBoxer(worldData.Boxers[m.BoxerIndex])).ToList();
+
+        foreach (ManagerProtocol mp in managers)
+		{
+			worldData.Boxers[mp.BoxerIndex].logBoxerStats(mp.Rank);
+		}
     }
 
     public void logManagerResults()

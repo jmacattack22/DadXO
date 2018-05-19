@@ -36,13 +36,13 @@ public class ManagerProtocol
 
     private TournamentProtocol.Level currentRanking;
 
-    public ManagerProtocol(ref DataPool worldData, int mIndex)
+    public ManagerProtocol(ref DataPool worldData, int mIndex, bool ai)
     {
         managerIndex = mIndex;
 
         finance = new FinanceProtocol(5000);
 
-        homebase = new Homebase(ref worldData);
+        homebase = new Homebase(ref worldData, ai);
         ship = new Ship(ref worldData);
         trainingRegime = new List<FacilityShortcut>();
 

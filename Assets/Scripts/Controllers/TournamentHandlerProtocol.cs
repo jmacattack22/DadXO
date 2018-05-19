@@ -70,11 +70,19 @@ public static class TournamentHandlerProtocol {
                 List<int> regionsWithinJurisdiction = new List<int>();
 
                 for (int i = 0; i < worldData.Regions.Count; i++){
-                    List<Vector2Int> path = worldData.Dijkstras.shortestPath(region.Position, worldData.Regions[i].Position);
-
-                    if (path.Count < getDistanceFromLevel(level)){
+					if (region.CapitolIndex == worldData.Regions[i].CapitolIndex)
+                    {
                         regionsWithinJurisdiction.Add(i);
                     }
+                    else
+                    {
+                        int distance = region.getDistanceToRegion(i);
+
+                        if (distance < getDistanceFromLevel(level))
+                        {
+                            regionsWithinJurisdiction.Add(i);
+                        }   
+                    }  
                 }
 
                 List<int> recruits = recruit(worldData, level, regionsWithinJurisdiction, true);
@@ -103,11 +111,18 @@ public static class TournamentHandlerProtocol {
 
                     for (int i = 0; i < worldData.Regions.Count; i++)
                     {
-                        List<Vector2Int> path = worldData.Dijkstras.shortestPath(region.Position, worldData.Regions[i].Position);
-
-                        if (path.Count < getDistanceFromLevel(worldData.Towns[tIndex].Tournament.TournamentLevel))
+						if (region.CapitolIndex == worldData.Regions[i].CapitolIndex)
                         {
                             regionsWithinJurisdiction.Add(i);
+                        }
+                        else
+                        {
+                            int distance = region.getDistanceToRegion(i);
+
+                            if (distance < getDistanceFromLevel(worldData.Towns[tIndex].Tournament.TournamentLevel))
+                            {
+                                regionsWithinJurisdiction.Add(i);
+                            }
                         }
                     }
 

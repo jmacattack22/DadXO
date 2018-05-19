@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using System.Threading;
 
 public class TournamentHandlerBehaviour : MonoBehaviour 
 {
@@ -11,11 +12,30 @@ public class TournamentHandlerBehaviour : MonoBehaviour
 	}
 
 	private TournamentState state;
+	private List<int> thisWeeksTournaments;
+
+	private Dictionary<TournamentState, Thread> threads = new Dictionary<TournamentState, Thread>();
+
+	private bool recruitedForQualifiers = false;
+	private bool recruitedForTournaments = false;
+	private bool trainingComplete = false;
+	private bool qualifiersSimulated = false;
+	private bool tournamentsSimulated = false;
+
+	private int debugRegionId = 0;
 
 	private DataPool worldData;
 
 	void Start () {
 		state = TournamentState.None;
+		thisWeeksTournaments = new List<int>();
+
+		threads = new Dictionary<TournamentState, Thread>();
+		threads.Add(TournamentState.QualifierRecruiting, new Thread(new ThreadStart(recruitForQualifiers)));
+		threads.Add(TournamentState.TournamentRecruiting, new Thread(new ThreadStart(recruitForTournaments)));
+		threads.Add(TournamentState.Training, new Thread(new ThreadStart(simTraining)));
+		threads.Add(TournamentState.QualifierSim, new Thread(new ThreadStart(simQualifiers)));
+		threads.Add(TournamentState.TournamentSim, new Thread(new ThreadStart(simTournaments)));
 	}
 
 	public void simTournamentsAndTraining()
@@ -23,28 +43,35 @@ public class TournamentHandlerBehaviour : MonoBehaviour
         if (isQualifyingWeek())
         {
 			state = TournamentState.QualifierRecruiting;
-            recruitForQualifiers();
         }
+		else
+		{
+			state = TournamentState.TournamentRecruiting;
+		}
 
-		state = TournamentState.TournamentRecruiting;
-        List<int> townTournaments = recruitForTournaments();
+		print(worldData.Calendar.getDate(Calendar.DateType.fullLong));
 
-		state = TournamentState.Training;
-        simTraining();
+		threads[state].Start();
 
-        if (isQualifyingWeek())
-        {
-			state = TournamentState.QualifierSim;
-            simQualifiers();
-        }
+		//state = TournamentState.TournamentRecruiting;
+  //      recruitForTournaments();
 
-		state = TournamentState.TournamentSim;
-        simTournaments(townTournaments);
+		//state = TournamentState.Training;
+  //      simTraining();
 
-		worldData.updateBoxerDistribution();
+  //      if (isQualifyingWeek())
+  //      {
+		//	state = TournamentState.QualifierSim;
+  //          simQualifiers();
+  //      }
 
-        worldData.Calendar.progessWeek();
-        Debug.Log(worldData.Calendar.getDate(Calendar.DateType.fullLong));
+		//state = TournamentState.TournamentSim;
+  //      simTournaments();
+
+		//worldData.updateBoxerDistribution();
+
+        //worldData.Calendar.progessWeek();
+        //Debug.Log(worldData.Calendar.getDate(Calendar.DateType.fullLong));
     }
 
 	private int getDistanceFromLevel(TournamentProtocol.Level level)
@@ -95,20 +122,28 @@ public class TournamentHandlerBehaviour : MonoBehaviour
 
 	private void recruitForQualifiers()
     {
+		debugRegionId = 0;
         foreach (Region region in worldData.Regions)
         {
             foreach (TournamentProtocol.Level level in worldData.Capitols[region.CapitolIndex].Quarterlies.Keys)
             {
                 List<int> regionsWithinJurisdiction = new List<int>();
 
-                for (int i = 0; i < worldData.Regions.Count; i++)
-                {
-                    List<Vector2Int> path = worldData.Dijkstras.shortestPath(region.Position, worldData.Regions[i].Position);
+				for (int i = 0; i < worldData.Regions.Count; i++)
+				{
+					if (region.CapitolIndex == worldData.Regions[i].CapitolIndex)
+					{
+						regionsWithinJurisdiction.Add(i);
+					}
+					else
+					{
+						int distance = region.getDistanceToRegion(i);
 
-                    if (path.Count < getDistanceFromLevel(level))
-                    {
-                        regionsWithinJurisdiction.Add(i);
-                    }
+                        if (distance < getDistanceFromLevel(level))
+                        {
+                            regionsWithinJurisdiction.Add(i);
+                        }	
+					}               
                 }
 
                 List<int> recruits = recruit(level, regionsWithinJurisdiction, true);
@@ -122,12 +157,16 @@ public class TournamentHandlerBehaviour : MonoBehaviour
                     }
                 }
             }
+			debugRegionId++;
         }
+
+		recruitedForQualifiers = true;
     }
 
-	private List<int> recruitForTournaments()
+	private void recruitForTournaments()
     {
-        List<int> townTournaments = new List<int>();
+        thisWeeksTournaments = new List<int>();
+		debugRegionId = 0;
 
         foreach (Region region in worldData.Regions)
         {
@@ -135,18 +174,25 @@ public class TournamentHandlerBehaviour : MonoBehaviour
             {
                 if (worldData.Towns[tIndex].Tournament.TournamentDate.sameWeek(worldData.Calendar.GetCalendarDate()))
                 {
-                    townTournaments.Add(tIndex);
+                    thisWeeksTournaments.Add(tIndex);
 
                     List<int> regionsWithinJurisdiction = new List<int>();
 
                     for (int i = 0; i < worldData.Regions.Count; i++)
                     {
-                        List<Vector2Int> path = worldData.Dijkstras.shortestPath(region.Position, worldData.Regions[i].Position);
+                        if (region.CapitolIndex == worldData.Regions[i].CapitolIndex)
+						{
+							regionsWithinJurisdiction.Add(i);
+						}
+						else
+						{
+							int distance = region.getDistanceToRegion(i);
 
-                        if (path.Count < getDistanceFromLevel(worldData.Towns[tIndex].Tournament.TournamentLevel))
-                        {
-                            regionsWithinJurisdiction.Add(i);
-                        }
+                            if (distance < getDistanceFromLevel(worldData.Towns[tIndex].Tournament.TournamentLevel))
+                            {
+                                regionsWithinJurisdiction.Add(i);
+                            }	
+						}
                     }
 
                     List<int> recruits = recruit(worldData.Towns[tIndex].Tournament.TournamentLevel, regionsWithinJurisdiction, false);
@@ -165,9 +211,10 @@ public class TournamentHandlerBehaviour : MonoBehaviour
                     }
                 }
             }
+			debugRegionId++;
         }
 
-        return townTournaments;
+		recruitedForTournaments = true;
     }
 
 	private void simQualifiers()
@@ -191,11 +238,13 @@ public class TournamentHandlerBehaviour : MonoBehaviour
                 c.Quarterlies[level].refreshTournament(true);
             }
         }
+
+		qualifiersSimulated = true;
     }
 
-    private void simTournaments(List<int> townTournaments)
+    private void simTournaments()
     {
-        foreach (int townIndex in townTournaments)
+        foreach (int townIndex in thisWeeksTournaments)
         {
             if (worldData.Towns[townIndex].Tournament.Attendees > 2)
             {
@@ -210,6 +259,8 @@ public class TournamentHandlerBehaviour : MonoBehaviour
 
             worldData.Towns[townIndex].Tournament.refreshTournament(false);
         }
+
+		tournamentsSimulated = true;
     }
 
 	private void simTraining()
@@ -218,6 +269,8 @@ public class TournamentHandlerBehaviour : MonoBehaviour
 		{
 			mp.executeWeek(ref worldData);
 		}
+
+		trainingComplete = true;
 	}
 
 	public void updateWorldData(DataPool worldData)
@@ -225,10 +278,53 @@ public class TournamentHandlerBehaviour : MonoBehaviour
 		this.worldData = worldData;	
 	}
 
-	void Update () {
+	void Update()
+	{
+		if (state.Equals(TournamentState.QualifierRecruiting) && recruitedForQualifiers)
+		{
+			recruitedForQualifiers = false;
+			state = TournamentState.TournamentRecruiting;
+
+			threads[state].Start();
+		} 
+		else if (state.Equals(TournamentState.TournamentRecruiting) && recruitedForTournaments)
+		{
+			recruitedForTournaments = false;
+			state = TournamentState.Training;
+
+			threads[state].Start();
+		}
+		else if (state.Equals(TournamentState.Training) && trainingComplete)
+		{
+			trainingComplete = false;
+            
+            if (isQualifyingWeek())
+			{
+				state = TournamentState.QualifierSim;
+			}
+			else
+			{
+				state = TournamentState.TournamentSim;
+			}
+
+			threads[state].Start();
+		}
+		else if (state.Equals(TournamentState.QualifierSim) && qualifiersSimulated)
+		{
+			qualifiersSimulated = false;
+			state = TournamentState.TournamentSim;
+
+			threads[state].Start();
+		}
+		else if (state.Equals(TournamentState.TournamentSim) && tournamentsSimulated)
+		{
+			tournamentsSimulated = false;
+			state = TournamentState.None;
+		}      
+
 		if (!state.Equals(TournamentState.None))
 		{
-			print(state);	
+			print(state + " - " + debugRegionId);	
 		}      
 	}
 }

@@ -29,11 +29,11 @@ public class PlayerTrainingTest : MonoBehaviour {
 
 		worldData.Boxers.Add (boxer);
 
-		Exercise accuracyTraining = new Exercise ("Double End Bag", worldData.getExerciseDescription ("Double End Bag"));
-		Exercise enduranceTraining = new Exercise ("Punch Glove", worldData.getExerciseDescription ("Punch Glove"));
-		Exercise speedTraining = new Exercise ("Sprints", worldData.getExerciseDescription ("Sprints"));
-		Exercise strengthTraining = new Exercise ("Punching Bag", worldData.getExerciseDescription("Punching Bag"));
-		Exercise healthTraining = new Exercise ("Laps", worldData.getExerciseDescription ("Laps"));
+		Exercise accuracyTraining = new Exercise ("Double End Bag", worldData.getExerciseDescription ("Double End Bag"), true);
+		Exercise enduranceTraining = new Exercise ("Punch Glove", worldData.getExerciseDescription ("Punch Glove"), true);
+		Exercise speedTraining = new Exercise ("Sprints", worldData.getExerciseDescription ("Sprints"), true);
+		Exercise strengthTraining = new Exercise ("Punching Bag", worldData.getExerciseDescription("Punching Bag"), true);
+		Exercise healthTraining = new Exercise ("Laps", worldData.getExerciseDescription ("Laps"), true);
 
 		List<int> accuracyTrainingFactors = worldData.getExerciseProgressAcculumative (accuracyTraining.Name, 2);
 		List<int> enduranceTrainingFactors = worldData.getExerciseProgressAcculumative (enduranceTraining.Name, 2);

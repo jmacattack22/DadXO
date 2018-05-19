@@ -22,8 +22,10 @@ public class Exercise {
 
 	private int fatigue;
 
+	private bool aiExercise;
+
 	public Exercise(
-		string name, string desc){
+		string name, string desc, bool ai){
 		description = desc;
 		exerciseName = name;
 
@@ -34,6 +36,8 @@ public class Exercise {
 		strength = 0;
 
 		coachIndex = -1;
+
+		aiExercise = ai;
 
 		ageCurve = new List<int> (new int[] {
 			0, 0, 2, 5, 2, 0, -3, -5, -7, -7, -8, -9, -10, -10, -14
@@ -67,6 +71,14 @@ public class Exercise {
 		float fraction = (float)age.y / 48;
 
 		return Mathf.RoundToInt(lower + ((higher - lower) * fraction));
+	}
+
+    private int getAIBonus()
+	{
+		if (aiExercise)
+		    return generateRandomInt(0, 2);
+
+		return 0;
 	}
 
 	private int getGrowthBonus(int growth){
@@ -138,11 +150,11 @@ public class Exercise {
 	private TrainingResult getResult(TrainingResult.Outcome outcome, int acc, int end, int hlt, int spd, int str){
 		int newAcc = 0; int newEnd = 0; int newHlt = 0; int newSpd = 0; int newStr = 0;
 
-		newAcc = acc > 0 ? generateRandomInt(getLowerBound(acc, outcome), getUpperBound(acc, outcome)) : 0;
-		newEnd = end > 0 ? generateRandomInt(getLowerBound(end, outcome), getUpperBound(end, outcome)) : 0;
-		newHlt = hlt > 0 ? generateRandomInt(getLowerBound(hlt, outcome), getUpperBound(hlt, outcome)) : 0;
-		newSpd = spd > 0 ? generateRandomInt(getLowerBound(spd, outcome), getUpperBound(spd, outcome)) : 0;
-		newStr = str > 0 ? generateRandomInt(getLowerBound(str, outcome), getUpperBound(str, outcome)) : 0;
+		newAcc = acc > 0 ? generateRandomInt(getLowerBound(acc, outcome), getUpperBound(acc, outcome)) + getAIBonus() : 0;
+		newEnd = end > 0 ? generateRandomInt(getLowerBound(end, outcome), getUpperBound(end, outcome)) + getAIBonus() : 0;
+		newHlt = hlt > 0 ? generateRandomInt(getLowerBound(hlt, outcome), getUpperBound(hlt, outcome)) + getAIBonus() : 0;
+		newSpd = spd > 0 ? generateRandomInt(getLowerBound(spd, outcome), getUpperBound(spd, outcome)) + getAIBonus() : 0;
+		newStr = str > 0 ? generateRandomInt(getLowerBound(str, outcome), getUpperBound(str, outcome)) + getAIBonus() : 0;
 
 		return new TrainingResult (outcome, newAcc, newEnd, newHlt, newSpd, newStr, fatigue);
 	}

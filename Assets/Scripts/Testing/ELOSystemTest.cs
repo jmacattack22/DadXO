@@ -22,7 +22,7 @@ public class ELOSystemTest : MonoBehaviour {
 			manager.Record.setELO (Random.Range (50, 2200));
 			worldData.Managers.Add (manager);
 
-			ManagerProtocol mp = new ManagerProtocol (ref worldData, worldData.Managers.Count - 1);
+			ManagerProtocol mp = new ManagerProtocol (ref worldData, worldData.Managers.Count - 1, true);
 
 			managers.Add (mp);
 	

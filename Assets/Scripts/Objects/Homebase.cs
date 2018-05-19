@@ -8,12 +8,12 @@ public class Homebase {
 
 	private int level;
 
-	public Homebase(ref DataPool worldData){
+	public Homebase(ref DataPool worldData, bool ai){
 		level = 1;
 
 		homeBaseFacilities = new Dictionary<ManagerProtocol.FacilityShortcut, Facility> ();
 
-		initializeBasicFacilities (ref worldData);
+		initializeBasicFacilities (ref worldData, ai);
 	}
 
 	private static int generateRandomInt(int min, int max)
@@ -21,30 +21,30 @@ public class Homebase {
         return new System.Random((int)System.DateTime.Now.Ticks).Next(min, max);
     }
 
-	public void initializeBasicFacilities(ref DataPool worldData){
-		initializeHomebaseFacility (ref worldData, ManagerProtocol.FacilityShortcut.DoubleEndBag);
-		initializeHomebaseFacility (ref worldData, ManagerProtocol.FacilityShortcut.PunchGlove);
-		initializeHomebaseFacility (ref worldData, ManagerProtocol.FacilityShortcut.Laps);
-		initializeHomebaseFacility (ref worldData, ManagerProtocol.FacilityShortcut.Sprints);
-		initializeHomebaseFacility (ref worldData, ManagerProtocol.FacilityShortcut.PunchingBag);
+	public void initializeBasicFacilities(ref DataPool worldData, bool ai){
+		initializeHomebaseFacility (ref worldData, ManagerProtocol.FacilityShortcut.DoubleEndBag, ai);
+		initializeHomebaseFacility (ref worldData, ManagerProtocol.FacilityShortcut.PunchGlove, ai);
+		initializeHomebaseFacility (ref worldData, ManagerProtocol.FacilityShortcut.Laps, ai);
+		initializeHomebaseFacility (ref worldData, ManagerProtocol.FacilityShortcut.Sprints, ai);
+		initializeHomebaseFacility (ref worldData, ManagerProtocol.FacilityShortcut.PunchingBag, ai);
 		//TODO Kitchen
 		//TODO ETC
 		//TODO Ship Facilities
 	}
 
-	private void initializeHomebaseFacility(ref DataPool worldData, ManagerProtocol.FacilityShortcut facility){
-		Exercise training = new Exercise ("", "");
+	private void initializeHomebaseFacility(ref DataPool worldData, ManagerProtocol.FacilityShortcut facility, bool ai){
+		Exercise training = new Exercise ("", "", ai);
 
 		if (facility.Equals (ManagerProtocol.FacilityShortcut.DoubleEndBag)) 
-			training = new Exercise ("Double End Bag", worldData.getExerciseDescription ("Double End Bag"));
+			training = new Exercise ("Double End Bag", worldData.getExerciseDescription ("Double End Bag"), ai);
 		else if (facility.Equals(ManagerProtocol.FacilityShortcut.PunchGlove))
-			training = new Exercise ("Punch Glove", worldData.getExerciseDescription ("Punch Glove"));
+			training = new Exercise ("Punch Glove", worldData.getExerciseDescription ("Punch Glove"), ai);
 		else if (facility.Equals(ManagerProtocol.FacilityShortcut.Laps))
-			training = new Exercise ("Laps", worldData.getExerciseDescription ("Laps"));
+			training = new Exercise ("Laps", worldData.getExerciseDescription ("Laps"), ai);
 		else if (facility.Equals(ManagerProtocol.FacilityShortcut.Sprints))
-			training = new Exercise ("Sprints", worldData.getExerciseDescription ("Sprints"));
+			training = new Exercise ("Sprints", worldData.getExerciseDescription ("Sprints"), ai);
 		else if (facility.Equals(ManagerProtocol.FacilityShortcut.PunchingBag))
-			training = new Exercise ("Punching Bag", worldData.getExerciseDescription ("Punching Bag"));
+			training = new Exercise ("Punching Bag", worldData.getExerciseDescription ("Punching Bag"), ai);
 
 		List<int> trainingFactors = worldData.getExerciseProgressAcculumative (training.Name, 1);
 

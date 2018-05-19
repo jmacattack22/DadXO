@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Region {
-
+    
     private Vector2Int position;
     private string regionName;
 
 	private int landMass;
+
+	private Dictionary<int, int> distances;
 
     private int capitolIndex;
     private List<int> townIndexes;
@@ -22,6 +24,8 @@ public class Region {
         regionName = name;
 		landMass = 0;
 
+		distances = new Dictionary<int, int>();
+
         capitolIndex = -1;
         managerProtocolIndexes = new List<int>();
         townIndexes = new List<int>();
@@ -30,6 +34,14 @@ public class Region {
     public void addCapitol(int capitol){
         capitolIndex = capitol;
     }
+
+    public void addDistance(int regionIndex, int distance)
+	{
+		if (!distances.ContainsKey(regionIndex))
+		{
+			distances.Add(regionIndex, distance);
+		}
+	}
 
     public void addManager(int managerIndex){
         managerProtocolIndexes.Add(managerIndex);
@@ -44,6 +56,11 @@ public class Region {
 
 		landMass = getLandmass();
     }
+
+	public int getDistanceToRegion(int regionIndex)
+	{
+		return distances[regionIndex];
+	}
 
     private void determineRegionLevel(int regionDistance)
     {
@@ -123,7 +140,7 @@ public class Region {
         get { return worldMap; }
     }
 
-    public int LandMass 
+    public int LandMass
 	{
 		get { return landMass; }
 	}

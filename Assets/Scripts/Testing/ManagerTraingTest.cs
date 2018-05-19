@@ -16,7 +16,7 @@ public class ManagerTraingTest : MonoBehaviour {
 
         List<Boxer> boxers = WorldBuilderProtocol.generateBoxerRecruits (ref worldData, manager.TownIndex, 0);
 
-		ManagerProtocol mp = new ManagerProtocol (ref worldData, 0);
+		ManagerProtocol mp = new ManagerProtocol (ref worldData, 0, true);
 
 		int bIndex = 0;
 		float max = 0.0f;

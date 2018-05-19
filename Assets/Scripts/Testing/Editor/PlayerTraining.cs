@@ -29,7 +29,7 @@ public class PlayerTraining {
 		worldData.addExerciseProgress(strengthExercise, new List<int>(new int[]{ 0, 0, 0, 0, 1}));
 		worldData.addExerciseProgress(strengthExercise, new List<int>(new int[]{ 0, 0, 0, 0, 1}));
 
-		Exercise strengthTraining = new Exercise ("Punching Bag", worldData.getExerciseDescription("Punching Bag"));
+		Exercise strengthTraining = new Exercise ("Punching Bag", worldData.getExerciseDescription("Punching Bag"), true);
 		List<int> strengthTrainingFactors = worldData.getExerciseProgressAcculumative (strengthTraining.Name, 2);
 		strengthTraining.setFactors (
 			strengthTrainingFactors [0], strengthTrainingFactors [1], strengthTrainingFactors [2], 

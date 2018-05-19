@@ -26,6 +26,8 @@ public class WorldBuilderBehaviour : MonoBehaviour
 	private bool regionsCreated = false;
 	private List<Vector2Int> regionLocations;
 	private Thread regionThread;
+    
+	private Thread distanceThread;
 
 	private Thread townThread;
 
@@ -52,6 +54,11 @@ public class WorldBuilderBehaviour : MonoBehaviour
 		}
 
         worldData.updateDijkstras();
+
+		distanceThread = new Thread(new ThreadStart(worldData.calculateRegionDistances));
+		distanceThread.Start();
+
+		//worldData.calculateRegionDistances();
     }
 
     private float calculateQualifierSetupCompletePercentage()
@@ -275,7 +282,7 @@ public class WorldBuilderBehaviour : MonoBehaviour
 		} 
 		else if (state.Equals(BuilderState.PopulatingTowns))
 		{
-            if (startQualifierThread)
+            if (startQualifierThread && !distanceThread.IsAlive)
 			{
 				qualifierThread = new Thread(new ThreadStart(defineQualifiers));
 				qualifierThread.Start();
