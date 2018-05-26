@@ -49,7 +49,7 @@ public class TournamentTest : MonoBehaviour {
                         if (c.Quarterlies[level].spaceLeft())
                         {
                             c.Quarterlies[level].addContestant(recruits[i]);
-                            worldData.ManagerProtocols[recruits[i]].attendTournament();
+                            worldData.Managers[recruits[i]].attendTournament();
                         }
                     }
                 }
@@ -57,21 +57,22 @@ public class TournamentTest : MonoBehaviour {
         }
 
         foreach (int tIndex in thisWeeksTournaments){
-            List<int> recruits = recruit(worldData.Towns[tIndex].Tournament.TournamentLevel, worldData.Towns[tIndex].Location, false);
+            List<int> recruits = recruit(worldData.Towns[tIndex].Tournament.Level, worldData.Towns[tIndex].Location, false);
 
             for (int i = 0; i < recruits.Count; i++){
                 if (worldData.Towns[tIndex].Tournament.spaceLeft()){
                     worldData.Towns[tIndex].Tournament.addContestant(recruits[i]);
-                    worldData.ManagerProtocols[recruits[i]].attendTournament();
+                    worldData.Managers[recruits[i]].attendTournament();
                 } else{
-                    worldData.ManagerProtocols[recruits[i]].bumpTournamentPriority();
+                    worldData.Managers[recruits[i]].bumpTournamentPriority();
                 }
             }
         }
 
-        foreach (ManagerProtocol mp in worldData.ManagerProtocols){
-            mp.executeWeek(ref worldData);
-        }
+		for (int i = 0; i < worldData.Managers.Count; i++)
+		{
+			ManagerProtocol.executeWeek(ref worldData, i);
+		}
 
         if ((worldData.Calendar.getWeekOfYear() - 1) % 8 == 0)
         {
@@ -83,10 +84,10 @@ public class TournamentTest : MonoBehaviour {
                     {
                         //Debug.Log(c.Location.ToString() + " - " + c.Quarterlies[level].getDetails());
                         c.Quarterlies[level].scheduleTournament();
-                        c.Quarterlies[level].SimWholeTournament(ref worldData);
+                        //c.Quarterlies[level].SimWholeTournament(ref worldData);
                         //c.Quarterlies[level].logResults(ref worldData);
                     } else {
-                        c.Quarterlies[level].cancelTournament(ref worldData);
+                        //c.Quarterlies[level].cancelTournament(ref worldData);
                     }
 
                     c.Quarterlies[level].refreshTournament(true);
@@ -101,9 +102,9 @@ public class TournamentTest : MonoBehaviour {
             if (worldData.Towns[tIndex].Tournament.Attendees > 2){
                 //Debug.Log(worldData.Towns[tIndex].Location.ToString() + " - " + worldData.Towns[tIndex].Tournament.getDetails());
                 worldData.Towns[tIndex].Tournament.scheduleTournament();
-                worldData.Towns[tIndex].Tournament.SimWholeTournament(ref worldData);
+                //worldData.Towns[tIndex].Tournament.SimWholeTournament(ref worldData);
             } else {
-                worldData.Towns[tIndex].Tournament.cancelTournament(ref worldData);
+                //worldData.Towns[tIndex].Tournament.cancelTournament(ref worldData);
             }
 
             worldData.Towns[tIndex].Tournament.refreshTournament(false);
@@ -114,20 +115,20 @@ public class TournamentTest : MonoBehaviour {
         List<int> potentialRecruits = new List<int>();
 
         int index = 0;
-        foreach (ManagerProtocol mp in worldData.ManagerProtocols)
+        foreach (Manager m in worldData.Managers)
         {
-            Vector2Int p2 = worldData.Towns[worldData.Managers[mp.ManagerIndex].TownIndex].Location;
+            Vector2Int p2 = worldData.Towns[worldData.Managers[index].TownIndex].Location;
 
             float distance = Mathf.Sqrt(Mathf.Pow((p2.x - p1.x), 2) + Mathf.Pow((p2.y - p1.y), 2));
 
             if (level.Equals(TournamentProtocol.Level.S))
             {
-                if (mp.Rank.Equals(level) && !mp.isBusy())
+                if (m.Rank.Equals(level) && !m.isBusy())
                     potentialRecruits.Add(index);
             }
             else
             {
-                if (distance < getDistanceFromLevel(level) && mp.Rank.Equals(level) && !mp.isBusy())
+                if (distance < getDistanceFromLevel(level) && m.Rank.Equals(level) && !m.isBusy())
                     potentialRecruits.Add(index);
             }
 
@@ -137,21 +138,21 @@ public class TournamentTest : MonoBehaviour {
         if (highestRated)
             potentialRecruits = potentialRecruits.OrderByDescending(t => EvaluationProtocol.evaluateBoxer(worldData.Boxers[t])).ToList();
         else
-            potentialRecruits = potentialRecruits.OrderByDescending(t => worldData.ManagerProtocols[t].TournamentPriority).ToList();
+            potentialRecruits = potentialRecruits.OrderByDescending(t => worldData.Managers[t].Priority).ToList();
         
         return potentialRecruits;
     }
 
     public void logBoxerResults(){
-        foreach (ManagerProtocol mp in worldData.ManagerProtocols){
-            worldData.Boxers[mp.BoxerIndex].logBoxerStats(mp.Rank);
+        foreach (Manager m in worldData.Managers){
+            worldData.Boxers[m.BoxerIndex].logBoxerStats(m.Rank);
         }
     }
 
     public void logManagerResults(){
-        foreach (ManagerProtocol mp in worldData.ManagerProtocols)
+        foreach (Manager m in worldData.Managers)
         {
-            mp.logManagerStats(ref worldData);
+            m.logManagerStats();
         }
     }
 
@@ -214,16 +215,16 @@ public class TournamentTest : MonoBehaviour {
 
         foreach (Town t in worldData.Towns)
         {
-            if (!tournamentCounts.ContainsKey(t.Tournament.TournamentLevel))
+            if (!tournamentCounts.ContainsKey(t.Tournament.Level))
             {
-                tournamentCounts.Add(t.Tournament.TournamentLevel, 0);
+                tournamentCounts.Add(t.Tournament.Level, 0);
             }
 
-            tournamentCounts[t.Tournament.TournamentLevel] += 1;
-
+            tournamentCounts[t.Tournament.Level] += 1;
+            
             if (!foundIndex)
             {
-                if (t.Tournament.TournamentLevel == TournamentProtocol.Level.C)
+                if (t.Tournament.Level == TournamentProtocol.Level.C)
                 {
                     tIndex = index;
                     foundIndex = true;
@@ -241,47 +242,28 @@ public class TournamentTest : MonoBehaviour {
         Debug.Log(worldData.Towns[tIndex].Location.ToString() + " - " + worldData.Towns[tIndex].Tournament.getDetails());
         Vector2Int p1 = worldData.Towns[tIndex].Location;
 
-        List<ManagerProtocol> potentialContestants = new List<ManagerProtocol>();
+        List<Manager> potentialContestants = new List<Manager>();
 
-        foreach (ManagerProtocol mp in worldData.ManagerProtocols)
+		index = 0;
+        foreach (Manager m in worldData.Managers)
         {
-            Vector2Int p2 = worldData.Towns[worldData.Managers[mp.ManagerIndex].TownIndex].Location;
+            Vector2Int p2 = worldData.Towns[worldData.Managers[index].TownIndex].Location;
 
             float distance = Mathf.Sqrt(Mathf.Pow((p2.x - p1.x), 2) + Mathf.Pow((p2.y - p1.y), 2));
 
-            if (distance < 150 && mp.Rank.Equals(TournamentProtocol.Level.C))
-                potentialContestants.Add(mp);
+            if (distance < 150 && m.Rank.Equals(TournamentProtocol.Level.C))
+                potentialContestants.Add(m);
+
+			index++;
         }
 
         Debug.Log(potentialContestants.Count);
 
-        foreach (ManagerProtocol mp in potentialContestants)
+		index = 0;
+        foreach (Manager m in potentialContestants)
         {
-            Debug.Log(worldData.Managers[mp.ManagerIndex].FirstName);
+            Debug.Log(worldData.Managers[index].FirstName);
+			index++;
         }
-
-        //      TournamentProtocol tp = new TournamentProtocol (
-        //          new CalendarDate (1, 1, 1), 1000.0f, worldData.ManagerProtocols.Count, TournamentProtocol.Level.E);
-
-        //      for (int i = 0; i < worldData.ManagerProtocols.Count; i++) {
-        //          tp.addContestant (i);
-        //      }
-
-        ////        tp.addContestant (0);
-        ////        tp.addContestant (1);
-        ////        tp.addContestant (2);
-        ////        tp.addContestant (3);
-        ////        tp.addContestant (4);
-        ////        tp.addContestant (5);
-        ////        tp.addContestant (6);
-        ////        tp.addContestant (7);
-
-        //tp.scheduleTournament ();
-
-        //for (int i = 0; i < tp.Size - 1; i++) {
-        //  tp.simNextRound (ref worldData);
-        //}
-
-        //tp.logResults ();
     }
 }

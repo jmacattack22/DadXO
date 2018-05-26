@@ -33,7 +33,7 @@ public class WeightClass {
 	public void updateWeight(float weight){
 		weightClass = determineWeightClass (weight);
 	}
-
+   
 	public WClass Class {
 		get { return weightClass; }
 	}

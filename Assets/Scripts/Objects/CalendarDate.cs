@@ -14,6 +14,13 @@ public class CalendarDate{
 		year = y;
 	}
 
+	public CalendarDate(JSONObject json)
+	{
+		month = (int)json.GetField("month").i;
+        week = (int)json.GetField("week").i;
+        year = (int)json.GetField("year").i;
+	}
+
 	public void addWeeks(int numWeeks){
 		for (int i = 0; i < numWeeks; i++) {
 			week++;
@@ -52,6 +59,17 @@ public class CalendarDate{
 	public override string ToString()
 	{
         return week + "/" + month + "/" + year;
+	}
+
+    public JSONObject jsonify()
+	{
+		JSONObject json = new JSONObject(JSONObject.Type.OBJECT);
+
+		json.AddField("week", week);
+		json.AddField("month", month);
+		json.AddField("year", year);
+
+		return json;
 	}
 
 	//Getters

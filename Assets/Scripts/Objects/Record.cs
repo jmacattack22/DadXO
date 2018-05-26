@@ -10,7 +10,7 @@ public class Record
 
 	private float elo;
 
-	private float k ;
+	private float k;
 	
 	public Record (float k)
 	{
@@ -19,6 +19,16 @@ public class Record
 		ties = 0;
 
 		this.k = k;
+	}
+
+    public Record (JSONObject json)
+	{
+		wins = (int)json.GetField("wins").i;
+		losses = (int)json.GetField("losses").i;
+		ties = (int)json.GetField("ties").i;
+
+		elo = json.GetField("elo").f;
+		k = json.GetField("k").f;
 	}
 
 	public void addWin(float oppElo){
@@ -76,6 +86,19 @@ public class Record
 			return -(k / 10.0f);
 
 		return 0.0f; 
+	}
+
+    public JSONObject jsonify()
+	{
+		JSONObject json = new JSONObject(JSONObject.Type.OBJECT);
+
+		json.AddField("wins", wins);
+		json.AddField("losses", losses);
+		json.AddField("ties", ties);
+		json.AddField("elo", elo);
+		json.AddField("k", k);
+
+		return json;
 	}
 
 	//Getters

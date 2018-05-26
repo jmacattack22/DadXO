@@ -25,7 +25,8 @@ public class Exercise {
 	private bool aiExercise;
 
 	public Exercise(
-		string name, string desc, bool ai){
+		string name, string desc, bool ai)
+	{
 		description = desc;
 		exerciseName = name;
 
@@ -54,6 +55,38 @@ public class Exercise {
 		competenceCurve = new List<int> (new int[]{
 			3,3,4,5,5,6,7,7,7,8,8,8,8,8,9,10,11,11,1,12,12,13
 		});
+	}
+
+	public Exercise(JSONObject json)
+	{
+		description = json.GetField("description").str;
+		exerciseName = json.GetField("name").str;
+
+		accuracy = (int)json.GetField("accuracy").i;
+		endurance = (int)json.GetField("endurance").i;
+		health = (int)json.GetField("health").i;
+		speed = (int)json.GetField("speed").i;
+		strength = (int)json.GetField("strength").i;
+
+		coachIndex = (int)json.GetField("coachindex").i;
+
+		aiExercise = json.GetField("ai").b;
+
+		ageCurve = new List<int>(new int[] {
+            0, 0, 2, 5, 2, 0, -3, -5, -7, -7, -8, -9, -10, -10, -14
+        });
+
+        growthCurve = new List<int>(new int[]{
+            0,0,0,1,1,1,2,2,2,3,3,4,5,5,6,7,8,8,9,10,12,14
+        });
+
+        coachCurve = new List<int>(new int[]{
+            0,0,0,0,0,0,1,1,1,2,2,2,3,3,4,4,5,5,6,6,6,6
+        });
+
+        competenceCurve = new List<int>(new int[]{
+            3,3,4,5,5,6,7,7,7,8,8,8,8,8,9,10,11,11,1,12,12,13
+        });      
 	}
 
 	public void addCoach(int newCoachIndex){
@@ -210,6 +243,48 @@ public class Exercise {
 		health += factors [2];
 		speed += factors [3];
 		strength += factors [4];
+	}
+   
+    public JSONObject jsonify()
+	{
+		JSONObject json = new JSONObject();
+
+		json.AddField("description", description);
+		json.AddField("name", exerciseName);
+		json.AddField("accuracy", accuracy);
+		json.AddField("endurance", endurance);
+		json.AddField("health", health);
+		json.AddField("speed", speed);
+		json.AddField("strength", strength);
+		json.AddField("coachindex", coachIndex);
+		json.AddField("fatigue", fatigue);
+		json.AddField("ai", aiExercise);
+
+		JSONObject age = new JSONObject(JSONObject.Type.ARRAY);       
+		foreach (int i in ageCurve)
+			age.Add(i);
+
+		json.AddField("agecurve", age);
+
+		JSONObject coach = new JSONObject(JSONObject.Type.ARRAY);
+		foreach (int i in coachCurve)
+			coach.Add(i);
+
+		json.AddField("coachcurve", coach);
+
+		JSONObject competence = new JSONObject(JSONObject.Type.ARRAY);
+		foreach (int i in competenceCurve)
+			competence.Add(i);
+
+		json.AddField("comptetencecurve", competence);
+
+		JSONObject growth = new JSONObject(JSONObject.Type.ARRAY);
+		foreach (int i in growthCurve)
+			growth.Add(i);
+
+		json.AddField("growthcurve", growth);
+
+		return json;
 	}
 
 	//Getters

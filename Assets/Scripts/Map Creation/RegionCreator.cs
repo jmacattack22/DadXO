@@ -71,7 +71,6 @@ public static class RegionCreator
         {
             for (int y = 0; y < height; y++)
             {
-                Vector2 closestPoint = new Vector2();
                 double minDistance = 100000000;
 
                 //Search for closest peak
@@ -82,7 +81,6 @@ public static class RegionCreator
                     if (distance < minDistance)
                     {
                         minDistance = distance;
-                        closestPoint = p;
                     }
                 }
 

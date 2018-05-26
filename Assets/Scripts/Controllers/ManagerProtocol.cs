@@ -2,106 +2,35 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ManagerProtocol
+public static class ManagerProtocol
 {
-
     public enum FacilityShortcut
     {
         DoubleEndBag, PunchGlove, Laps, Sprints, PunchingBag
-    }
+    }  
 
-    private int boxerIndex;
-    private int managerIndex;
-
-    private bool atSea;
-    private bool atTournament;
-
-    private FinanceProtocol finance;
-
-    private Homebase homebase;
-    private Ship ship;
-
-    private List<FacilityShortcut> trainingRegime;
-
-    private float currentBoxerELO;
-    private float currentManagerELO;
-    private List<float> archivedBoxerELO;
-    private List<float> archivedManagerELO;
-
-    //TODO Match Class
-    public List<int> previousOpponents;
-
-    private int tournamentCount;
-    private int tournamentPriority;
-
-    private TournamentProtocol.Level currentRanking;
-
-    public ManagerProtocol(ref DataPool worldData, int mIndex, bool ai)
+    public static void completeTournament(ref DataPool worldData, int managerIndex, TournamentResult result)
     {
-        managerIndex = mIndex;
-
-        finance = new FinanceProtocol(5000);
-
-        homebase = new Homebase(ref worldData, ai);
-        ship = new Ship(ref worldData);
-        trainingRegime = new List<FacilityShortcut>();
-
-        setupTrainingRegime(ref worldData);
-
-        atSea = false;
-        atTournament = false;
-
-        archivedBoxerELO = new List<float>();
-        archivedManagerELO = new List<float>();
-
-        previousOpponents = new List<int>();
-
-        tournamentCount = 0;
-        tournamentPriority = 0;
-    }
-
-    public void attendTournament()
-    {
-        atTournament = true;
-
-        tournamentPriority = tournamentPriority - 3;// < 0 ? 0 : tournamentPriority - 2;
-    }
-
-    public void backOutOfTournament(){
-        tournamentPriority += 3;
-        atTournament = false;
-    }
-
-    public void bumpTournamentPriority()
-    {
-        tournamentPriority += 1;
-    }
-
-    public void completeTournament(ref DataPool worldData, TournamentResult result)
-    {
-        atTournament = false;
+		int boxerIndex = worldData.Managers[managerIndex].BoxerIndex;
+		worldData.Managers[managerIndex].leaveTournament();
 
         worldData.Managers[managerIndex].Record.addWinBulk(result.Record.Wins);
         worldData.Managers[managerIndex].Record.addLossBulk(result.Record.Losses);
         worldData.Managers[managerIndex].Record.addTieBulk(result.Record.Ties);
 
-        worldData.Boxers[BoxerIndex].Record.addWinBulk(result.Record.Wins);
-        worldData.Boxers[BoxerIndex].Record.addLossBulk(result.Record.Losses);
-        worldData.Boxers[BoxerIndex].Record.addTieBulk(result.Record.Ties);
+        worldData.Boxers[boxerIndex].Record.addWinBulk(result.Record.Wins);
+        worldData.Boxers[boxerIndex].Record.addLossBulk(result.Record.Losses);
+        worldData.Boxers[boxerIndex].Record.addTieBulk(result.Record.Ties);
 
-        if (result.QuarterlyWin){
-            currentRanking = (TournamentProtocol.Level)(((int)currentRanking) + 1);
+        if (result.QuarterlyWin)
+		{
+			worldData.Managers[managerIndex].graduateRank();
         }
-        tournamentCount++;
     }
 
-    private FacilityShortcut chooseTraining()
+    private static void disposeAndRenewBoxer(ref DataPool worldData, int managerIndex)
     {
-		return trainingRegime[generateRandomInt(0, trainingRegime.Count - 1)];
-    }
-
-    private void disposeAndRenewBoxer(ref DataPool worldData)
-    {
+		float currentManagerELO = worldData.Managers[managerIndex].ManagerELO;
         List<Boxer> boxers = WorldBuilderProtocol.generateBoxerRecruits(ref worldData, worldData.Managers[managerIndex].TownIndex, currentManagerELO);
 
         int bIndex = 0;
@@ -119,20 +48,23 @@ public class ManagerProtocol
         }
 
         worldData.Boxers.Add(boxers[bIndex]);
-        recruitBoxer(worldData.Boxers.Count - 1);
-        updateELO(ref worldData);
+
+		worldData.Managers[managerIndex].recruitBoxer(worldData.Boxers.Count - 1);
+        updateELO(ref worldData, managerIndex);
     }
 
-    public void executeWeek(ref DataPool worldData)
+    public static void executeWeek(ref DataPool worldData, int managerIndex)
     {
-        if (!atTournament){
+		int boxerIndex = worldData.Managers[managerIndex].BoxerIndex;
+
+        if (!worldData.Managers[managerIndex].isBusy()){
             if (worldData.Boxers[boxerIndex].isBoxerFatigued())
             {
                 worldData.Boxers[boxerIndex].rest();
             }
             else
             {
-                train(ref worldData);
+				worldData.Managers[managerIndex].train(ref worldData);
             }
         }
 
@@ -140,147 +72,27 @@ public class ManagerProtocol
 
         if (worldData.Boxers[boxerIndex].WeeksRemaining == 0)
         {
-            disposeAndRenewBoxer(ref worldData);
-            currentRanking = TournamentProtocol.Level.E;
+            disposeAndRenewBoxer(ref worldData, managerIndex);
+			worldData.Managers[managerIndex].setRank(TournamentProtocol.Level.E);
         }
-    }
-
-    public bool fightRecently(int oppIndex)
-    {
-        return previousOpponents.Contains(oppIndex);
     }
 
 	private static int generateRandomInt(int min, int max)
+	{
+		return new System.Random((int)System.DateTime.Now.Ticks).Next(min, max);
+	}
+
+    public static void updateELO(ref DataPool worldData, int managerIndex)
     {
-        return new System.Random((int)System.DateTime.Now.Ticks).Next(min, max);
-    }
+		int boxerIndex = worldData.Managers[managerIndex].BoxerIndex;
 
-    public float getBoxerELOHistory()
-    {
-        return archivedBoxerELO[0];
-    }
+		if (worldData.Managers[managerIndex].BoxerELO > 0)
+			worldData.Managers[managerIndex].archiveBoxerELO();
 
-    public float getManagerELOHistory()
-    {
-        return archivedManagerELO[0];
-    }
+		if (worldData.Managers[managerIndex].ManagerELO > 0)
+			worldData.Managers[managerIndex].archiveManagerELO();
 
-    public string getManagerStats(ref DataPool worldData){
-        return currentManagerELO + " - " + currentRanking + " - " + tournamentPriority + " - " + worldData.Managers[managerIndex].getDetails();
-    }
-
-    public bool isBusy()
-    {
-        return atTournament;
-    }
-
-    public void logManagerStats(ref DataPool worldData){
-        Debug.Log(currentManagerELO + " - " + currentRanking + " - " + tournamentPriority + " - " + worldData.Managers[managerIndex].getDetails() + " - " + tournamentCount);
-    }
-
-    public void recruitBoxer(int bIndex)
-    {
-        boxerIndex = bIndex;
-    }
-
-    public void setRank(TournamentProtocol.Level rank)
-    {
-        currentRanking = rank;
-    }
-
-    private void setupTrainingRegime(ref DataPool worldData)
-    {
-        BoxerClass.Type preference = worldData.Managers[managerIndex].Preference;
-
-        trainingRegime.Add(FacilityShortcut.DoubleEndBag);
-        trainingRegime.Add(FacilityShortcut.Laps);
-        trainingRegime.Add(FacilityShortcut.PunchGlove);
-        trainingRegime.Add(FacilityShortcut.PunchingBag);
-        trainingRegime.Add(FacilityShortcut.Sprints);
-
-        List<EvaluationProtocol.Stats> bestStats = BoxerClass.getBuild(preference);
-
-        foreach (EvaluationProtocol.Stats stat in bestStats)
-        {
-            FacilityShortcut shortcut = FacilityShortcut.DoubleEndBag;
-
-            if (stat.Equals(EvaluationProtocol.Stats.AccuracyGrowth))
-                shortcut = FacilityShortcut.DoubleEndBag;
-            else if (stat.Equals(EvaluationProtocol.Stats.EnduranceGrowth))
-                shortcut = FacilityShortcut.PunchGlove;
-            else if (stat.Equals(EvaluationProtocol.Stats.HealthGrowth))
-                shortcut = FacilityShortcut.Laps;
-            else if (stat.Equals(EvaluationProtocol.Stats.SpeedGrowth))
-                shortcut = FacilityShortcut.Sprints;
-            else if (stat.Equals(EvaluationProtocol.Stats.StrengthGrowth))
-                shortcut = FacilityShortcut.PunchingBag;
-
-            for (int i = 0; i < 2; i++)
-            {
-                trainingRegime.Add(shortcut);
-            }
-        }
-    }
-
-    private void train(ref DataPool worldData)
-    {
-        FacilityShortcut training = chooseTraining();
-
-        if (atSea)
-            ship.train(ref worldData, boxerIndex, training);
-        else
-            homebase.train(ref worldData, boxerIndex, training);
-    }
-
-    public void updateELO(ref DataPool worldData)
-    {
-        if (currentBoxerELO > 0)
-            archivedBoxerELO.Add(currentBoxerELO);
-
-        if (currentManagerELO > 0)
-            archivedManagerELO.Add(currentManagerELO);
-
-        currentManagerELO = worldData.Managers[managerIndex].Record.ELO;
-        currentBoxerELO = worldData.Boxers[boxerIndex].Record.ELO;
-    }
-
-    public void upgradeFacilities(ref DataPool worldData)
-    {
-        homebase.upgradeFacilities(ref worldData, currentManagerELO, worldData.Managers[managerIndex].Preference);
-    }
-
-    //Getters
-    public int BoxerIndex
-    {
-        get { return boxerIndex; }
-    }
-
-    public int ManagerIndex
-    {
-        get { return managerIndex; }
-    }
-
-    public FinanceProtocol Finance
-    {
-        get { return finance; }
-    }
-
-    public float CurrentBoxerELO
-    {
-        get { return currentBoxerELO; }
-    }
-
-    public float CurrentManagerELO
-    {
-        get { return currentManagerELO; }
-    }
-
-    public TournamentProtocol.Level Rank
-    {
-        get { return currentRanking; }
-    }
-
-    public int TournamentPriority {
-        get { return tournamentPriority; }
+		worldData.Managers[managerIndex].setBoxerELO(worldData.Boxers[boxerIndex].Record.ELO);
+		worldData.Managers[managerIndex].setManagerELO(worldData.Managers[managerIndex].Record.ELO);
     }
 }

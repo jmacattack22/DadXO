@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using System.IO;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
+using System.Threading;
 
-public class DataPool {
-
+public class DataPool 
+{
 	private List<Boxer> boxers;
 	private List<Manager> managers;
-	private List<ManagerProtocol> managerProtocols;
 
     private List<Capitol> capitols;
 	private List<Town> towns;
@@ -29,10 +32,11 @@ public class DataPool {
 
     private Dictionary<TournamentProtocol.Level, int> distribution;
 
+	private string temporaryFilename;
+
 	public DataPool(){
 		boxers = new List<Boxer> ();
 		managers = new List<Manager> ();
-		managerProtocols = new List<ManagerProtocol> ();
 
         capitols = new List<Capitol>();
 		towns = new List<Town> ();
@@ -79,6 +83,20 @@ public class DataPool {
 			}
 		}
 	}
+
+	public string EncryptDecrypt(string textToEncrypt)
+    {
+        StringBuilder inSb = new StringBuilder(textToEncrypt);
+        StringBuilder outSb = new StringBuilder(textToEncrypt.Length);
+        char c;
+        for (int i = 0; i < textToEncrypt.Length; i++)
+        {
+            c = inSb[i];
+			c = (char)(c ^ 129);
+            outSb.Append(c);
+        }
+        return outSb.ToString();
+    }
 
     public string generateFirstName(){
 		return firstNames[generateRandomInt(0, firstNames.Count - 1)];
@@ -137,6 +155,124 @@ public class DataPool {
 		return progress;
 	}
 
+	public Tournament getTournamentFromTownIndex(int townIndex)
+	{
+		return towns[townIndex].Tournament;
+	}
+
+	private bool isAdjacent(Vector2Int pos1, Vector2Int pos2)
+    {
+        Vector2Int above = new Vector2Int(pos1.x, pos1.y + 1);
+        Vector2Int below = new Vector2Int(pos1.x, pos1.y - 1);
+        Vector2Int left = new Vector2Int(pos1.x - 1, pos1.y);
+        Vector2Int right = new Vector2Int(pos1.x + 1, pos1.y);
+
+        if (pos2.Equals(above) || pos2.Equals(below) || pos2.Equals(left) || pos2.Equals(right))
+            return true;
+
+        return false;
+    }
+
+    public void saveWorld(string filename)
+	{
+		temporaryFilename = filename;
+
+		Thread saveThread = new Thread(new ThreadStart(saveWorldThread));
+		saveThread.Start();
+	}
+
+    private void saveWorldThread()
+	{
+		JSONObject world = jsonify();
+
+        using (StreamWriter writer = new StreamWriter(temporaryFilename))
+        {
+            writer.Write(EncryptDecrypt(world.Print(true)));
+        }
+	}
+
+    public void saveWorldMapThread()
+	{
+		foreach (Region r in regions)
+        {
+            using (StreamWriter writer = new StreamWriter("Assets/Resources/Saves/Maps/regions_" + r.CapitolIndex + ".txt"))
+            {
+                JSONObject map = new JSONObject(JSONObject.Type.ARRAY);
+                for (int x = 0; x < r.Map.GetLength(0); x++)
+                {
+                    JSONObject row = new JSONObject(JSONObject.Type.OBJECT);
+                    row.AddField("x", x);
+
+                    JSONObject column = new JSONObject(JSONObject.Type.ARRAY);
+                    for (int y = 0; y < r.Map.GetLength(0); y++)
+                    {
+                        column.Add(r.Map[x, y].ToString());
+                    }
+                    row.AddField("rowvalues", column);
+
+                    map.Add(row);
+                }
+
+                writer.Write(EncryptDecrypt(map.Print(true)));
+            }
+        }
+	}
+
+    public void loadWorld(string filename)
+	{
+		loadNameData();
+
+		using (StreamReader reader = new StreamReader(filename))
+		{
+			string saveContents = EncryptDecrypt(reader.ReadToEnd());
+
+			JSONObject json = new JSONObject(saveContents);
+			readJson(json);
+		}
+	}
+
+	private void readJson(JSONObject json)
+	{
+		boxers = new List<Boxer>();
+		foreach (JSONObject r in json.GetField("boxers").list)
+		{
+			boxers.Add(new Boxer(r));
+		}
+
+		managers = new List<Manager>();
+		foreach (JSONObject r in json.GetField("manangers").list)
+		{
+			managers.Add(new Manager(r));
+		}
+
+		capitols = new List<Capitol>();
+		foreach (JSONObject r in json.GetField("capitols").list)
+		{
+			capitols.Add(new Capitol(r));
+		}
+
+		towns = new List<Town>();
+		foreach (JSONObject r in json.GetField("towns").list)
+		{
+			towns.Add(new Town(r));
+		}
+
+		calendar = new Calendar(json.GetField("calendar"));
+
+		regions = new List<Region>();
+		foreach (JSONObject r in json.GetField("regions").list)
+		{
+			regions.Add(new Region(r));
+		}
+
+		dijkstras = new Dijkstras(json.GetField("dijkstras"));
+
+		updateBoxerDistribution();
+	}
+          
+    //private Dictionary<string, string> exerciseDescriptions;
+    //private Dictionary<string, List<List<int>>> exerciseProgress;
+
     public void loadNameData(){
         string firstNameContents = "";
         string lastNameContents = "";
@@ -172,13 +308,13 @@ public class DataPool {
     public void updateBoxerDistribution(){
         distribution = new Dictionary<TournamentProtocol.Level, int>();
 
-        foreach (ManagerProtocol mp in ManagerProtocols)
-        {
-            if (!distribution.ContainsKey(mp.Rank))
-                distribution.Add(mp.Rank, 0);
+        foreach (Manager m in managers)
+		{
+			if (!distribution.ContainsKey(m.Rank))
+				distribution.Add(m.Rank, 0);
 
-            distribution[mp.Rank] += 1;
-        }
+			distribution[m.Rank] += 1;
+		}
     }
 
     public void updateDijkstras(){
@@ -195,18 +331,51 @@ public class DataPool {
         }
     }
 
-	private bool isAdjacent(Vector2Int pos1, Vector2Int pos2)
-    {
-        Vector2Int above = new Vector2Int(pos1.x, pos1.y + 1);
-        Vector2Int below = new Vector2Int(pos1.x, pos1.y - 1);
-        Vector2Int left = new Vector2Int(pos1.x - 1, pos1.y);
-        Vector2Int right = new Vector2Int(pos1.x + 1, pos1.y);
+    public JSONObject jsonify()
+	{
+		JSONObject json = new JSONObject(JSONObject.Type.OBJECT);
 
-        if (pos2.Equals(above) || pos2.Equals(below) || pos2.Equals(left) || pos2.Equals(right))
-            return true;
+		JSONObject bxrs = new JSONObject(JSONObject.Type.ARRAY);
+        foreach (Boxer b in boxers)
+		{
+			bxrs.Add(b.jsonify());
+		}
+		json.AddField("boxers", bxrs);
 
-        return false;
-    }
+		JSONObject mgrs = new JSONObject(JSONObject.Type.ARRAY);
+        foreach (Manager m in managers)
+		{
+			mgrs.Add(m.jsonify());
+		}
+		json.AddField("managers", mgrs);
+
+		JSONObject cptl = new JSONObject(JSONObject.Type.ARRAY);
+        foreach (Capitol c in capitols)
+		{
+			cptl.Add(c.jsonify());
+		}
+		json.AddField("captiols", cptl);
+
+		JSONObject twns = new JSONObject(JSONObject.Type.ARRAY);
+        foreach (Town t in towns)
+		{
+			twns.Add(t.jsonify());
+		}
+		json.AddField("towns", twns);
+
+		json.AddField("calendar", calendar.jsonify());
+		json.AddField("dijstras", dijkstras.jsonify());
+
+		JSONObject rgns = new JSONObject(JSONObject.Type.ARRAY);
+        foreach (Region r in regions)
+		{
+			rgns.Add(r.jsonify());
+		}
+		json.AddField("regions", rgns);
+
+		return json;
+	}
+   
 
     //Getters
 	public List<Boxer> Boxers {
@@ -215,10 +384,6 @@ public class DataPool {
 
 	public List<Manager> Managers {
 		get { return managers; }
-	}
-
-	public List<ManagerProtocol> ManagerProtocols {
-		get { return managerProtocols; }
 	}
 
 	public Calendar Calendar {

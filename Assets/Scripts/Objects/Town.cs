@@ -6,7 +6,7 @@ public class Town
 	private string name;
 	private Vector2Int location;
     private TournamentProtocol.Level regionLevel;
-    private TournamentProtocol tournament;
+	private Tournament tournament;
 
 	public Town (string name, Vector2Int loc, int regionDistance)
 	{
@@ -14,6 +14,22 @@ public class Town
 		location = loc;
 
         determineRegion(regionDistance);
+	}
+
+    public Town (string name, Vector2Int loc, TournamentProtocol.Level level)
+	{
+		this.name = name;
+		this.location = loc;
+		this.regionLevel = level;
+	}
+
+    public Town(JSONObject json)
+	{
+		name = json.GetField("name").str;
+		location = JSONTemplates.ToVector2Int(json.GetField("location"));
+		regionLevel = (TournamentProtocol.Level)Enum.Parse(typeof(TournamentProtocol.Level), json.GetField("level").str);
+
+		tournament = new Tournament(json.GetField("tournament"));
 	}
 
     public void changeName(string newName)
@@ -48,9 +64,23 @@ public class Town
         }
     }
 
-    public void setTournament(TournamentProtocol tournamentProtocol){
-        tournament = tournamentProtocol;
-    }
+    public void setTournament(Tournament tournament)
+	{
+		this.tournament = tournament;
+	}
+
+    public JSONObject jsonify()
+	{
+		JSONObject json = new JSONObject(JSONObject.Type.OBJECT);
+
+		json.AddField("name", name);
+		json.AddField("location", JSONTemplates.FromVector2Int(location));
+		json.AddField("level", regionLevel.ToString());
+        if (tournament != null)
+		    json.AddField("tournament", tournament.jsonify());
+
+		return json;
+	}
 
 	//Getters
 	public string Name {
@@ -65,7 +95,7 @@ public class Town
         get { return regionLevel; }
     }
 
-    public TournamentProtocol Tournament {
+    public Tournament Tournament {
         get { return tournament; }
     }
 }

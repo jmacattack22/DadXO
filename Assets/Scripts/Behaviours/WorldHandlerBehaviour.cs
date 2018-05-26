@@ -2,6 +2,8 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 
 public class WorldHandlerBehaviour : MonoBehaviour
 {
@@ -36,21 +38,28 @@ public class WorldHandlerBehaviour : MonoBehaviour
         Debug.Log(worldData.Calendar.getDate(Calendar.DateType.fullLong));
     }
 
+	public void loadGame(string filename)
+	{
+		worldData = new DataPool();
+		worldData.loadWorld(filename);
+		WorldBuilderProtocol.initExercises(ref worldData);
+	}
+
 	public void logBoxerResults()
     {
-		List<ManagerProtocol> managers = worldData.ManagerProtocols.OrderByDescending(m => EvaluationProtocol.evaluateBoxer(worldData.Boxers[m.BoxerIndex])).ToList();
+		List<Manager> managers = worldData.Managers.OrderByDescending(m => EvaluationProtocol.evaluateBoxer(worldData.Boxers[m.BoxerIndex])).ToList();
 
-        foreach (ManagerProtocol mp in managers)
+        foreach (Manager m in managers)
 		{
-			worldData.Boxers[mp.BoxerIndex].logBoxerStats(mp.Rank);
+			worldData.Boxers[m.BoxerIndex].logBoxerStats(m.Rank);
 		}
     }
 
     public void logManagerResults()
     {
-        foreach (ManagerProtocol mp in worldData.ManagerProtocols)
+        foreach (Manager mp in worldData.Managers)
         {
-            mp.logManagerStats(ref worldData);
+            mp.logManagerStats();
         }
     }
 
@@ -61,6 +70,11 @@ public class WorldHandlerBehaviour : MonoBehaviour
             Debug.Log(rank.ToString() + " - " + worldData.Distribution[rank]);
         }
     }
+
+    public void saveGame()
+	{
+		worldData.saveWorld("Assets/Resources/Saves/gamesave.txt");
+	}
 
     //Getters
     public DataPool Data {

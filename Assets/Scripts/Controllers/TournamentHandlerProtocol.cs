@@ -50,7 +50,7 @@ public static class TournamentHandlerProtocol {
 
         foreach (int rIndex in regionsWithinJurisdiction){
             foreach (int mIndex in worldData.Regions[rIndex].getRegionsManagerIndexes()){
-                if (worldData.ManagerProtocols[mIndex].Rank.Equals(level) && !worldData.ManagerProtocols[mIndex].isBusy()){
+                if (worldData.Managers[mIndex].Rank.Equals(level) && !worldData.Managers[mIndex].isBusy()){
                     potentialRecruits.Add(mIndex);   
                 }
             }
@@ -59,7 +59,7 @@ public static class TournamentHandlerProtocol {
         if (highestRated)
             potentialRecruits = potentialRecruits.OrderByDescending(t => EvaluationProtocol.evaluateBoxer(worldData.Boxers[t])).ToList();
         else
-            potentialRecruits = potentialRecruits.OrderByDescending(t => worldData.ManagerProtocols[t].TournamentPriority).ToList();
+            potentialRecruits = potentialRecruits.OrderByDescending(t => worldData.Managers[t].Priority).ToList();
 
         return potentialRecruits;
     }
@@ -92,7 +92,7 @@ public static class TournamentHandlerProtocol {
                     if (worldData.Capitols[region.CapitolIndex].Quarterlies[level].spaceLeft())
                     {
                         worldData.Capitols[region.CapitolIndex].Quarterlies[level].addContestant(recruits[i]);
-                        worldData.ManagerProtocols[recruits[i]].attendTournament();
+                        worldData.Managers[recruits[i]].attendTournament();
                     }
                 }
             }
@@ -119,25 +119,25 @@ public static class TournamentHandlerProtocol {
                         {
                             int distance = region.getDistanceToRegion(i);
 
-                            if (distance < getDistanceFromLevel(worldData.Towns[tIndex].Tournament.TournamentLevel))
+                            if (distance < getDistanceFromLevel(worldData.Towns[tIndex].Tournament.Level))
                             {
                                 regionsWithinJurisdiction.Add(i);
                             }
                         }
                     }
 
-                    List<int> recruits = recruit(worldData, worldData.Towns[tIndex].Tournament.TournamentLevel, regionsWithinJurisdiction, false);
+                    List<int> recruits = recruit(worldData, worldData.Towns[tIndex].Tournament.Level, regionsWithinJurisdiction, false);
 
                     for (int i = 0; i < recruits.Count; i++)
                     {
                         if (worldData.Towns[tIndex].Tournament.spaceLeft())
                         {
                             worldData.Towns[tIndex].Tournament.addContestant(recruits[i]);
-                            worldData.ManagerProtocols[recruits[i]].attendTournament();
+                            worldData.Managers[recruits[i]].attendTournament();
                         }
                         else
                         {
-                            worldData.ManagerProtocols[recruits[i]].bumpTournamentPriority();
+                            worldData.Managers[recruits[i]].bumpTournamentPriority();
                         }
                     }
                 }
@@ -148,25 +148,23 @@ public static class TournamentHandlerProtocol {
     }
 
     private static void simQualifiers(ref DataPool worldData){
-        foreach (Capitol c in worldData.Capitols)
-        {
-            foreach (TournamentProtocol.Level level in c.Quarterlies.Keys)
-            {
-                if (c.Quarterlies[level].Attendees > 2)
-                {
-                    //Debug.Log(c.Location.ToString() + " - " + c.Quarterlies[level].getDetails());
-                    c.Quarterlies[level].scheduleTournament();
-                    c.Quarterlies[level].SimWholeTournament(ref worldData);
-                    //c.Quarterlies[level].logResults(ref worldData);
-                }
+		for (int i = 0; i < worldData.Capitols.Count; i++)
+		{
+			foreach (TournamentProtocol.Level level in worldData.Capitols[i].Quarterlies.Keys)
+			{
+				if (worldData.Capitols[i].Quarterlies[level].Attendees > 2)
+				{
+					worldData.Capitols[i].Quarterlies[level].scheduleTournament();
+					TournamentProtocol.SimWholeTournament(ref worldData, i);
+				}
                 else
-                {
-                    c.Quarterlies[level].cancelTournament(ref worldData);
-                }
+				{
+					TournamentProtocol.cancelTournament(ref worldData, i);
+				}
 
-                c.Quarterlies[level].refreshTournament(true);
-            }
-        }
+				worldData.Capitols[i].Quarterlies[level].refreshTournament(true);
+			}
+		}
     }
 
     private static void simTournaments(ref DataPool worldData, List<int> townTournaments){
@@ -176,11 +174,11 @@ public static class TournamentHandlerProtocol {
             {
                 //Debug.Log(worldData.Towns[tIndex].Location.ToString() + " - " + worldData.Towns[tIndex].Tournament.getDetails());
                 worldData.Towns[townIndex].Tournament.scheduleTournament();
-                worldData.Towns[townIndex].Tournament.SimWholeTournament(ref worldData);
+				TournamentProtocol.SimWholeTournament(ref worldData, townIndex);
             }
             else
             {
-                worldData.Towns[townIndex].Tournament.cancelTournament(ref worldData);
+				TournamentProtocol.cancelTournament(ref worldData, townIndex);
             }
 
             worldData.Towns[townIndex].Tournament.refreshTournament(false);
@@ -188,9 +186,9 @@ public static class TournamentHandlerProtocol {
     }
 
     private static void simTraining(ref DataPool worldData){
-        foreach (ManagerProtocol mp in worldData.ManagerProtocols)
-        {
-            mp.executeWeek(ref worldData);
-        }
+		for (int index = 0; index < worldData.Managers.Count; index++)
+		{
+			ManagerProtocol.executeWeek(ref worldData, index);
+		}
     }
 }

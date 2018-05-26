@@ -193,45 +193,43 @@ public static class WorldBuilderProtocol {
 			Manager manager = new Manager(
 				worldData.generateFirstName(), worldData.generateLastName(), townIndex, generateRandomInt(145, 225), typeList[generateRandomInt(0, typeList.Count - 1)]);
 			manager.Record.setELO(getEloFromRegion(worldData.Towns[townIndex].RegionLevel));
+			manager.setupHomebase(ref worldData, true);
 			worldData.Managers.Add(manager);
 
-			ManagerProtocol mp = new ManagerProtocol(ref worldData, worldData.Managers.Count - 1, true);
+			List<Boxer> boxers = WorldBuilderProtocol.generateBoxerRecruits(ref worldData, manager.TownIndex, manager.Record.ELO);
 
-            List<Boxer> boxers = WorldBuilderProtocol.generateBoxerRecruits(ref worldData, manager.TownIndex, manager.Record.ELO);
+			int bIndex = 0;
+			float max = 0.0f;
 
-            int bIndex = 0;
-            float max = 0.0f;
+			for (int i = 0; i < boxers.Count; i++)
+			{
+				float boxerEval = EvaluationProtocol.evaluateBoxer(boxers[i], worldData.Managers[worldData.Managers.Count - 1].Preference);
 
-            for (int i = 0; i < boxers.Count; i++)
-            {
-                float boxerEval = EvaluationProtocol.evaluateBoxer(boxers[i], worldData.Managers[mp.ManagerIndex].Preference);
-
-                if (boxerEval > max)
-                {
-                    max = boxerEval;
-                    bIndex = i;
-                }
-            }
+				if (boxerEval > max)
+				{
+					max = boxerEval;
+					bIndex = i;
+				}
+			}
 
 			TournamentProtocol.Level boxerLevel = (TournamentProtocol.Level)generateRandomInt(0, (int)worldData.Towns[townIndex].RegionLevel);
 
-            worldData.Boxers.Add(boxers[bIndex]);
-            mp.recruitBoxer(worldData.Boxers.Count - 1);
-            mp.updateELO(ref worldData);
-            mp.upgradeFacilities(ref worldData);
-            mp.setRank(boxerLevel);
-            ageAndDevelop(ref worldData, worldData.Boxers.Count - 1, boxerLevel);
-
-            worldData.ManagerProtocols.Add(mp);
-            worldData.Regions[regionIndex].addManager(worldData.ManagerProtocols.Count - 1);
+			worldData.Boxers.Add(boxers[bIndex]);
+			manager.recruitBoxer(worldData.Boxers.Count - 1);
+			ManagerProtocol.updateELO(ref worldData, worldData.Managers.Count - 1);
+			manager.upgradeFacilities(ref worldData);
+			manager.setRank(boxerLevel);
+			ageAndDevelop(ref worldData, worldData.Boxers.Count - 1, boxerLevel);
+            
+            worldData.Regions[regionIndex].addManager(worldData.Managers.Count - 1);
         }
     }
 
-    public static TournamentProtocol createQuarterlyTournament(TournamentProtocol.Level level, CalendarDate date){
-        return new TournamentProtocol("Regional " + level.ToString() + " Qualifier", date, getPrizeMoney(level) + 1000.0f, 16, level, true);
+    public static Tournament createQuarterlyTournament(TournamentProtocol.Level level, CalendarDate date){
+		return new Tournament("Regional " + level.ToString() + " Qualifier", date, getPrizeMoney(level) + 1000.0f, 16, level, true);
     }
 
-    public static TournamentProtocol createTournamentBasedOnRegion(ref DataPool worldData, TournamentProtocol.Level regionLevel, CalendarDate date){
+    public static Tournament createTournamentBasedOnRegion(ref DataPool worldData, TournamentProtocol.Level regionLevel, CalendarDate date){
         List<int> tournamentPercentages = getPercentagesForRegion(regionLevel);
 
 		int rng = generateRandomInt(0, 100);
@@ -262,26 +260,27 @@ public static class WorldBuilderProtocol {
             tournamentLevel = TournamentProtocol.Level.E;
         }
 
-        return new TournamentProtocol(worldData.generateTournamentName() + " Cup", date, getPrizeMoney(tournamentLevel), getRandomTournamentSize((int)tournamentLevel), tournamentLevel, false);
+		return new Tournament(worldData.generateTournamentName() + " Cup", date, getPrizeMoney(tournamentLevel), getRandomTournamentSize((int)tournamentLevel),
+							  tournamentLevel, false);
     }
 
     public static void createTowns(ref DataPool worldData, int regionIndex){
-        for (int x = 10; x < worldData.Regions[regionIndex].Map.GetLength(0) - 11; x++)
-        {
-            for (int y = 10; y < worldData.Regions[regionIndex].Map.GetLength(0) - 11; y++)
-            {
-                if (worldData.Regions[regionIndex].Map[x, y].Equals(RegionCreator.TileType.Beach))
-                {
-                    if (townAccepatble(new Vector2Int(x, y), regionIndex, ref worldData))
-                    {
-						List<Vector2Int> path = worldData.Dijkstras.shortestPath(new Vector2Int(0,0), worldData.Regions[regionIndex].Position);
+		for (int x = 10; x < worldData.Regions[regionIndex].Map.GetLength(0) - 11; x++)
+		{
+			for (int y = 10; y < worldData.Regions[regionIndex].Map.GetLength(0) - 11; y++)
+			{
+				if (worldData.Regions[regionIndex].Map[x, y].Equals(RegionCreator.TileType.Beach))
+				{
+					if (townAccepatble(new Vector2Int(x, y), regionIndex, ref worldData))
+					{
+						List<Vector2Int> path = worldData.Dijkstras.shortestPath(new Vector2Int(0, 0), worldData.Regions[regionIndex].Position);
 						int regionDistance = path.Count;
-                        worldData.Towns.Add(new Town(worldData.generateTownName(), new Vector2Int(x, y), regionDistance));
-                        //worldData.WorldMap[x, y] = Region.TileType.Town;
-                        createManagerBasedOnTown(ref worldData, worldData.Towns.Count - 1, regionIndex);
-                        worldData.Towns[worldData.Towns.Count - 1].setTournament(
-                            createTournamentBasedOnRegion(ref worldData, worldData.Towns[worldData.Towns.Count - 1].RegionLevel, generateDateFromOffset(x + y)));
-                        worldData.Regions[regionIndex].addTown(worldData.Towns.Count - 1);
+						worldData.Towns.Add(new Town(worldData.generateTownName(), new Vector2Int(x, y), regionDistance));
+						//worldData.WorldMap[x, y] = Region.TileType.Town;
+						createManagerBasedOnTown(ref worldData, worldData.Towns.Count - 1, regionIndex);
+						worldData.Towns[worldData.Towns.Count - 1].setTournament(
+							createTournamentBasedOnRegion(ref worldData, worldData.Towns[worldData.Towns.Count - 1].RegionLevel, generateDateFromOffset(x + y)));
+						worldData.Regions[regionIndex].addTown(worldData.Towns.Count - 1);
                     }
                 }
             }

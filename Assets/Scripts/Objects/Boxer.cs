@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class Boxer : Person {
 
@@ -55,6 +56,36 @@ public class Boxer : Person {
 		fatigue = 0;
 		maturity = 0;
 		stress = 0;
+	}
+
+	public Boxer(JSONObject json) : 
+	base(
+		JSONTemplates.ToVector2Int(json.GetField("age")), json.GetField("firstname").str, json.GetField("lastname").str,
+		townId: int.Parse(json.GetField("townindex").str), wt: json.GetField("weight").f
+	)
+	{
+		boxerClass = (BoxerClass.Type)Enum.Parse(typeof(BoxerClass.Type), json.GetField("weightclass").str);
+
+		accuracy = (int)json.GetField("accuracy").i;
+		endurance = (int)json.GetField("endurance").i;
+		health = (int)json.GetField("health").i;
+		speed = (int)json.GetField("speed").i;
+		strength = (int)json.GetField("strength").i;
+
+		accuracyGrowth = (int)json.GetField("accuracygrowth").i;
+		enduranceGrowth = (int)json.GetField("endurancegrowth").i;
+		healthGrowth = (int)json.GetField("healthgrowth").i;
+		speedGrowth = (int)json.GetField("speedgrowth").i;
+		strengthGrowth = (int)json.GetField("strengthgrowth").i;
+
+		record = new Record(json);
+
+		retired = json.GetField("retired").b;
+
+		concussions = (int)json.GetField("concussions").i;
+		fatigue = (int)json.GetField("fatigue").i;
+		maturity = (int)json.GetField("maturity").i;
+		stress = (int)json.GetField("stress").i;
 	}
 
 	public void applyTrainingResults(TrainingResult results){
@@ -112,6 +143,40 @@ public class Boxer : Person {
 		fatigue -= fatigue - 80 < 0 ? 0 : 80;
 	}
 
+	public JSONObject jsonify()
+	{
+		JSONObject json = new JSONObject(JSONObject.Type.OBJECT);
+
+		json.AddField("weightclass", Class.ToString());
+
+		json.AddField("age", JSONTemplates.FromVector2Int(Age));
+		json.AddField("firstname", FirstName);
+		json.AddField("lastname", LastName);
+		json.AddField("townindex", TownIndex);
+		json.AddField("weight", Weight);
+		json.AddField("weeksremaining", WeeksRemaining);
+
+		json.AddField("boxerclass", boxerClass.ToString());
+		json.AddField("accuracy", accuracy);
+		json.AddField("endurance", endurance);
+		json.AddField("health", health);
+		json.AddField("speed", speed);
+		json.AddField("strength", strength);
+		json.AddField("accuracygrowth", accuracyGrowth);
+		json.AddField("endurancegrowth", enduranceGrowth);
+		json.AddField("healthgrowth", healthGrowth);
+		json.AddField("speedgrowth", speedGrowth);
+		json.AddField("strengthgrowth", strengthGrowth);
+		json.AddField("record", record.jsonify());
+		json.AddField("retired", retired);
+		json.AddField("concussions", concussions);
+		json.AddField("fatigue", fatigue);
+		json.AddField("maturity", maturity);
+		json.AddField("stress", stress);      
+
+		return json;
+	}
+       
 	//Getters
 	public BoxerClass.Type BoxerClass {
 		get { return boxerClass; }

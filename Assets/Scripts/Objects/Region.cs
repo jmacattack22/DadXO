@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class Region {
     
@@ -30,6 +31,33 @@ public class Region {
         managerProtocolIndexes = new List<int>();
         townIndexes = new List<int>();
     }
+
+	public Region(JSONObject json)
+	{
+		position = JSONTemplates.ToVector2Int(json.GetField("position"));
+		regionName = json.GetField("name").str;
+		landMass = (int)json.GetField("landmass").i;
+		capitolIndex = (int)json.GetField("capitolindex").i;
+		level = (TournamentProtocol.Level)Enum.Parse(typeof(TournamentProtocol.Level), json.GetField("level").str);
+
+		distances = new Dictionary<int, int>();
+		foreach (JSONObject record in json.GetField("distances").list)
+		{
+			distances.Add((int)record.GetField("key").i, (int)record.GetField("value").i);
+		}
+
+		townIndexes = new List<int>();
+        foreach (JSONObject record in json.GetField("townindexes").list)
+		{
+			townIndexes.Add((int)record.i);
+		}
+
+		managerProtocolIndexes = new List<int>();
+        foreach (JSONObject record in json.GetField("managerindexes").list)
+		{
+			managerProtocolIndexes.Add((int)record.i);
+		}
+	}   
 
     public void addCapitol(int capitol){
         capitolIndex = capitol;
@@ -118,6 +146,45 @@ public class Region {
     public void setLevel(int regionDistance){
         determineRegionLevel(regionDistance);
     }
+
+    public JSONObject jsonify()
+	{
+		JSONObject json = new JSONObject(JSONObject.Type.OBJECT);
+
+		json.AddField("position", JSONTemplates.FromVector2Int(position));
+		json.AddField("name", regionName);
+		json.AddField("landmass", landMass);
+		json.AddField("capitolindex", capitolIndex);
+		json.AddField("level", level.ToString());
+
+		JSONObject distance = new JSONObject(JSONObject.Type.ARRAY);
+        foreach (int key in distances.Keys)
+		{
+			JSONObject record = new JSONObject(JSONObject.Type.OBJECT);
+
+			record.AddField("key", key);
+			record.AddField("value", distances[key]);
+
+			distance.Add(record);
+		}
+		json.AddField("distances", distance);
+
+		JSONObject town = new JSONObject(JSONObject.Type.ARRAY);
+        foreach (int index in townIndexes)
+		{
+			town.Add(index);
+		}
+		json.AddField("townindexes", town);
+
+		JSONObject manager = new JSONObject(JSONObject.Type.ARRAY);
+        foreach (int index in managerProtocolIndexes)
+		{
+			manager.Add(index);
+		}
+		json.AddField("managerindexes", manager);
+
+		return json;
+	}
 
     //Getters
     public string Name {

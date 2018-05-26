@@ -15,9 +15,25 @@ public class TournamentResult {
         quarterlyWin = false;
 	}
 
+    public TournamentResult(JSONObject json)
+	{
+		quarterlyWin = json.GetField("quarterlywin").b;
+		record = new Record(json.GetField("record"));
+	}
+
     public void wonQuarterly(){
         quarterlyWin = true;
     }
+
+    public JSONObject jsonify()
+	{
+		JSONObject json = new JSONObject(JSONObject.Type.OBJECT);
+
+		json.AddField("record", record.jsonify());
+		json.AddField("quaerterlywin", quarterlyWin);
+
+		return json;
+	}
 
 	//Getters
 	public Record Record {

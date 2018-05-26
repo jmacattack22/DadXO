@@ -36,6 +36,28 @@ public class Calendar{
 		});
 	}
 
+	public Calendar(JSONObject json)
+	{
+		month = (int)json.GetField("month").i;
+		week = (int)json.GetField("week").i;
+		year = (int)json.GetField("year").i;
+
+		monthsInYear = new List<string>(new string[]{
+            "Aries",
+            "Taurus",
+            "Gemini",
+            "Cancer",
+            "Leo",
+            "Virgo",
+            "Libra",
+            "Scorpio",
+            "Sagittarius",
+            "Capricorn",
+            "Aquarius",
+            "Pisces"
+        });
+	}
+
 	public string convertWeekToString(int week){
 		if (week == 1)
 			return "1st";
@@ -94,18 +116,7 @@ public class Calendar{
 
 	public int weeksAway(CalendarDate date){
 		CalendarDate now = new CalendarDate (week, month, year);
-
-//		if (date.Year < year)
-//			return -1;
-//		else {
-//			if (date.Month < month)
-//				return -1;
-//			else {
-//				if (date.Week < week)
-//					return -1;
-//			}
-//		}
-
+      
 		int weeksAway = 0;
 		while (true) {
 			if (now.Year == date.Year && now.Month == date.Month && now.Week == date.Week)
@@ -114,6 +125,26 @@ public class Calendar{
 			now.addWeeks (1);
 			weeksAway++;
 		}
+	}
+
+    public JSONObject jsonify()
+	{
+		JSONObject json = new JSONObject(JSONObject.Type.OBJECT);
+
+		json.AddField("month", month);
+		json.AddField("week", week);
+		json.AddField("year", year);
+
+		JSONObject months = new JSONObject(JSONObject.Type.ARRAY);
+
+        foreach (string m in monthsInYear)
+		{
+			months.Add(m);
+		}
+
+		json.AddField("monthsinyear", months);
+
+		return json;
 	}
 
 	//Getters

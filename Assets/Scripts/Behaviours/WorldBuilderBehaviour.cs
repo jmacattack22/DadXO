@@ -84,6 +84,7 @@ public class WorldBuilderBehaviour : MonoBehaviour
 		state = BuilderState.Exercises;
 		worldData = new DataPool();
 
+		print("e");
 		WorldBuilderProtocol.initExercises(ref worldData);
 
 		state = BuilderState.Regions;
@@ -106,6 +107,20 @@ public class WorldBuilderBehaviour : MonoBehaviour
 
         stopwatch.Stop();
         print(stopwatch.Elapsed);
+    }
+
+	private void drawRegions()
+    {
+        drawingRegions = true;
+
+        for (int i = drawnRegions; i < regionLocationIndexes.Count; i++)
+        {
+            mapDrawer.addPlainRegionTileToWorldMap(
+                new Vector3(worldData.Regions[regionLocationIndexes[i]].Position.x, worldData.Regions[regionLocationIndexes[i]].Position.y));
+        }
+        drawnRegions = regionLocationIndexes.Count;
+
+        drawingRegions = false;
     }
 
     private void generateRegions()
@@ -254,21 +269,6 @@ public class WorldBuilderBehaviour : MonoBehaviour
 
         return chance < baseChance;
     }
-
-    private void drawRegions()
-	{
-		drawingRegions = true;
-
-		for (int i = drawnRegions; i < regionLocationIndexes.Count; i++)
-		{
-			print(i + " - " + worldData.Regions.Count);
-			mapDrawer.addPlainRegionTileToWorldMap(
-				new Vector3(worldData.Regions[regionLocationIndexes[i]].Position.x, worldData.Regions[regionLocationIndexes[i]].Position.y));
-		}
-		drawnRegions = regionLocationIndexes.Count;
-
-		drawingRegions = false;
-	}
 
 	void Update()
 	{

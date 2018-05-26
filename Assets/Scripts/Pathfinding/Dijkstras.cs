@@ -9,6 +9,24 @@ public class Dijkstras
     public Dijkstras(){
         
     }
+   
+	public Dijkstras(JSONObject json)
+	{
+		foreach (JSONObject r in json.list)
+		{
+			Vector2Int position = JSONTemplates.ToVector2Int(r.GetField("position"));
+
+			Dictionary<Vector2Int, int> tempDict = new Dictionary<Vector2Int, int>();
+            foreach (JSONObject v in r.GetField("adjacents").list)
+			{
+				Vector2Int position2 = JSONTemplates.ToVector2Int(v.GetField("position"));
+				int distance = (int)v.GetField("distance").i;
+
+				tempDict.Add(position2, distance);
+			}
+			vertices.Add(position, tempDict);
+		}
+	}
 
     public void addVertex(Vector2Int position, Dictionary<Vector2Int, int> edges){
         vertices[position] = edges;
@@ -73,97 +91,29 @@ public class Dijkstras
 
         return path;
     }
+
+    public JSONObject jsonify()
+	{
+		JSONObject json = new JSONObject(JSONObject.Type.ARRAY);
+
+		foreach (Vector2Int v in vertices.Keys)
+		{
+			JSONObject tempJson = new JSONObject(JSONObject.Type.OBJECT);
+			tempJson.AddField("position", JSONTemplates.FromVector2Int(v));
+
+			JSONObject adjacents = new JSONObject(JSONObject.Type.ARRAY);
+            foreach (Vector2Int v2 in vertices[v].Keys)
+			{
+				JSONObject adjacent = new JSONObject(JSONObject.Type.OBJECT);
+				adjacent.AddField("position", JSONTemplates.FromVector2Int(v2));
+				adjacent.AddField("distance", vertices[v][v2]);
+				adjacents.Add(adjacent);
+			}
+
+			tempJson.AddField("adjacents", adjacents);
+			json.Add(tempJson);
+		}
+
+		return json;
+	}
 }
-
-//namespace Dijkstras
-//{
-//    class Graph
-//    {
-//        Dictionary<char, Dictionary<char, int>> vertices = new Dictionary<char, Dictionary<char, int>>();
-
-//        Dictionary<Vec>
-
-//        public void add_vertex(char name, Dictionary<char, int> edges)
-//        {
-//            vertices[name] = edges;
-//        }
-
-//        public List<char> shortest_path(char start, char finish)
-//        {
-//            var previous = new Dictionary<char, char>();
-//            var distances = new Dictionary<char, int>();
-//            var nodes = new List<char>();
-
-//            List<char> path = null;
-
-//            foreach (var vertex in vertices)
-//            {
-//                if (vertex.Key == start)
-//                {
-//                    distances[vertex.Key] = 0;
-//                }
-//                else
-//                {
-//                    distances[vertex.Key] = int.MaxValue;
-//                }
-
-//                nodes.Add(vertex.Key);
-//            }
-
-//            while (nodes.Count != 0)
-//            {
-//                nodes.Sort((x, y) => distances[x] - distances[y]);
-
-//                var smallest = nodes[0];
-//                nodes.Remove(smallest);
-
-//                if (smallest == finish)
-//                {
-//                    path = new List<char>();
-//                    while (previous.ContainsKey(smallest))
-//                    {
-//                        path.Add(smallest);
-//                        smallest = previous[smallest];
-//                    }
-
-//                    break;
-//                }
-
-//                if (distances[smallest] == int.MaxValue)
-//                {
-//                    break;
-//                }
-
-//                foreach (var neighbor in vertices[smallest])
-//                {
-//                    var alt = distances[smallest] + neighbor.Value;
-//                    if (alt < distances[neighbor.Key])
-//                    {
-//                        distances[neighbor.Key] = alt;
-//                        previous[neighbor.Key] = smallest;
-//                    }
-//                }
-//            }
-
-//            return path;
-//        }
-//    }
-
-//    class MainClass
-//    {
-//        public static void Main(string[] args)
-//        {
-//            Graph g = new Graph();
-//            g.add_vertex('A', new Dictionary<char, int>() { { 'B', 7 }, { 'C', 8 } });
-//            g.add_vertex('B', new Dictionary<char, int>() { { 'A', 7 }, { 'F', 2 } });
-//            g.add_vertex('C', new Dictionary<char, int>() { { 'A', 8 }, { 'F', 6 }, { 'G', 4 } });
-//            g.add_vertex('D', new Dictionary<char, int>() { { 'F', 8 } });
-//            g.add_vertex('E', new Dictionary<char, int>() { { 'H', 1 } });
-//            g.add_vertex('F', new Dictionary<char, int>() { { 'B', 2 }, { 'C', 6 }, { 'D', 8 }, { 'G', 9 }, { 'H', 3 } });
-//            g.add_vertex('G', new Dictionary<char, int>() { { 'C', 4 }, { 'F', 9 } });
-//            g.add_vertex('H', new Dictionary<char, int>() { { 'E', 1 }, { 'F', 3 } });
-
-//            g.shortest_path('A', 'H').ForEach(x => Console.WriteLine(x));
-//        }
-//    }
-//}

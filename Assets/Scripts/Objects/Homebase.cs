@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class Homebase {
 
@@ -14,6 +15,19 @@ public class Homebase {
 		homeBaseFacilities = new Dictionary<ManagerProtocol.FacilityShortcut, Facility> ();
 
 		initializeBasicFacilities (ref worldData, ai);
+	}
+
+    public Homebase(JSONObject json)
+	{
+		level = (int)json.GetField("level").i;
+
+		homeBaseFacilities = new Dictionary<ManagerProtocol.FacilityShortcut, Facility>();
+        foreach (JSONObject record in json.GetField("facilities").list)
+        {
+            ManagerProtocol.FacilityShortcut facility =
+                (ManagerProtocol.FacilityShortcut)Enum.Parse(typeof(ManagerProtocol.FacilityShortcut), record.GetField("key").str);
+			homeBaseFacilities.Add(facility, new Facility(record.GetField("value")));
+        }
 	}
 
 	private static int generateRandomInt(int min, int max)
@@ -98,5 +112,24 @@ public class Homebase {
 				}
 			}
 		}
+	}
+
+    public JSONObject jsonify()
+	{
+		JSONObject json = new JSONObject(JSONObject.Type.OBJECT);
+
+		json.AddField("level", level);
+
+		JSONObject facilities = new JSONObject(JSONObject.Type.ARRAY);
+        foreach (ManagerProtocol.FacilityShortcut key in homeBaseFacilities.Keys)
+		{
+			JSONObject record = new JSONObject(JSONObject.Type.OBJECT);
+			record.AddField("key", key.ToString());
+			record.AddField("value", homeBaseFacilities[key].jsonify());
+			facilities.Add(record);
+		}
+		json.AddField("facilities", facilities);
+
+		return json;
 	}
 }

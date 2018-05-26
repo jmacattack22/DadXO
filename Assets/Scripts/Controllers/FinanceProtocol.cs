@@ -10,12 +10,26 @@ public class FinanceProtocol {
 		balance = initiallBalance;
 	}
 
+    public FinanceProtocol(JSONObject json)
+	{
+		balance = json.GetField("balance");
+	}
+
 	public void addFunds(int funds){
 		balance += funds;
 	}
 
 	public void deductFunds(int funds){
 		balance -= funds;
+	}
+
+    public JSONObject jsonify()
+	{
+		JSONObject json = new JSONObject(JSONObject.Type.OBJECT);
+
+		json.AddField("balance", balance);
+
+		return json;
 	}
 
 	//Getters
