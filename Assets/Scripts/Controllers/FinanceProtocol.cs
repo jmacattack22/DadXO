@@ -12,7 +12,7 @@ public class FinanceProtocol {
 
     public FinanceProtocol(JSONObject json)
 	{
-		balance = json.GetField("balance");
+		balance = (int)json.GetField("balance").i;
 	}
 
 	public void addFunds(int funds){

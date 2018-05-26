@@ -7,6 +7,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading;
+using System;
 
 public class DataPool 
 {
@@ -32,7 +33,8 @@ public class DataPool
 
     private Dictionary<TournamentProtocol.Level, int> distribution;
 
-	private string temporaryFilename;
+	private string temporarySaveFile;
+	private string temporarySaveDirectory;
 
 	public DataPool(){
 		boxers = new List<Boxer> ();
@@ -173,9 +175,141 @@ public class DataPool
         return false;
     }
 
-    public void saveWorld(string filename)
+
+    public void loadWorld(string saveDirectory, string saveFile)
+    {
+        loadNameData();
+
+        using (StreamReader reader = new StreamReader("Assets/Resources/Saves/" + saveDirectory + "/" + saveFile + ".save"))
+        {
+            string saveContents = EncryptDecrypt(reader.ReadToEnd());
+
+            JSONObject json = new JSONObject(saveContents);
+            readJson(json);
+        }
+
+        foreach (Region r in regions)
+        {
+            using (StreamReader reader = new StreamReader("Assets/Resources/Saves/" + saveDirectory + "/Maps/Region_" + r.CapitolIndex + ".tilemap"))
+            {
+                string mapContents = EncryptDecrypt(reader.ReadToEnd());
+
+                JSONObject json = new JSONObject(mapContents);
+                r.addWorldMap(readMapJson(json));
+            }
+        }
+    }
+
+    public void loadNameData()
+    {
+        string firstNameContents = "";
+        string lastNameContents = "";
+        string townNameContents = "";
+
+        using (StreamReader reader = new StreamReader("Assets/Resources/SourceMaterial/FirstNames.txt"))
+        {
+            firstNameContents = reader.ReadToEnd();
+        }
+
+        using (StreamReader reader = new StreamReader("Assets/Resources/SourceMaterial/LastNames.txt"))
+        {
+            lastNameContents = reader.ReadToEnd();
+        }
+
+        using (StreamReader reader = new StreamReader("Assets/Resources/SourceMaterial/Places.txt"))
+        {
+            townNameContents = reader.ReadToEnd();
+        }
+
+        using (StreamReader reader = new StreamReader("Assets/Resources/SourceMaterial/TournamentNames.txt"))
+        {
+            string line;
+            while ((line = reader.ReadLine()) != null)
+            {
+                tournamentNames.Add(line.Trim());
+                backTournamentNames.Add(line.Trim());
+            }
+        }
+
+        firstNames = firstNameContents.Split(';').ToList();
+        lastNames = lastNameContents.Split(';').ToList();
+        townNames = townNameContents.Split(';').ToList();
+    }
+
+	private RegionCreator.TileType[,] readMapJson(JSONObject json)
+    {
+        List<List<RegionCreator.TileType>> mapList = new List<List<RegionCreator.TileType>>();
+
+        foreach (JSONObject r in json.list)
+        {
+            List<RegionCreator.TileType> row = new List<RegionCreator.TileType>();
+            foreach (JSONObject c in r.GetField("rowvalues").list)
+            {
+                row.Add((RegionCreator.TileType)Enum.Parse(typeof(RegionCreator.TileType), c.str));
+            }
+
+            mapList.Add(row);
+        }
+
+        int width = mapList.Count;
+        int height = mapList[0].Count;
+
+        RegionCreator.TileType[,] map = new RegionCreator.TileType[width, height];
+
+        for (int x = 0; x < mapList.Count; x++)
+        {
+            for (int y = 0; y < mapList[x].Count; y++)
+            {
+                map[x, y] = mapList[x][y];
+            }
+        }
+
+        return map;
+    }
+
+    private void readJson(JSONObject json)
+    {
+        boxers = new List<Boxer>();
+        foreach (JSONObject r in json.GetField("boxers").list)
+        {
+            boxers.Add(new Boxer(r));
+        }
+
+        managers = new List<Manager>();
+        foreach (JSONObject r in json.GetField("manangers").list)
+        {
+            managers.Add(new Manager(r));
+        }
+
+        capitols = new List<Capitol>();
+        foreach (JSONObject r in json.GetField("capitols").list)
+        {
+            capitols.Add(new Capitol(r));
+        }
+
+        towns = new List<Town>();
+        foreach (JSONObject r in json.GetField("towns").list)
+        {
+            towns.Add(new Town(r));
+        }
+
+        calendar = new Calendar(json.GetField("calendar"));
+
+        regions = new List<Region>();
+        foreach (JSONObject r in json.GetField("regions").list)
+        {
+            regions.Add(new Region(r));
+        }
+
+        dijkstras = new Dijkstras(json.GetField("dijkstras"));
+
+        updateBoxerDistribution();
+    }
+
+    public void saveWorld(string saveDirectory, string saveFile)
 	{
-		temporaryFilename = filename;
+		temporarySaveFile = saveFile;
+		temporarySaveDirectory = saveDirectory;
 
 		Thread saveThread = new Thread(new ThreadStart(saveWorldThread));
 		saveThread.Start();
@@ -184,18 +318,38 @@ public class DataPool
     private void saveWorldThread()
 	{
 		JSONObject world = jsonify();
+        
+        if (!Directory.Exists("Assets/Resources/Saves/" + temporarySaveDirectory + "/"))
+        {
+			Directory.CreateDirectory("Assets/Resources/Saves/" + temporarySaveDirectory + "/");
 
-        using (StreamWriter writer = new StreamWriter(temporaryFilename))
+        }
+
+        using (StreamWriter writer = new StreamWriter("Assets/Resources/Saves/" + temporarySaveDirectory + "/" + temporarySaveFile + ".save"))
         {
             writer.Write(EncryptDecrypt(world.Print(true)));
+        }
+
+		if (!Directory.Exists("Assets/Resources/Saves/" + temporarySaveDirectory + "/Maps/"))
+        {
+            Directory.CreateDirectory("Assets/Resources/Saves/" + temporarySaveDirectory + "/Maps/");
+
+			Thread saveMapThread = new Thread(new ThreadStart(saveWorldMapThread));
+			saveMapThread.Start();
         }
 	}
 
     public void saveWorldMapThread()
 	{
+		if (!Directory.Exists("Assets/Resources/Saves/" + temporarySaveDirectory + "/Maps/"))
+        {
+			Directory.CreateDirectory("Assets/Resources/Saves/" + temporarySaveDirectory + "/Maps");
+
+        }
+
 		foreach (Region r in regions)
         {
-            using (StreamWriter writer = new StreamWriter("Assets/Resources/Saves/Maps/regions_" + r.CapitolIndex + ".txt"))
+            using (StreamWriter writer = new StreamWriter("Assets/Resources/Saves/" + temporarySaveDirectory + "/Maps/Region_" + r.CapitolIndex + ".tiles"))
             {
                 JSONObject map = new JSONObject(JSONObject.Type.ARRAY);
                 for (int x = 0; x < r.Map.GetLength(0); x++)
@@ -218,92 +372,11 @@ public class DataPool
         }
 	}
 
-    public void loadWorld(string filename)
+    public void setSaveDirectories(string saveDirectory, string saveFile)
 	{
-		loadNameData();
-
-		using (StreamReader reader = new StreamReader(filename))
-		{
-			string saveContents = EncryptDecrypt(reader.ReadToEnd());
-
-			JSONObject json = new JSONObject(saveContents);
-			readJson(json);
-		}
+		temporarySaveDirectory = saveDirectory;
+		temporarySaveFile = saveFile;
 	}
-
-	private void readJson(JSONObject json)
-	{
-		boxers = new List<Boxer>();
-		foreach (JSONObject r in json.GetField("boxers").list)
-		{
-			boxers.Add(new Boxer(r));
-		}
-
-		managers = new List<Manager>();
-		foreach (JSONObject r in json.GetField("manangers").list)
-		{
-			managers.Add(new Manager(r));
-		}
-
-		capitols = new List<Capitol>();
-		foreach (JSONObject r in json.GetField("capitols").list)
-		{
-			capitols.Add(new Capitol(r));
-		}
-
-		towns = new List<Town>();
-		foreach (JSONObject r in json.GetField("towns").list)
-		{
-			towns.Add(new Town(r));
-		}
-
-		calendar = new Calendar(json.GetField("calendar"));
-
-		regions = new List<Region>();
-		foreach (JSONObject r in json.GetField("regions").list)
-		{
-			regions.Add(new Region(r));
-		}
-
-		dijkstras = new Dijkstras(json.GetField("dijkstras"));
-
-		updateBoxerDistribution();
-	}
-          
-    //private Dictionary<string, string> exerciseDescriptions;
-    //private Dictionary<string, List<List<int>>> exerciseProgress;
-
-    public void loadNameData(){
-        string firstNameContents = "";
-        string lastNameContents = "";
-        string townNameContents = "";
-
-        using (StreamReader reader = new StreamReader("Assets/Resources/SourceMaterial/FirstNames.txt")){
-            firstNameContents = reader.ReadToEnd();
-        } 
-
-        using (StreamReader reader = new StreamReader("Assets/Resources/SourceMaterial/LastNames.txt")){
-            lastNameContents = reader.ReadToEnd();
-        } 
-
-        using (StreamReader reader = new StreamReader("Assets/Resources/SourceMaterial/Places.txt")){
-            townNameContents = reader.ReadToEnd();
-        }
-
-        using (StreamReader reader = new StreamReader("Assets/Resources/SourceMaterial/TournamentNames.txt"))
-        {
-            string line;
-            while ((line = reader.ReadLine()) != null)
-            {
-                tournamentNames.Add(line.Trim());
-                backTournamentNames.Add(line.Trim());
-            }
-        }
-
-        firstNames = firstNameContents.Split(';').ToList();
-        lastNames = lastNameContents.Split(';').ToList();
-        townNames = townNameContents.Split(';').ToList();
-    }
 
     public void updateBoxerDistribution(){
         distribution = new Dictionary<TournamentProtocol.Level, int>();

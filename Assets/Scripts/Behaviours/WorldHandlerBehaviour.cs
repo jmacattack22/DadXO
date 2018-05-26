@@ -25,6 +25,11 @@ public class WorldHandlerBehaviour : MonoBehaviour
         if (creatingNewWorld && worldBuilder.State.Equals(WorldBuilderBehaviour.BuilderState.Complete))
 		{
 			worldData = worldBuilder.getWorldData();
+
+			worldData.setSaveDirectories("AutoSave1", "AutoSave1");
+			Thread saveMapThread = new Thread(new ThreadStart(worldData.saveWorldMapThread));
+			saveMapThread.Start();
+
 			mapDrawer.drawRegions(ref worldData);
 			creatingNewWorld = false;
 		}       
@@ -38,10 +43,10 @@ public class WorldHandlerBehaviour : MonoBehaviour
         Debug.Log(worldData.Calendar.getDate(Calendar.DateType.fullLong));
     }
 
-	public void loadGame(string filename)
+	public void loadGame(string saveDirectory, string saveFile)
 	{
 		worldData = new DataPool();
-		worldData.loadWorld(filename);
+		worldData.loadWorld(saveDirectory, saveFile);
 		WorldBuilderProtocol.initExercises(ref worldData);
 	}
 
@@ -73,7 +78,7 @@ public class WorldHandlerBehaviour : MonoBehaviour
 
     public void saveGame()
 	{
-		worldData.saveWorld("Assets/Resources/Saves/gamesave.txt");
+		worldData.saveWorld("NewGame", "NewGame");
 	}
 
     //Getters

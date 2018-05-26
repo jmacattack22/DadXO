@@ -83,8 +83,7 @@ public class WorldBuilderBehaviour : MonoBehaviour
 		stopwatch.Start();
 		state = BuilderState.Exercises;
 		worldData = new DataPool();
-
-		print("e");
+        
 		WorldBuilderProtocol.initExercises(ref worldData);
 
 		state = BuilderState.Regions;
@@ -308,11 +307,7 @@ public class WorldBuilderBehaviour : MonoBehaviour
 			
 
 		if (!state.Equals(BuilderState.None) && !state.Equals(BuilderState.Complete))
-		{
-			//print(debugRegionID + " - " + worldData.Regions[debugRegionID].LandMass + " - " + 
-			// debugState + " - " + worldData.Regions[debugRegionID].getRegionsTownIndexes().Count + " - " +
-			//worldData.Towns.Count);
-
+		{         
 			print("World " + getPercentage() + "% Complete. Current Focus " + state);
 		}
 	}
