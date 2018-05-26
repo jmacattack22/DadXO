@@ -43,6 +43,11 @@ public class WorldHandlerBehaviour : MonoBehaviour
         Debug.Log(worldData.Calendar.getDate(Calendar.DateType.fullLong));
     }
 
+    public void loadGameButton()
+	{
+		loadGame("NewGame", "NewGame");
+	}
+
 	public void loadGame(string saveDirectory, string saveFile)
 	{
 		worldData = new DataPool();

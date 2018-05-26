@@ -180,7 +180,16 @@ public class DataPool
     {
         loadNameData();
 
-        using (StreamReader reader = new StreamReader("Assets/Resources/Saves/" + saveDirectory + "/" + saveFile + ".save"))
+		temporarySaveDirectory = saveDirectory;
+		temporarySaveFile = saveFile;
+
+		Thread thread = new Thread(new ThreadStart(loadWorldThread));
+		thread.Start();
+    }
+
+    public void loadWorldThread()
+	{
+		using (StreamReader reader = new StreamReader("Assets/Resources/Saves/" + temporarySaveDirectory + "/" + temporarySaveFile + ".save"))
         {
             string saveContents = EncryptDecrypt(reader.ReadToEnd());
 
@@ -190,7 +199,7 @@ public class DataPool
 
         foreach (Region r in regions)
         {
-            using (StreamReader reader = new StreamReader("Assets/Resources/Saves/" + saveDirectory + "/Maps/Region_" + r.CapitolIndex + ".tilemap"))
+            using (StreamReader reader = new StreamReader("Assets/Resources/Saves/" + temporarySaveDirectory + "/Maps/Region_" + r.CapitolIndex + ".tiles"))
             {
                 string mapContents = EncryptDecrypt(reader.ReadToEnd());
 
@@ -198,7 +207,7 @@ public class DataPool
                 r.addWorldMap(readMapJson(json));
             }
         }
-    }
+	}
 
     public void loadNameData()
     {
@@ -276,7 +285,7 @@ public class DataPool
         }
 
         managers = new List<Manager>();
-        foreach (JSONObject r in json.GetField("manangers").list)
+        foreach (JSONObject r in json.GetField("managers").list)
         {
             managers.Add(new Manager(r));
         }
@@ -427,7 +436,7 @@ public class DataPool
 		{
 			cptl.Add(c.jsonify());
 		}
-		json.AddField("captiols", cptl);
+		json.AddField("capitols", cptl);
 
 		JSONObject twns = new JSONObject(JSONObject.Type.ARRAY);
         foreach (Town t in towns)
@@ -437,7 +446,7 @@ public class DataPool
 		json.AddField("towns", twns);
 
 		json.AddField("calendar", calendar.jsonify());
-		json.AddField("dijstras", dijkstras.jsonify());
+		json.AddField("dijkstras", dijkstras.jsonify());
 
 		JSONObject rgns = new JSONObject(JSONObject.Type.ARRAY);
         foreach (Region r in regions)

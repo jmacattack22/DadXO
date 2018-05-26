@@ -61,10 +61,10 @@ public class Boxer : Person {
 	public Boxer(JSONObject json) : 
 	base(
 		JSONTemplates.ToVector2Int(json.GetField("age")), json.GetField("firstname").str, json.GetField("lastname").str,
-		townId: int.Parse(json.GetField("townindex").str), wt: json.GetField("weight").f
+		townId: (int)json.GetField("townindex").i, wt: json.GetField("weight").f
 	)
 	{
-		boxerClass = (BoxerClass.Type)Enum.Parse(typeof(BoxerClass.Type), json.GetField("weightclass").str);
+		boxerClass = global::BoxerClass.getTypeFromJson(json.GetField("weightclass"));
 
 		accuracy = (int)json.GetField("accuracy").i;
 		endurance = (int)json.GetField("endurance").i;
@@ -78,7 +78,7 @@ public class Boxer : Person {
 		speedGrowth = (int)json.GetField("speedgrowth").i;
 		strengthGrowth = (int)json.GetField("strengthgrowth").i;
 
-		record = new Record(json);
+		record = new Record(json.GetField("record"));
 
 		retired = json.GetField("retired").b;
 

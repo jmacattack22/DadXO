@@ -61,6 +61,8 @@ public class Manager : Person {
 	{
 		preference = (BoxerClass.Type)Enum.Parse(typeof(BoxerClass.Type), json.GetField("preference").str);
 
+		boxerIndex = (int)json.GetField("boxerindex").i;
+
 		record = new Record(json.GetField("record"));
 
 		atSea = json.GetField("atsea").b;
@@ -259,6 +261,8 @@ public class Manager : Person {
         JSONObject json = new JSONObject(JSONObject.Type.OBJECT);
 
         json.AddField("weightclass", Class.ToString());
+
+		json.AddField("boxerindex", boxerIndex);
 
         json.AddField("age", JSONTemplates.FromVector2Int(Age));
         json.AddField("firstname", FirstName);

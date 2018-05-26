@@ -74,7 +74,8 @@ public class Tournament
 			tournamentResults.Add((int)record.GetField("key").i, new TournamentResult(record.GetField("value")));
 		}
 
-		scheduleTournament();
+        if (managerIndexes.Count > 2)
+		    scheduleTournament();
 	}
 
 	public void addContestant(int index)
