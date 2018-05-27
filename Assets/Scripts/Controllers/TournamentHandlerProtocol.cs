@@ -156,6 +156,7 @@ public static class TournamentHandlerProtocol {
 				{
 					worldData.Capitols[i].Quarterlies[level].scheduleTournament();
 					TournamentProtocol.SimWholeTournament(ref worldData, i);
+					Debug.Log("lskdjfskjdf");
 				}
                 else
 				{
