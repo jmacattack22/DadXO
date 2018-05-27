@@ -53,6 +53,82 @@ public static class TournamentProtocol {
 		currentRound++;
 	}
 
+    public static void simWholeQualifier(ref DataPool worldData, int capitolIndex, Level rank)
+	{
+		Dictionary<int, List<Vector2Int>> schedule = worldData.getTournamentFromCapitolIndex(capitolIndex, rank).getSchedule();
+		List<int> managerIndexes = worldData.getTournamentFromCapitolIndex(capitolIndex, rank).getManagerIndexes();
+        int currentRound = 0;
+
+        foreach (int round in schedule.Keys)
+        {
+            currentRound = round;
+            foreach (Vector2Int match in schedule[round])
+            {
+                if (match.x != -1 && match.y != -1)
+                {
+                    float ovr1 = worldData.Boxers[worldData.Managers[managerIndexes[match.x]].BoxerIndex].getOverall();
+                    float ovr2 = worldData.Boxers[worldData.Managers[managerIndexes[match.y]].BoxerIndex].getOverall();
+
+                    float ovr1Chance = (ovr1 / (ovr1 + ovr2)) * 100.0f;
+
+                    float chance = generateRandomInt(0, 100);
+                    if (chance < ovr1Chance)
+                    {
+						worldData.getTournamentFromCapitolIndex(capitolIndex, rank).getTournamentResults()[managerIndexes[match.x]].Record.addWin(
+                            worldData.Managers[managerIndexes[match.y]].BoxerELO);
+						worldData.getTournamentFromCapitolIndex(capitolIndex, rank).getTournamentResults()[managerIndexes[match.y]].Record.addLoss(
+                            worldData.Managers[managerIndexes[match.x]].BoxerELO);
+                    }
+                    else
+                    {
+						worldData.getTournamentFromCapitolIndex(capitolIndex, rank).getTournamentResults()[managerIndexes[match.x]].Record.addLoss(
+                            worldData.Managers[managerIndexes[match.y]].BoxerELO);
+						worldData.getTournamentFromCapitolIndex(capitolIndex, rank).getTournamentResults()[managerIndexes[match.y]].Record.addWin(
+                            worldData.Managers[managerIndexes[match.x]].BoxerELO);
+                    }
+                }
+            }
+        }
+
+		worldData.getTournamentFromCapitolIndex(capitolIndex, rank).rankResults();
+		managerIndexes = worldData.getTournamentFromCapitolIndex(capitolIndex, rank).getManagerIndexes();
+
+		worldData.getTournamentFromCapitolIndex(capitolIndex, rank).getTournamentResults()[managerIndexes[0]].wonQuarterly();
+		Level level = worldData.getTournamentFromCapitolIndex(capitolIndex, rank).Level;
+
+        float boxerPercentage = (float)worldData.Distribution[rank] / worldData.Managers.Count;
+
+        if (boxerPercentage > 0.1f)
+        {
+			worldData.getTournamentFromCapitolIndex(capitolIndex, rank).getTournamentResults()[managerIndexes[1]].wonQuarterly();
+
+            if (boxerPercentage > 0.2f && managerIndexes.Count > 2)
+            {
+				worldData.getTournamentFromCapitolIndex(capitolIndex, rank).getTournamentResults()[managerIndexes[2]].wonQuarterly();
+
+                if (boxerPercentage > 0.3f && managerIndexes.Count > 3)
+                {
+					worldData.getTournamentFromCapitolIndex(capitolIndex, rank).getTournamentResults()[managerIndexes[3]].wonQuarterly();
+
+                    if (boxerPercentage > 0.4f && managerIndexes.Count > 4)
+                    {
+						worldData.getTournamentFromCapitolIndex(capitolIndex, rank).getTournamentResults()[managerIndexes[4]].wonQuarterly();
+
+                        if (boxerPercentage > 0.5f && managerIndexes.Count > 5)
+                        {
+							worldData.getTournamentFromCapitolIndex(capitolIndex, rank).getTournamentResults()[managerIndexes[5]].wonQuarterly();
+                        }
+                    }
+                }
+            }
+        }
+
+		foreach (int index in worldData.getTournamentFromCapitolIndex(capitolIndex, rank).getTournamentResults().Keys)
+        {
+			ManagerProtocol.completeTournament(ref worldData, index, worldData.getTournamentFromCapitolIndex(capitolIndex, rank).getTournamentResults()[index]);
+        }
+	}
+
 	public static void SimWholeTournament(ref DataPool worldData, int townIndex){
 		Dictionary<int, List<Vector2Int>> schedule = worldData.getTournamentFromTownIndex(townIndex).getSchedule();
 		List<int> managerIndexes = worldData.getTournamentFromTownIndex(townIndex).getManagerIndexes();
@@ -90,38 +166,6 @@ public static class TournamentProtocol {
 
 		worldData.getTournamentFromTownIndex(townIndex).rankResults();
 		managerIndexes = worldData.getTournamentFromTownIndex(townIndex).getManagerIndexes();
-		if (worldData.getTournamentFromTownIndex(townIndex).Quarterly)
-        {
-			worldData.getTournamentFromTownIndex(townIndex).getTournamentResults()[managerIndexes[0]].wonQuarterly();
-			TournamentProtocol.Level level = worldData.getTournamentFromTownIndex(townIndex).Level;
-
-            float boxerPercentage = (float) worldData.Distribution[level] / worldData.Managers.Count;
-
-            if (boxerPercentage > 0.1f)
-            {
-				worldData.getTournamentFromTownIndex(townIndex).getTournamentResults()[managerIndexes[1]].wonQuarterly();
-
-                if (boxerPercentage > 0.2f && managerIndexes.Count > 2)
-                {
-					worldData.getTournamentFromTownIndex(townIndex).getTournamentResults()[managerIndexes[2]].wonQuarterly();
-
-                    if (boxerPercentage > 0.3f && managerIndexes.Count > 3)
-                    {
-						worldData.getTournamentFromTownIndex(townIndex).getTournamentResults()[managerIndexes[3]].wonQuarterly();
-
-                        if (boxerPercentage > 0.4f && managerIndexes.Count > 4)
-                        {
-							worldData.getTournamentFromTownIndex(townIndex).getTournamentResults()[managerIndexes[4]].wonQuarterly();
-
-                            if (boxerPercentage > 0.5f && managerIndexes.Count > 5)
-                            {
-								worldData.getTournamentFromTownIndex(townIndex).getTournamentResults()[managerIndexes[5]].wonQuarterly();
-                            }
-                        }
-                    }
-                }
-            }
-        }
 
 		foreach (int index in worldData.getTournamentFromTownIndex(townIndex).getTournamentResults().Keys){
 			ManagerProtocol.completeTournament(ref worldData, index, worldData.getTournamentFromTownIndex(townIndex).getTournamentResults()[index]);

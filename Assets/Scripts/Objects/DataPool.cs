@@ -157,6 +157,11 @@ public class DataPool
 		return progress;
 	}
 
+    public Tournament getTournamentFromCapitolIndex(int capitolIndex, TournamentProtocol.Level level)
+	{
+		return capitols[capitolIndex].Quarterlies[level];
+	}
+
 	public Tournament getTournamentFromTownIndex(int townIndex)
 	{
 		return towns[townIndex].Tournament;

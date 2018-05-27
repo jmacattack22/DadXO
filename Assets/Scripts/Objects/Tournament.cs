@@ -47,6 +47,7 @@ public class Tournament
 
     public Tournament(JSONObject json)
 	{
+
 		date = new CalendarDate(json.GetField("date"));
 		name = json.GetField("name").str;
 		size = (int)json.GetField("size").i;
@@ -73,6 +74,8 @@ public class Tournament
 		{
 			tournamentResults.Add((int)record.GetField("key").i, new TournamentResult(record.GetField("value")));
 		}
+        
+        schedule = new Dictionary<int, List<Vector2Int>>();
 
         if (managerIndexes.Count > 2)
 		    scheduleTournament();
