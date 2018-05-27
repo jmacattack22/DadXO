@@ -150,13 +150,13 @@ public static class TournamentHandlerProtocol {
     private static void simQualifiers(ref DataPool worldData){
 		for (int i = 0; i < worldData.Capitols.Count; i++)
 		{
+			
 			foreach (TournamentProtocol.Level level in worldData.Capitols[i].Quarterlies.Keys)
 			{
 				if (worldData.Capitols[i].Quarterlies[level].Attendees > 2)
 				{
 					worldData.Capitols[i].Quarterlies[level].scheduleTournament();
-					TournamentProtocol.SimWholeTournament(ref worldData, i);
-					Debug.Log("lskdjfskjdf");
+					TournamentProtocol.simWholeQualifier(ref worldData, i, level);
 				}
                 else
 				{
