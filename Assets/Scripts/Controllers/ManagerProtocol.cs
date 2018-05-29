@@ -50,6 +50,7 @@ public static class ManagerProtocol
         worldData.Boxers.Add(boxers[bIndex]);
 
 		worldData.Managers[managerIndex].recruitBoxer(worldData.Boxers.Count - 1);
+		worldData.Managers[managerIndex].setRank(TournamentProtocol.Level.E);
         updateELO(ref worldData, managerIndex);
     }
 

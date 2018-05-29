@@ -9,6 +9,8 @@ public class WorldHandlerBehaviour : MonoBehaviour
 {
     public WorldMapDrawer mapDrawer;
 
+	public InfoLayerBehaviour infoLayer;
+
 	private bool creatingNewWorld = false;
 	public WorldBuilderBehaviour worldBuilder;
 
@@ -32,6 +34,8 @@ public class WorldHandlerBehaviour : MonoBehaviour
 
 			mapDrawer.drawRegions(ref worldData);
 			creatingNewWorld = false;
+
+			infoLayer.updateWorldData(worldData);
 		}       
 	}
 
@@ -42,6 +46,17 @@ public class WorldHandlerBehaviour : MonoBehaviour
         worldData.Calendar.progessWeek();
         Debug.Log(worldData.Calendar.getDate(Calendar.DateType.fullLong));
     }
+
+    public void advanceFourYears()
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			for (int w = 0; w < 48; w++)
+			{
+				advanceWeek();
+			}
+		}
+	}
 
     public void loadGameButton()
 	{
