@@ -121,6 +121,13 @@ public class MapPositionCaster : MonoBehaviour {
 
 	public void setMovement(float movement)
 	{
+		transform.position = new Vector3(0.0f, 0.0f, -5.0f);
 		cursorMovement = movement;
+	}
+
+    //Getters
+    public TileInfo CurrentTile 
+	{
+		get { return currentTile; }
 	}
 }

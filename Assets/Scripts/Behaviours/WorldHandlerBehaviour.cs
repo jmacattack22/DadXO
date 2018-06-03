@@ -36,16 +36,27 @@ public class WorldHandlerBehaviour : MonoBehaviour
 			creatingNewWorld = false;
 
 			infoLayer.updateWorldData(worldData);
-		}       
+		}    
 
-        if (!mapDrawer.ViewingRegions)
+		if (!creatingNewWorld)
 		{
-			if (mapDrawer.RegionToView != -1)
-			{
-				mapDrawer.drawRegion(ref worldData, mapDrawer.RegionToView);
-				mapDrawer.setRegionToView(-1);
-			}
+			if (!mapDrawer.ViewingRegions)
+            {
+                if (mapDrawer.RegionToView != -1)
+                {
+                    mapDrawer.drawRegion(ref worldData, mapDrawer.RegionToView);
+                    mapDrawer.setRegionToView(-1);
+                }
+            }
+            else
+            {
+                if (!mapDrawer.RegionsDrawn)
+                {
+                    mapDrawer.drawRegions(ref worldData);
+                }
+            }
 		}
+      
 	}
 
     public void advanceWeek(){

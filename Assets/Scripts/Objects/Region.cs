@@ -16,8 +16,6 @@ public class Region {
     private List<int> townIndexes;
     private List<int> managerProtocolIndexes;
 
-	private Dictionary<int, List<Vector2Int>> townsSurroundingTiles;
-
     private TournamentProtocol.Level level;
 
     RegionCreator.TileType[,] worldMap;
@@ -32,8 +30,6 @@ public class Region {
         capitolIndex = -1;
         managerProtocolIndexes = new List<int>();
         townIndexes = new List<int>();
-
-		townsSurroundingTiles = new Dictionary<int, List<Vector2Int>>();
     }
 
 	public Region(JSONObject json)
@@ -81,7 +77,6 @@ public class Region {
 
     public void addTown(int townIndex){
         townIndexes.Add(townIndex);
-		townsSurroundingTiles.Add(townIndex, new List<Vector2Int>());
     }
 
     public void addWorldMap(RegionCreator.TileType[,] worldMap){
@@ -122,16 +117,6 @@ public class Region {
             level = TournamentProtocol.Level.S;
         }
     }
-
-	public void determineSurroundingTiles(ref DataPool worldMap)
-	{
-		foreach (int index in townIndexes)
-		{
-			Vector2Int pos = worldMap.Towns[index].Location;
-
-			townsSurroundingTiles[index] = generateSurroundingTiles(pos);
-		}
-	}
 
 	private List<Vector2Int> generateSurroundingTiles(Vector2Int pos)
 	{
@@ -240,10 +225,5 @@ public class Region {
     public int LandMass
 	{
 		get { return landMass; }
-	}
-
-	public Dictionary<int, List<Vector2Int>> TownSurroundingTiles
-	{
-		get { return townsSurroundingTiles; }
 	}
 }

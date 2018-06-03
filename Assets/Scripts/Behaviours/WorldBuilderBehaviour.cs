@@ -103,11 +103,6 @@ public class WorldBuilderBehaviour : MonoBehaviour
 
         worldData.updateBoxerDistribution();
 
-		foreach (Region r in worldData.Regions)
-        {
-			r.determineSurroundingTiles(ref worldData);
-        }
-
         state = BuilderState.Complete;
 
         stopwatch.Stop();

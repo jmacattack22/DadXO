@@ -94,6 +94,8 @@ public class InfoLayerBehaviour : MonoBehaviour {
 				{
 					content = worldData.Towns[job.JobIndex].Name + " " + job.JobIndex;
 				}
+
+				populateLabel(l, content);
 			}
 		}
 	}

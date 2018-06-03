@@ -13,11 +13,13 @@ public class WorldMapDrawer : MonoBehaviour {
 
 	public InfoLayerBehaviour infoLayer;
 	public MapPositionCaster cursor;
+	public TopLayerDrawer topLayer;
 
     private Dictionary<RegionCreator.TileType, Transform> content;
 	private Dictionary<RegionType, Transform> regionContent;
     
 	private bool viewingRegions = true;
+	private bool regionsDrawn = false;
 	private int regionToView = -1;
 	private Dictionary<int, Vector2Int> loadedIndexes = new Dictionary<int, Vector2Int>();
 
@@ -44,7 +46,7 @@ public class WorldMapDrawer : MonoBehaviour {
 
 	void Update()
 	{
-		if (Input.GetKeyUp(KeyCode.Space))
+		if (Input.GetKeyUp(KeyCode.I))
 		{
 			focused = !focused;
 		}     
@@ -110,6 +112,10 @@ public class WorldMapDrawer : MonoBehaviour {
         if (transform.childCount > 0)
             cleanTileMap();
 
+		offset = -125.0f;
+		topLayer.setOffset(-125.0f);
+		topLayer.drawRegion(ref worldData, regionIndex);
+
 		scaleFloor = 0.03f;
 		scaleCeiling = 0.5f;
 
@@ -120,6 +126,11 @@ public class WorldMapDrawer : MonoBehaviour {
     {
         if (transform.childCount > 0)
             cleanTileMap();
+
+		topLayer.cleanTileMap();
+		offset = 0.0f;
+
+		regionsDrawn = true;
 
 		scaleFloor = 0.35f;
         scaleCeiling = 1.3f;
@@ -139,20 +150,30 @@ public class WorldMapDrawer : MonoBehaviour {
 		if (Input.GetKey(KeyCode.Q) && transform.localScale.x < scaleCeiling)
 		{
 			transform.localScale += scaler;
+			topLayer.zoomOut(scaler);
 		}
 
 		if (Input.GetKey(KeyCode.E) && transform.localScale.x > scaleFloor)
 		{
 			transform.localScale -= scaler;
+			topLayer.zoomIn(scaler);
 		}
 
-        if (Input.GetKeyDown(KeyCode.T))
+        if (Input.GetKeyDown(KeyCode.Space))
         {
             viewingRegions = false;
-            regionToView = 0;
+            regionToView = cursor.CurrentTile.ID;
             offset = -125.0f;
-			cursor.setMovement(0.125f);
+			cursor.setMovement(0.04f);
         }
+
+        if (Input.GetKeyDown(KeyCode.B))
+		{
+			cursor.setMovement(0.5f);
+			viewingRegions = true;
+			regionToView = -1;
+			regionsDrawn = false;
+		}
 	}
 
 	private void loadContent()
@@ -165,13 +186,14 @@ public class WorldMapDrawer : MonoBehaviour {
         content.Add(RegionCreator.TileType.Mountain, Resources.Load<Transform>("Prefabs/Mountain"));
         content.Add(RegionCreator.TileType.Rise, Resources.Load<Transform>("Prefabs/Rise"));
         content.Add(RegionCreator.TileType.Peak, Resources.Load<Transform>("Prefabs/Peak"));
+		content.Add(RegionCreator.TileType.Town, Resources.Load<Transform>("Prefabs/Town"));
 
         regionContent.Add(RegionType.Water, Resources.Load<Transform>("Prefabs/Water"));
         regionContent.Add(RegionType.Islands, Resources.Load<Transform>("Prefabs/Region"));
     }
 
 	private void populateTileMapWithRegion(ref DataPool worldData, int regionIndex)
-    {
+    {      
 		RegionCreator.TileType[,] map = worldData.Regions[regionIndex].Map;
 
         for (int x = 0; x < map.GetLength(0); x++)
@@ -191,10 +213,6 @@ public class WorldMapDrawer : MonoBehaviour {
                         tile = Instantiate(content[map[x, y]], new Vector3(xPos, yPos), Quaternion.identity) as Transform;
                         tile.gameObject.GetComponent<TileInfo>().setPosition(new Vector2Int(x, y));
 						tile.gameObject.GetComponent<TileInfo>().setIsRegion(false);
-
-						int townIndex = isNearbyTown(worldData.Regions[regionIndex].TownSurroundingTiles, new Vector2Int(x, y));
-
-						tile.gameObject.GetComponent<TileInfo>().setId(townIndex);
                     }
                 }
 
@@ -255,6 +273,10 @@ public class WorldMapDrawer : MonoBehaviour {
                     tile.parent = transform;
             }
         }
+
+		transform.localScale = new Vector3(1.0f, 1.0f);
+
+		//transform.localScale = new Vector3(0.8f, 0.8f);
     }
 
 	private void sendJobToInfoLayer()
@@ -293,5 +315,10 @@ public class WorldMapDrawer : MonoBehaviour {
     public bool Focused 
 	{
 		get { return focused; }
+	}
+
+    public bool RegionsDrawn
+	{
+		get { return regionsDrawn; }
 	}
 }
