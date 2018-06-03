@@ -183,10 +183,10 @@ public static class WorldBuilderProtocol {
             }
         }
     }
-
+    
     private static void createManagerBasedOnTown(ref DataPool worldData, int townIndex, int regionIndex)
     {
-		for (int j = 0; j < 1; j++)
+		for (int j = 0; j < 2; j++)
 		{
 			List<BoxerClass.Type> typeList = BoxerClass.getTypeList();
 

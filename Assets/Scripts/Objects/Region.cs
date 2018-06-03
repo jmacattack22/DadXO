@@ -118,7 +118,22 @@ public class Region {
         }
     }
 
-    private int getLandmass()
+	private List<Vector2Int> generateSurroundingTiles(Vector2Int pos)
+	{
+		List<Vector2Int> surroundingTiles = new List<Vector2Int>();
+
+		for (int x = pos.x - 6; x < pos.x + 7; x++)
+		{
+			for (int y = pos.y - 6; y < pos.y + 7; y++)
+			{
+				surroundingTiles.Add(new Vector2Int(x, y));
+			}
+		}
+
+		return surroundingTiles;
+	}
+
+	private int getLandmass()
 	{
 		int mass = 0;
 		for (int x = 0; x < worldMap.GetLength(0); x++)
