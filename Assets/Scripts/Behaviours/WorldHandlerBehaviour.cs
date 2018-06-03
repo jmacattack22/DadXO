@@ -25,7 +25,7 @@ public class WorldHandlerBehaviour : MonoBehaviour
 	void Update()
 	{
         if (creatingNewWorld && worldBuilder.State.Equals(WorldBuilderBehaviour.BuilderState.Complete))
-		{
+		{         
 			worldData = worldBuilder.getWorldData();
 
 			worldData.setSaveDirectories("AutoSave1", "AutoSave1");
@@ -37,6 +37,15 @@ public class WorldHandlerBehaviour : MonoBehaviour
 
 			infoLayer.updateWorldData(worldData);
 		}       
+
+        if (!mapDrawer.ViewingRegions)
+		{
+			if (mapDrawer.RegionToView != -1)
+			{
+				mapDrawer.drawRegion(ref worldData, mapDrawer.RegionToView);
+				mapDrawer.setRegionToView(-1);
+			}
+		}
 	}
 
     public void advanceWeek(){

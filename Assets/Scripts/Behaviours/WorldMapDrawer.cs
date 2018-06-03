@@ -12,18 +12,20 @@ public class WorldMapDrawer : MonoBehaviour {
 	}
 
 	public InfoLayerBehaviour infoLayer;
+	public MapPositionCaster cursor;
 
     private Dictionary<RegionCreator.TileType, Transform> content;
 	private Dictionary<RegionType, Transform> regionContent;
     
 	private bool viewingRegions = true;
+	private int regionToView = -1;
 	private Dictionary<int, Vector2Int> loadedIndexes = new Dictionary<int, Vector2Int>();
 
-	public GameObject cursor;
-	private Vector3 cursorPosition = new Vector3(0, 0, 0);
-	private float cursorSpeed = 6.0f;
-	private Vector3 cursorTarget = new Vector3(0, 0, 0);
-	private bool targetSet = false;
+	private float offset = 0.0f;
+	private Vector3 scaler = new Vector3(0.001f, 0.001f, 0.0f);
+
+	private float scaleFloor = 0.05f;
+	private float scaleCeiling = 1.3f;
 
 	private bool jobSent = false;
 	private bool focused = false;
@@ -32,8 +34,6 @@ public class WorldMapDrawer : MonoBehaviour {
 	{
         content = new Dictionary<RegionCreator.TileType, Transform>();
 		regionContent = new Dictionary<RegionType, Transform>();
-
-		cursor.SetActive(false);
 
         loadContent();
 	}
@@ -47,14 +47,6 @@ public class WorldMapDrawer : MonoBehaviour {
 		if (Input.GetKeyUp(KeyCode.Space))
 		{
 			focused = !focused;
-
-            if (focused)
-			{
-				cursor.SetActive(true);
-			}else
-			{
-				cursor.SetActive(false);
-			}
 		}     
 
         if (focused)
@@ -65,59 +57,10 @@ public class WorldMapDrawer : MonoBehaviour {
 		sendJobToInfoLayer();
 	}
     
-	private void handleInput()
-	{
-        if (Input.GetKey(KeyCode.D) && !targetSet)
-		{
-			cursorTarget = cursorPosition + new Vector3(1, 0, 0);
-			targetSet = true;
-		}
-
-		if (Input.GetKey(KeyCode.A) && !targetSet)
-        {
-            cursorTarget = cursorPosition + new Vector3(-1, 0, 0);
-            targetSet = true;
-        }
-        
-		if (Input.GetKey(KeyCode.W) && !targetSet)
-        {
-            cursorTarget = cursorPosition + new Vector3(0, 1, 0);
-            targetSet = true;
-        }
-
-		if (Input.GetKey(KeyCode.S) && !targetSet)
-        {
-            cursorTarget = cursorPosition + new Vector3(0, -1, 0);
-            targetSet = true;
-        }
-
-		if (targetSet)
-		{
-			if (MoveTowardsPoint(cursorTarget, Time.deltaTime))
-			{
-				targetSet = false;
-				cursorTarget = cursorPosition;
-				jobSent = false;
-				sendJobToInfoLayer();
-			}
-		}
-	}
-
-	private void sendJobToInfoLayer()
-	{
-		if (focused && !jobSent)
-        {
-            if (viewingRegions)
-            {
-                infoLayer.sendJob(new InfoLayerJob(InfoLayerJob.InfoJob.Region, getRegionIndexFromCursorPosition()));
-                jobSent = !jobSent;
-            }
-        }
-	}
-
 	public void addPlainRegionTileToWorldMap(Vector3 pos)
     {
-        Transform tile = Instantiate(content[RegionCreator.TileType.Land], pos, Quaternion.identity) as Transform;
+        Transform tile = Instantiate(content[RegionCreator.TileType.Land], pos / 2.0f, Quaternion.identity) as Transform;
+		tile.localScale = new Vector3(0.5f, 0.5f);
         tile.parent = transform;
     }
 
@@ -154,7 +97,66 @@ public class WorldMapDrawer : MonoBehaviour {
             tile.parent = transform;
     }
 
-	private void loadContent(){
+	private void cleanTileMap()
+    {
+        foreach (Transform child in transform)
+        {
+            Destroy(child.gameObject);
+        }
+    }
+
+    public void drawRegion(ref DataPool worldData, int regionIndex)
+    {
+        if (transform.childCount > 0)
+            cleanTileMap();
+
+		scaleFloor = 0.03f;
+		scaleCeiling = 0.5f;
+
+        populateTileMapWithRegion(ref worldData, regionIndex);
+    }
+
+    public void drawRegions(ref DataPool worldData)
+    {
+        if (transform.childCount > 0)
+            cleanTileMap();
+
+		scaleFloor = 0.35f;
+        scaleCeiling = 1.3f;
+
+        viewingRegions = true;
+        loadedIndexes.Clear();
+        for (int i = 0; i < worldData.Regions.Count; i++)
+        {
+            loadedIndexes.Add(i, worldData.Regions[i].Position);
+        }
+
+        populateTileMapWithRegions(ref worldData);
+    }
+
+	private void handleInput()
+	{   
+		if (Input.GetKey(KeyCode.Q) && transform.localScale.x < scaleCeiling)
+		{
+			transform.localScale += scaler;
+		}
+
+		if (Input.GetKey(KeyCode.E) && transform.localScale.x > scaleFloor)
+		{
+			transform.localScale -= scaler;
+		}
+
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            viewingRegions = false;
+            regionToView = 0;
+            offset = -125.0f;
+			cursor.setMovement(0.125f);
+        }
+	}
+
+	private void loadContent()
+    {
         content.Add(RegionCreator.TileType.Water, Resources.Load<Transform>("Prefabs/Water"));
         content.Add(RegionCreator.TileType.Shallows, Resources.Load<Transform>("Prefabs/Shallows"));
         content.Add(RegionCreator.TileType.Beach, Resources.Load<Transform>("Prefabs/Beach"));
@@ -164,105 +166,89 @@ public class WorldMapDrawer : MonoBehaviour {
         content.Add(RegionCreator.TileType.Rise, Resources.Load<Transform>("Prefabs/Rise"));
         content.Add(RegionCreator.TileType.Peak, Resources.Load<Transform>("Prefabs/Peak"));
 
-		regionContent.Add(RegionType.Water, Resources.Load<Transform>("Prefabs/Water"));
-		regionContent.Add(RegionType.Islands, Resources.Load<Transform>("Prefabs/IslandRegion"));
+        regionContent.Add(RegionType.Water, Resources.Load<Transform>("Prefabs/Water"));
+        regionContent.Add(RegionType.Islands, Resources.Load<Transform>("Prefabs/Region"));
     }
 
-    private void cleanTileMap(){
-        foreach (Transform child in transform)
-        {
-            Destroy(child.gameObject);
-        }
-    }
-
-    public void drawRegion(RegionCreator.TileType[,] map){
-        if (transform.childCount > 0)
-            cleanTileMap();
-
-        populateTileMapWithRegion(map);
-    }
-
-    public void drawRegions(ref DataPool worldData){
-        if (transform.childCount > 0)
-            cleanTileMap();
-
-		cursor = Instantiate(cursor, cursorPosition, Quaternion.identity) as GameObject;
-		cursor.transform.parent = transform;
-
-		viewingRegions = true;
-		loadedIndexes.Clear();
-		for (int i = 0; i < worldData.Regions.Count; i++)
-		{
-			loadedIndexes.Add(i, worldData.Regions[i].Position);
-		}
-
-        populateTileMapWithRegions(ref worldData);
-    }
-
-	private int getRegionIndexFromCursorPosition()
-	{
-		float min = 100000000.0f;
-		int key = 0;
-
-        foreach (int k in loadedIndexes.Keys)
-		{
-			Vector2 v1 = new Vector2(loadedIndexes[k].x, loadedIndexes[k].y);
-			Vector2 v2 = new Vector2(cursor.transform.position.x, cursor.transform.position.y);
-            
-			float distance = Mathf.Sqrt(Mathf.Pow((v1.x - v2.x), 2) + Mathf.Pow((v1.y - v2.y), 2));
-
-			if (distance < min)
-			{
-				key = k;
-				min = distance;
-			}
-		}
-
-		return min < 0.6f ? key : 1;
-	}
-
-    private void populateTileMapWithRegion(RegionCreator.TileType[,] map)
+	private void populateTileMapWithRegion(ref DataPool worldData, int regionIndex)
     {
-        for (int x = 0; x < map.GetLength(0); x++){
-            for (int y = 0; y < map.GetLength(0); y++){
-                Transform tile = null;
+		RegionCreator.TileType[,] map = worldData.Regions[regionIndex].Map;
 
-                if (!map[x,y].Equals(RegionCreator.TileType.Town)){
-                    tile = Instantiate(content[map[x, y]], new Vector3(x, y), Quaternion.identity) as Transform;
-                }
-
-                if (tile != null)
-                    tile.parent = transform;
-            }
-        }
-    }
-
-    private void populateTileMapWithRegions(ref DataPool worldData)
-    {
-        for (int x = -8; x < 9; x++)
+        for (int x = 0; x < map.GetLength(0); x++)
         {
-            for (int y = -8; y < 9; y++)
+            for (int y = 0; y < map.GetLength(0); y++)
             {
                 Transform tile = null;
-                Vector2Int currentPos = new Vector2Int(x, y);
-                int regionIndex = -1;
 
-                for (int i = 0; i < worldData.Regions.Count; i++)
+                if (!map[x, y].Equals(RegionCreator.TileType.Town))
                 {
-                    if (worldData.Regions[i].Position.Equals(currentPos))
+                    float xPos = x + offset;
+                    float yPos = y + offset;
+
+
+                    if (!map[x, y].Equals(RegionCreator.TileType.Water))
                     {
-                        regionIndex = i;
+                        tile = Instantiate(content[map[x, y]], new Vector3(xPos, yPos), Quaternion.identity) as Transform;
+                        tile.gameObject.GetComponent<TileInfo>().setPosition(new Vector2Int(x, y));
+						tile.gameObject.GetComponent<TileInfo>().setIsRegion(false);
+
+						int townIndex = isNearbyTown(worldData.Regions[regionIndex].TownSurroundingTiles, new Vector2Int(x, y));
+
+						tile.gameObject.GetComponent<TileInfo>().setId(townIndex);
                     }
                 }
 
-                if (regionIndex != -1)
-                {
-					tile = Instantiate(regionContent[RegionType.Islands], new Vector3(x, y), Quaternion.identity) as Transform;
-					//addRegionTileToWorldMap(worldData, regionIndex, new Vector3(x,y));
-                }
-                else
-                {
-                    tile = Instantiate(content[RegionCreator.TileType.Water], new Vector3(x, y), Quaternion.identity) as Transform;
+                if (tile != null)
+                    tile.parent = transform;
+            }
+        }
+
+        transform.localScale = new Vector3(0.1f, 0.1f);
+    }
+
+	private int isNearbyTown(Dictionary<int, List<Vector2Int>> surroundingTiles, Vector2Int position)
+	{
+		int townIndex = -1;
+
+		foreach (int index in surroundingTiles.Keys)
+		{
+			if (surroundingTiles[index].Contains(position))
+			{
+				townIndex = index;
+			}
+		}
+
+		return townIndex;
+	}
+
+	private void populateTileMapWithRegions(ref DataPool worldData)
+    {
+		for (int x = -8; x < 9; x++)
+		{
+			for (int y = -8; y < 9; y++)
+			{
+				Transform tile = null;
+				Vector2Int currentPos = new Vector2Int(x, y);
+				int regionIndex = -1;
+
+				for (int i = 0; i < worldData.Regions.Count; i++)
+				{
+					if (worldData.Regions[i].Position.Equals(currentPos))
+					{
+						regionIndex = i;
+					}
+				}
+
+				float xPos = x + offset;
+				float yPos = y + offset;
+
+				if (regionIndex != -1)
+				{
+					tile = Instantiate(regionContent[RegionType.Islands], new Vector3(xPos / 2.0f, yPos / 2.0f), Quaternion.identity) as Transform;
+					tile.gameObject.GetComponent<TileInfo>().setId(regionIndex);
+					tile.gameObject.GetComponent<TileInfo>().setIsRegion(true);
+					tile.localScale = new Vector3(0.5f, 0.5f);
+					tile.GetChild(0).GetChild(0).GetComponent<TMPro.TextMeshProUGUI>().text = worldData.Regions[regionIndex].Level.ToString();
                 }
 
                 if (tile != null)
@@ -271,34 +257,37 @@ public class WorldMapDrawer : MonoBehaviour {
         }
     }
 
-	public void setCursorPosition(Vector3Int position)
+	private void sendJobToInfoLayer()
 	{
-		cursorPosition = position;
+		if (focused && !jobSent)
+        {
+            if (viewingRegions)
+            {
+                //infoLayer.sendJob(new InfoLayerJob(InfoLayerJob.InfoJob.Region, getRegionIndexFromCursorPosition()));
+                jobSent = !jobSent;
+            }
+        }
 	}
 
-	private bool MoveTowardsPoint(Vector3 goal, float elapsed)
-    {
-		if (cursorPosition.Equals(goal)) return true;
-
-		Vector3 direction = Vector3.Normalize(goal - cursorPosition);
-
-		cursorPosition = cursorPosition + (direction * cursorSpeed * elapsed);
-
-		cursor.transform.Translate(direction * cursorSpeed * elapsed);
-
-        if (Mathf.Abs(Vector3.Dot(direction, Vector3.Normalize(goal - cursorPosition)) + 1) < 0.1f)
-		{
-			cursor.transform.Translate(goal - cursorPosition);
-			cursorPosition = cursor.transform.position;
-		}
-
-		return cursorPosition.Equals(goal);
-    }
-
-    //Getters
-	public Vector3 CursorPosition
+    public void setOffset(float offset)
 	{
-		get { return cursorPosition; }	
+		this.offset = offset;
+	}
+
+    public void setRegionToView(int region)
+	{
+		regionToView = region;
+	}
+       
+    //Getters
+    public bool ViewingRegions
+	{
+		get { return viewingRegions; }
+	}
+
+    public int RegionToView
+	{
+		get { return regionToView; }
 	}
 
     public bool Focused 

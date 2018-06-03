@@ -20,6 +20,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4013774208546456}
   - component: {fileID: 212851019282745330}
+  - component: {fileID: 114192161683929110}
   m_Layer: 0
   m_Name: Mountain
   m_TagString: Untagged
@@ -40,6 +41,17 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &114192161683929110
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1629112876967572}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74d5e32c2aa0c4aee87083e8c1e5f1c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!212 &212851019282745330
 SpriteRenderer:
   m_ObjectHideFlags: 1
@@ -53,6 +65,7 @@ SpriteRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 4294967295
   m_Materials:
   - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
@@ -75,7 +88,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: a9ee60f7915f447aba10f6a02cb923f5, type: 3}
-  m_Color: {r: 0.4705882, g: 0.417516, b: 0.27681658, a: 0.978}
+  m_Color: {r: 0.4705882, g: 0.417516, b: 0.27681658, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

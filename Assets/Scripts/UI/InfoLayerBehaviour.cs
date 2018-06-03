@@ -74,7 +74,8 @@ public class InfoLayerBehaviour : MonoBehaviour {
 
             if (l.Equals(Labels.Title))
 			{
-				content = worldData.Regions[job.JobIndex].Name + " " + worldData.Regions[job.JobIndex].CapitolIndex;
+				print(job.JobIndex);
+				content = worldData.Regions[job.JobIndex].Name;
 			}
          
 			populateLabel(l, content);
@@ -83,7 +84,18 @@ public class InfoLayerBehaviour : MonoBehaviour {
 
 	private void populateTownLabels(InfoLayerJob job)
 	{
-		throw new NotImplementedException();
+		if (job.JobIndex >= 0)
+		{
+			foreach (Labels l in job.Labels)
+			{
+				string content = "";
+
+				if (l.Equals(Labels.Title))
+				{
+					content = worldData.Towns[job.JobIndex].Name + " " + job.JobIndex;
+				}
+			}
+		}
 	}
 
 	public void sendJob(InfoLayerJob job)

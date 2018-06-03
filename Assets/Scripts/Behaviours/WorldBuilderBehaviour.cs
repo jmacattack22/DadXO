@@ -102,6 +102,12 @@ public class WorldBuilderBehaviour : MonoBehaviour
         WorldBuilderProtocol.defineQualifiers(ref worldData);
 
         worldData.updateBoxerDistribution();
+
+		foreach (Region r in worldData.Regions)
+        {
+			r.determineSurroundingTiles(ref worldData);
+        }
+
         state = BuilderState.Complete;
 
         stopwatch.Stop();
@@ -124,7 +130,7 @@ public class WorldBuilderBehaviour : MonoBehaviour
 
     private void generateRegions()
 	{
-		createRegion("", new Vector2Int(0, 0));
+		createRegion("Region 0", new Vector2Int(0, 0));
 		regionLocationIndexes.Add(0);
 
 		List<int> regionIndexes = new List<int>();
@@ -144,7 +150,7 @@ public class WorldBuilderBehaviour : MonoBehaviour
 				{
 					foreach (Vector2Int pos in newRegionsToAdd)
 					{
-						createRegion("", pos);
+						createRegion("Region " + regionLocationIndexes.Count, pos);
 						regionLocationIndexes.Add(regionLocationIndexes.Count - 1);
 						temporaryNewIndexes.Add(worldData.Regions.Count - 1);
 					}
