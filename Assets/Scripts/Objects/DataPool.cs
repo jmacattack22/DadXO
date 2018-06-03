@@ -399,12 +399,40 @@ public class DataPool
 		{
 			if (!distribution.ContainsKey(m.Rank))
 				distribution.Add(m.Rank, 0);
-
+            
 			distribution[m.Rank] += 1;
 		}
+
+        if (distribution[TournamentProtocol.Level.E] > 400)
+		{
+			balanceRank(TournamentProtocol.Level.E);
+		}
+
+        if (distribution[TournamentProtocol.Level.D] > 400)
+		{
+			balanceRank(TournamentProtocol.Level.D);
+		}
+
+		if (distribution[TournamentProtocol.Level.C] > 400)
+        {
+            balanceRank(TournamentProtocol.Level.C);
+        }
     }
 
-    public void updateDijkstras(){
+	private void balanceRank(TournamentProtocol.Level rank)
+	{
+		foreach (Region r in regions)
+		{
+			List<int> managerIndexes = r.getRegionsManagerIndexes().FindAll(index => managers[index].Rank.Equals(rank)).ToList();
+
+			managerIndexes = managerIndexes.OrderByDescending(index => EvaluationProtocol.evaluateBoxer(boxers[managers[index].BoxerIndex])).ToList();
+
+            if (managerIndexes.Count > 12)
+			    managers[managerIndexes[0]].graduateRank();
+		}
+	}
+
+	public void updateDijkstras(){
         dijkstras.clearVertices();
         foreach (Region r in regions){
             Dictionary<Vector2Int, int> edges = new Dictionary<Vector2Int, int>();

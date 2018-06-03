@@ -27,13 +27,13 @@ public static class TournamentHandlerProtocol {
         if (level.Equals(TournamentProtocol.Level.S))
             return 10;
         else if (level.Equals(TournamentProtocol.Level.A))
-            return 4;
+            return 5;
         else if (level.Equals(TournamentProtocol.Level.B))
-            return 3;
+            return 4;
         else if (level.Equals(TournamentProtocol.Level.C))
             return 3;
         else if (level.Equals(TournamentProtocol.Level.D))
-            return 2;
+            return 3;
         else if (level.Equals(TournamentProtocol.Level.E))
             return 2;
 
@@ -86,6 +86,9 @@ public static class TournamentHandlerProtocol {
                 }
 
                 List<int> recruits = recruit(worldData, level, regionsWithinJurisdiction, true);
+
+				//if (level.Equals(TournamentProtocol.Level.E))
+					//Debug.Log(recruits.Count + " - " + region.Position + " - " + regionsWithinJurisdiction.Count);
 
                 for (int i = 0; i < recruits.Count; i++)
                 {
@@ -160,6 +163,8 @@ public static class TournamentHandlerProtocol {
 				}
                 else
 				{
+					//if (level.Equals(TournamentProtocol.Level.E))
+					    //Debug.Log("well damn");
 					TournamentProtocol.cancelTournament(ref worldData, i);
 				}
 

@@ -98,8 +98,14 @@ public static class TournamentProtocol {
 
         float boxerPercentage = (float)worldData.Distribution[rank] / worldData.Managers.Count;
 
+		//if (rank.Equals(Level.E)){
+		//	Debug.Log(boxerPercentage);
+		//}
+
         if (boxerPercentage > 0.1f)
         {
+
+
 			worldData.getTournamentFromCapitolIndex(capitolIndex, rank).getTournamentResults()[managerIndexes[1]].wonQuarterly();
 
             if (boxerPercentage > 0.2f && managerIndexes.Count > 2)
@@ -108,15 +114,15 @@ public static class TournamentProtocol {
 
                 if (boxerPercentage > 0.3f && managerIndexes.Count > 3)
                 {
-					worldData.getTournamentFromCapitolIndex(capitolIndex, rank).getTournamentResults()[managerIndexes[3]].wonQuarterly();
+					//worldData.getTournamentFromCapitolIndex(capitolIndex, rank).getTournamentResults()[managerIndexes[3]].wonQuarterly();
 
                     if (boxerPercentage > 0.4f && managerIndexes.Count > 4)
                     {
-						worldData.getTournamentFromCapitolIndex(capitolIndex, rank).getTournamentResults()[managerIndexes[4]].wonQuarterly();
+						//worldData.getTournamentFromCapitolIndex(capitolIndex, rank).getTournamentResults()[managerIndexes[4]].wonQuarterly();
 
                         if (boxerPercentage > 0.5f && managerIndexes.Count > 5)
                         {
-							worldData.getTournamentFromCapitolIndex(capitolIndex, rank).getTournamentResults()[managerIndexes[5]].wonQuarterly();
+							//worldData.getTournamentFromCapitolIndex(capitolIndex, rank).getTournamentResults()[managerIndexes[5]].wonQuarterly();
                         }
                     }
                 }
