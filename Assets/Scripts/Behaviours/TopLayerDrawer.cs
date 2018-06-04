@@ -24,30 +24,21 @@ public class TopLayerDrawer : MonoBehaviour {
         {
             Destroy(child.gameObject);
         }
+
+		transform.localScale = new Vector3(1.0f, 1.0f);
     }
 
 	public void drawRegion(ref DataPool worldData, int regionIndex)
     {
         if (transform.childCount > 0)
             cleanTileMap();
-
+        
         scaleFloor = 0.03f;
         scaleCeiling = 0.5f;
-
+              
         populateTileMapWithRegion(ref worldData, regionIndex);
-    }
 
-	private void handleInput()
-    {
-        if (Input.GetKey(KeyCode.Q) && transform.localScale.x < scaleCeiling)
-        {
-            transform.localScale += scaler;
-        }
-
-        if (Input.GetKey(KeyCode.E) && transform.localScale.x > scaleFloor)
-        {
-            transform.localScale -= scaler;
-        }
+		transform.localScale = new Vector3(0.1f, 0.1f);
     }
 
 	private void loadContent()
@@ -75,8 +66,6 @@ public class TopLayerDrawer : MonoBehaviour {
 
             tile.parent = transform;
         }
-
-        transform.localScale = new Vector3(0.1f, 0.1f);
     }
 
 	public void zoomIn(Vector3 scaler)
@@ -88,6 +77,11 @@ public class TopLayerDrawer : MonoBehaviour {
 	{
 		transform.localScale += scaler;
 	}
+
+	public void setActive(bool value)
+    {
+        gameObject.SetActive(value);
+    }
 
 	public void setOffset(float offset)
     {

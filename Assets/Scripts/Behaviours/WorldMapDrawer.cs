@@ -12,25 +12,16 @@ public class WorldMapDrawer : MonoBehaviour {
 	}
 
 	public InfoLayerBehaviour infoLayer;
-	public MapPositionCaster cursor;
 	public TopLayerDrawer topLayer;
 
     private Dictionary<RegionCreator.TileType, Transform> content;
 	private Dictionary<RegionType, Transform> regionContent;
-    
-	private bool viewingRegions = true;
-	private bool regionsDrawn = false;
-	private int regionToView = -1;
-	private Dictionary<int, Vector2Int> loadedIndexes = new Dictionary<int, Vector2Int>();
-
+      
 	private float offset = 0.0f;
 	private Vector3 scaler = new Vector3(0.001f, 0.001f, 0.0f);
 
 	private float scaleFloor = 0.05f;
 	private float scaleCeiling = 1.3f;
-
-	private bool jobSent = false;
-	private bool focused = false;
    
 	void Awake()
 	{
@@ -46,17 +37,7 @@ public class WorldMapDrawer : MonoBehaviour {
 
 	void Update()
 	{
-		if (Input.GetKeyUp(KeyCode.I))
-		{
-			focused = !focused;
-		}     
-
-        if (focused)
-		{
-			handleInput();
-		}
-
-		sendJobToInfoLayer();
+		
 	}
     
 	public void addPlainRegionTileToWorldMap(Vector3 pos)
@@ -105,76 +86,39 @@ public class WorldMapDrawer : MonoBehaviour {
         {
             Destroy(child.gameObject);
         }
+
+		transform.localScale = new Vector3(1.0f, 1.0f);
     }
+
+    public void handleInput()
+	{
+		if (Input.GetKey(KeyCode.Q))
+		{
+			zoomIn();
+		}
+
+		if (Input.GetKey(KeyCode.E))
+        {
+            zoomOut();
+        }
+	}
 
     public void drawRegion(ref DataPool worldData, int regionIndex)
     {
         if (transform.childCount > 0)
             cleanTileMap();
-
+		
 		offset = -125.0f;
 		topLayer.setOffset(-125.0f);
 		topLayer.drawRegion(ref worldData, regionIndex);
 
 		scaleFloor = 0.03f;
 		scaleCeiling = 0.5f;
-
+              
         populateTileMapWithRegion(ref worldData, regionIndex);
+
+		transform.localScale = new Vector3(0.1f, 0.1f);
     }
-
-    public void drawRegions(ref DataPool worldData)
-    {
-        if (transform.childCount > 0)
-            cleanTileMap();
-
-		topLayer.cleanTileMap();
-		offset = 0.0f;
-
-		regionsDrawn = true;
-
-		scaleFloor = 0.35f;
-        scaleCeiling = 1.3f;
-
-        viewingRegions = true;
-        loadedIndexes.Clear();
-        for (int i = 0; i < worldData.Regions.Count; i++)
-        {
-            loadedIndexes.Add(i, worldData.Regions[i].Position);
-        }
-
-        populateTileMapWithRegions(ref worldData);
-    }
-
-	private void handleInput()
-	{   
-		if (Input.GetKey(KeyCode.Q) && transform.localScale.x < scaleCeiling)
-		{
-			transform.localScale += scaler;
-			topLayer.zoomOut(scaler);
-		}
-
-		if (Input.GetKey(KeyCode.E) && transform.localScale.x > scaleFloor)
-		{
-			transform.localScale -= scaler;
-			topLayer.zoomIn(scaler);
-		}
-
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            viewingRegions = false;
-            regionToView = cursor.CurrentTile.ID;
-            offset = -125.0f;
-			cursor.setMovement(0.04f);
-        }
-
-        if (Input.GetKeyDown(KeyCode.B))
-		{
-			cursor.setMovement(0.5f);
-			viewingRegions = true;
-			regionToView = -1;
-			regionsDrawn = false;
-		}
-	}
 
 	private void loadContent()
     {
@@ -220,75 +164,12 @@ public class WorldMapDrawer : MonoBehaviour {
                     tile.parent = transform;
             }
         }
-
-        transform.localScale = new Vector3(0.1f, 0.1f);
     }
 
-	private int isNearbyTown(Dictionary<int, List<Vector2Int>> surroundingTiles, Vector2Int position)
+    public void setActive(bool value)
 	{
-		int townIndex = -1;
-
-		foreach (int index in surroundingTiles.Keys)
-		{
-			if (surroundingTiles[index].Contains(position))
-			{
-				townIndex = index;
-			}
-		}
-
-		return townIndex;
-	}
-
-	private void populateTileMapWithRegions(ref DataPool worldData)
-    {
-		for (int x = -8; x < 9; x++)
-		{
-			for (int y = -8; y < 9; y++)
-			{
-				Transform tile = null;
-				Vector2Int currentPos = new Vector2Int(x, y);
-				int regionIndex = -1;
-
-				for (int i = 0; i < worldData.Regions.Count; i++)
-				{
-					if (worldData.Regions[i].Position.Equals(currentPos))
-					{
-						regionIndex = i;
-					}
-				}
-
-				float xPos = x + offset;
-				float yPos = y + offset;
-
-				if (regionIndex != -1)
-				{
-					tile = Instantiate(regionContent[RegionType.Islands], new Vector3(xPos / 2.0f, yPos / 2.0f), Quaternion.identity) as Transform;
-					tile.gameObject.GetComponent<TileInfo>().setId(regionIndex);
-					tile.gameObject.GetComponent<TileInfo>().setIsRegion(true);
-					tile.localScale = new Vector3(0.5f, 0.5f);
-					tile.GetChild(0).GetChild(0).GetComponent<TMPro.TextMeshProUGUI>().text = worldData.Regions[regionIndex].Level.ToString();
-                }
-
-                if (tile != null)
-                    tile.parent = transform;
-            }
-        }
-
-		transform.localScale = new Vector3(1.0f, 1.0f);
-
-		//transform.localScale = new Vector3(0.8f, 0.8f);
-    }
-
-	private void sendJobToInfoLayer()
-	{
-		if (focused && !jobSent)
-        {
-            if (viewingRegions)
-            {
-                //infoLayer.sendJob(new InfoLayerJob(InfoLayerJob.InfoJob.Region, getRegionIndexFromCursorPosition()));
-                jobSent = !jobSent;
-            }
-        }
+		gameObject.SetActive(value);
+		topLayer.setActive(value);
 	}
 
     public void setOffset(float offset)
@@ -296,29 +177,18 @@ public class WorldMapDrawer : MonoBehaviour {
 		this.offset = offset;
 	}
 
-    public void setRegionToView(int region)
+    public void zoomIn()
 	{
-		regionToView = region;
+		transform.localScale -= scaler;
+        topLayer.zoomIn(scaler);
 	}
-       
+     
+    public void zoomOut()
+	{
+		transform.localScale += scaler;
+        topLayer.zoomOut(scaler);
+	}
+
     //Getters
-    public bool ViewingRegions
-	{
-		get { return viewingRegions; }
-	}
 
-    public int RegionToView
-	{
-		get { return regionToView; }
-	}
-
-    public bool Focused 
-	{
-		get { return focused; }
-	}
-
-    public bool RegionsDrawn
-	{
-		get { return regionsDrawn; }
-	}
 }
