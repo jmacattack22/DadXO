@@ -15,10 +15,11 @@ public class WorldHandlerBehaviour : MonoBehaviour
 
     public enum MapState
 	{
-		Region, World
+		None, Region, World
 	}
 
     public WorldMapDrawer mapDrawer;
+	public TopLayerDrawer topLayer;
 	public RegionDrawer regionDrawer;
 	public MapPositionCaster cursor;
 	public InfoLayerBehaviour infoLayer;
@@ -36,6 +37,7 @@ public class WorldHandlerBehaviour : MonoBehaviour
 		worldBuilder.createNewWorld();
 		creatingNewWorld = true;
 		controllerState = ControllerState.Map;
+		mapState = MapState.None;
 	}
 
 	void Update()
@@ -89,9 +91,17 @@ public class WorldHandlerBehaviour : MonoBehaviour
             regionDrawer.drawRegions(ref worldData);
             mapState = MapState.World;
 			cursor.setMovement(0.5f);
+			topLayer.cleanTileMap();
         }
 
 		mapDrawer.handleInput();
+
+		MapPositionCaster.CursorPosition cursorPosition = cursor.getCursorPosition();
+        if (!cursorPosition.Equals(MapPositionCaster.CursorPosition.Central))
+		{
+			mapDrawer.panMap(cursorPosition);
+			topLayer.panMap(cursorPosition);
+		}
 	}
 
 	private void handleWorldMapInput()

@@ -575,7 +575,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 282970313}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ccb3b77a9088443f395499281e7cc5e4, type: 3}
+  m_Script: {fileID: 11500000, guid: b667da9f128594d0f89ecc82dcf44614, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!483693784 &282970315
@@ -663,7 +663,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 282970313}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -1}
+  m_LocalPosition: {x: 0, y: 0, z: -0.01}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 761866426}
@@ -762,6 +762,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapDrawer: {fileID: 1332880746}
+  topLayer: {fileID: 282970314}
   regionDrawer: {fileID: 1640638993}
   cursor: {fileID: 1322593934}
   infoLayer: {fileID: 1315815022}
@@ -2284,7 +2285,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1322593933}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 90928a4f9bf3d4939a21c40742d1e187, type: 3}
+  m_Script: {fileID: 11500000, guid: e2b3b2e1141b4405792c742c6493c471, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   infoLayer: {fileID: 1315815022}
@@ -2327,10 +2328,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1332880744}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4c6fa2e36395408b9f96782cf44015c, type: 3}
+  m_Script: {fileID: 11500000, guid: aeb42ed4109c240c1a858e9886180e5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  infoLayer: {fileID: 1315815022}
   topLayer: {fileID: 282970314}
 --- !u!483693784 &1332880747
 TilemapRenderer:
@@ -2688,7 +2688,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1640638991}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fb1af73e120f34f2fb08e6acca69742f, type: 3}
+  m_Script: {fileID: 11500000, guid: 6e664b70e0c074944b42e74542f26d75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!483693784 &1640638994

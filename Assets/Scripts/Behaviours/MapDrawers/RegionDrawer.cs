@@ -1,21 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-public class RegionDrawer : MonoBehaviour
+public class RegionDrawer : MapDrawer
 {
 	private Transform region;
     
 	void Awake()
     {
         loadContent();
-    }
-
-    public void cleanTileMap()
-    {
-        foreach (Transform child in transform)
-        {
-            Destroy(child.gameObject);
-        }
     }
 
 	public void drawRegions(ref DataPool worldData)
@@ -64,10 +56,5 @@ public class RegionDrawer : MonoBehaviour
         }
 
         transform.localScale = new Vector3(1.0f, 1.0f);
-    }
-
-	public void setActive(bool value)
-    {
-        gameObject.SetActive(value);
     }
 }

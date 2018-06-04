@@ -4,42 +4,21 @@ using UnityEngine;
 using System.Linq;
 using System;
 
-public class WorldMapDrawer : MonoBehaviour {
+public class WorldMapDrawer : MapDrawer {
 
-	public enum RegionType 
-	{
-	    Water, Islands	
-	}
-
-	public InfoLayerBehaviour infoLayer;
 	public TopLayerDrawer topLayer;
 
     private Dictionary<RegionCreator.TileType, Transform> content;
-	private Dictionary<RegionType, Transform> regionContent;
-      
-	private float offset = 0.0f;
-	private Vector3 scaler = new Vector3(0.001f, 0.001f, 0.0f);
-
-	private float scaleFloor = 0.05f;
-	private float scaleCeiling = 1.3f;
    
 	void Awake()
 	{
         content = new Dictionary<RegionCreator.TileType, Transform>();
-		regionContent = new Dictionary<RegionType, Transform>();
 
         loadContent();
+
+		toggleMapPanAbility();
 	}
 
-	void Start () {
-        
-	}
-
-	void Update()
-	{
-		
-	}
-    
 	public void addPlainRegionTileToWorldMap(Vector3 pos)
     {
         Transform tile = Instantiate(content[RegionCreator.TileType.Land], pos / 2.0f, Quaternion.identity) as Transform;
@@ -79,27 +58,19 @@ public class WorldMapDrawer : MonoBehaviour {
         if (tile != null)
             tile.parent = transform;
     }
-
-	private void cleanTileMap()
-    {
-        foreach (Transform child in transform)
-        {
-            Destroy(child.gameObject);
-        }
-
-		transform.localScale = new Vector3(1.0f, 1.0f);
-    }
-
+       
     public void handleInput()
 	{
 		if (Input.GetKey(KeyCode.Q))
 		{
-			zoomIn();
+			zoomIn(Scaler);
+			topLayer.zoomIn(Scaler);
 		}
 
 		if (Input.GetKey(KeyCode.E))
         {
-            zoomOut();
+            zoomOut(Scaler);
+			topLayer.zoomOut(Scaler);
         }
 	}
 
@@ -107,13 +78,13 @@ public class WorldMapDrawer : MonoBehaviour {
     {
         if (transform.childCount > 0)
             cleanTileMap();
-		
-		offset = -125.0f;
+
+		setOffset(-125.0f);
 		topLayer.setOffset(-125.0f);
 		topLayer.drawRegion(ref worldData, regionIndex);
 
-		scaleFloor = 0.03f;
-		scaleCeiling = 0.5f;
+		setScaleFloor(0.03f);
+		setScaleCeiling(0.5f);
               
         populateTileMapWithRegion(ref worldData, regionIndex);
 
@@ -131,9 +102,6 @@ public class WorldMapDrawer : MonoBehaviour {
         content.Add(RegionCreator.TileType.Rise, Resources.Load<Transform>("Prefabs/Rise"));
         content.Add(RegionCreator.TileType.Peak, Resources.Load<Transform>("Prefabs/Peak"));
 		content.Add(RegionCreator.TileType.Town, Resources.Load<Transform>("Prefabs/Town"));
-
-        regionContent.Add(RegionType.Water, Resources.Load<Transform>("Prefabs/Water"));
-        regionContent.Add(RegionType.Islands, Resources.Load<Transform>("Prefabs/Region"));
     }
 
 	private void populateTileMapWithRegion(ref DataPool worldData, int regionIndex)
@@ -148,8 +116,8 @@ public class WorldMapDrawer : MonoBehaviour {
 
                 if (!map[x, y].Equals(RegionCreator.TileType.Town))
                 {
-                    float xPos = x + offset;
-                    float yPos = y + offset;
+                    float xPos = x + Offset;
+                    float yPos = y + Offset;
 
 
                     if (!map[x, y].Equals(RegionCreator.TileType.Water))
@@ -164,31 +132,5 @@ public class WorldMapDrawer : MonoBehaviour {
                     tile.parent = transform;
             }
         }
-    }
-
-    public void setActive(bool value)
-	{
-		gameObject.SetActive(value);
-		topLayer.setActive(value);
-	}
-
-    public void setOffset(float offset)
-	{
-		this.offset = offset;
-	}
-
-    public void zoomIn()
-	{
-		transform.localScale -= scaler;
-        topLayer.zoomIn(scaler);
-	}
-     
-    public void zoomOut()
-	{
-		transform.localScale += scaler;
-        topLayer.zoomOut(scaler);
-	}
-
-    //Getters
-
+    }   
 }
