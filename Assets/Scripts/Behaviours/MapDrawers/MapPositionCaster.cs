@@ -1,8 +1,14 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class MapPositionCaster : MonoBehaviour {
+
+    public enum CursorPosition
+	{
+		Central, LeftBorder, RightBorder, TopBorder, BottomBorder
+	}
 
 	public InfoLayerBehaviour infoLayer;
 
@@ -25,25 +31,25 @@ public class MapPositionCaster : MonoBehaviour {
 
     private void handleInput()
 	{
-        if (Input.GetKey(KeyCode.D) && !targetSet && transform.position.x <= 7.5f)
+        if (Input.GetKey(KeyCode.D) && !targetSet && transform.position.x <= 7.75f)
 		{
 			Vector3 direction = new Vector3(1, 0, 0);
 			setNewTarget(direction);
 		}
 
-		if (Input.GetKey(KeyCode.A) && !targetSet && transform.position.x >= -7.5f)
+		if (Input.GetKey(KeyCode.A) && !targetSet && transform.position.x >= -7.75f)
         {
             Vector3 direction = new Vector3(-1, 0, 0);
 			setNewTarget(direction);
         }
         
-        if (Input.GetKey(KeyCode.W) && !targetSet && transform.position.y <= 3.5f)
+        if (Input.GetKey(KeyCode.W) && !targetSet && transform.position.y <= 3.75f)
         {
             Vector3 direction = new Vector3(0, 1, 0);
 			setNewTarget(direction);
         }
 
-        if (Input.GetKey(KeyCode.S) && !targetSet && transform.position.y >= -3.5f)
+        if (Input.GetKey(KeyCode.S) && !targetSet && transform.position.y >= -3.75f)
         {
             Vector3 direction = new Vector3(0, -1, 0);
 			setNewTarget(direction);
@@ -59,6 +65,31 @@ public class MapPositionCaster : MonoBehaviour {
               sendJobToInfoLayer();
           }
         }
+	}
+
+	public CursorPosition getCursorPosition()
+	{
+		if (transform.position.x > 7.7f)
+		{
+			return CursorPosition.RightBorder;
+		}
+
+        if (transform.position.x < -7.7f)
+		{
+			return CursorPosition.LeftBorder;
+		}
+
+        if (transform.position.y > 3.7f)
+		{
+			return CursorPosition.TopBorder;
+		}
+
+        if (transform.position.y < -3.7f)
+		{
+			return CursorPosition.BottomBorder;
+		}
+
+		return CursorPosition.Central;
 	}
 
 	private TileInfo mapCast()
@@ -101,7 +132,6 @@ public class MapPositionCaster : MonoBehaviour {
 			}
 			else
 			{
-				print(currentTile.Position + " - " + currentTile.ID);
 				infoLayer.sendJob(new InfoLayerJob(InfoLayerJob.InfoJob.Town, currentTile.ID));
 			}
 		}

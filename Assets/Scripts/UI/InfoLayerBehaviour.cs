@@ -92,7 +92,7 @@ public class InfoLayerBehaviour : MonoBehaviour {
 
 				if (l.Equals(Labels.Title))
 				{
-					content = worldData.Towns[job.JobIndex].Name + " " + job.JobIndex;
+					content = worldData.Towns[job.JobIndex].Name;
 				}
 
 				populateLabel(l, content);
