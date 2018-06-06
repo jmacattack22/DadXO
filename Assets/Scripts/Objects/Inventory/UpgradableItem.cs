@@ -68,7 +68,7 @@ public class UpgradableItem : Item
 		distribution.Add(EvaluationProtocol.Stats.Strength);
 	}
 
-	private void defineExperienceBasedOnTier()
+	public void defineExperienceBasedOnTier()
 	{
 		if (tier == 1)
 		{
@@ -102,6 +102,11 @@ public class UpgradableItem : Item
         }
 	}
 
+    public List<EvaluationProtocol.Stats> getDistribution()
+	{
+		return distribution;
+	}
+
 	public float getStat(EvaluationProtocol.Stats stat)
 	{
 		return baseFactors[stat];
@@ -129,6 +134,14 @@ public class UpgradableItem : Item
 		baseFactors.Add(EvaluationProtocol.Stats.Strength, strength);
 	}
 
+	public void setDistribution(List<JSONObject> stats)
+	{
+		foreach (JSONObject j in stats)
+		{
+			distribution.Add(EvaluationProtocol.getStatFromJson(j));
+		}
+	}
+
     public void setGrowth(float growth)
 	{
 		growthFactor = growth;
@@ -153,5 +166,20 @@ public class UpgradableItem : Item
     public int Tier
 	{
 		get { return tier; }
+	}
+
+    public float Experience
+	{
+		get { return experience; }
+	}
+
+    public float ExperienceFactor
+	{
+		get { return experienceFactor; }
+	}
+
+    public float ExperienceTarget
+	{
+		get { return experienceTarget; }
 	}
 }

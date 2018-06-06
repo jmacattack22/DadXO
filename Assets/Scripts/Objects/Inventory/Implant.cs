@@ -26,6 +26,9 @@ public class Implant : UpgradableItem
 
         List<JSONObject> stats = json.GetField("stats").list;
         setBase(stats[0].f, stats[1].f, stats[2].f, stats[3].f, stats[4].f);
+
+		List<JSONObject> dist = json.GetField("distribution").list;
+        setDistribution(dist);
     }
 
     private ImplantType parseImplantType(string iType)
@@ -46,7 +49,7 @@ public class Implant : UpgradableItem
         json.AddField("basevalue", BaseValue);
         json.AddField("level", Level);
         json.AddField("levelcap", LevelCap);
-		json.AddField("tier", Tier);
+		json.AddField("tier", Tier);      
 
 		json.AddField("growth", GrowthFactor);
 
@@ -56,6 +59,13 @@ public class Implant : UpgradableItem
             stats.Add(stat);
         }
         json.AddField("stats", stats);
+
+		JSONObject dist = new JSONObject(JSONObject.Type.ARRAY);
+        foreach (EvaluationProtocol.Stats stat in getDistribution())
+        {
+            dist.Add(stat.ToString());
+        }
+        json.AddField("distribution", dist);
 
         json.AddField("type", type.ToString());
 

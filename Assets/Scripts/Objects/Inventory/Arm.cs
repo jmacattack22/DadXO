@@ -26,6 +26,9 @@ public class Arm : UpgradableItem
 
 		List<JSONObject> stats = json.GetField("stats").list;
 		setBase(stats[0].f, stats[1].f, stats[2].f, stats[3].f, stats[4].f);
+
+		List<JSONObject> dist = json.GetField("distribution").list;
+		setDistribution(dist);
 	}
 
     public JSONObject jsonify()
@@ -47,6 +50,13 @@ public class Arm : UpgradableItem
 		}
 		json.AddField("stats", stats);
 
+		JSONObject dist = new JSONObject(JSONObject.Type.ARRAY);
+        foreach (EvaluationProtocol.Stats stat in getDistribution())
+		{
+			dist.Add(stat.ToString());
+		}
+		json.AddField("distribution", dist);
+      
 		json.AddField("type", type.ToString());
 
 		return json;
