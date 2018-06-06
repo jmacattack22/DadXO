@@ -169,12 +169,7 @@ public class Manager : Person {
 
 	public ManagerProtocol.FacilityShortcut chooseTraining()
     {
-        return trainingRegime[generateRandomInt(0, trainingRegime.Count - 1)];
-    }
-
-	private static int generateRandomInt(int min, int max)
-    {
-        return new System.Random((int)System.DateTime.Now.Ticks).Next(min, max);
+        return trainingRegime[Rng.generateRandomInt(0, trainingRegime.Count - 1)];
     }
 
     public string getDetails(){

@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 
 public class Arm : UpgradableItem
 {
@@ -10,16 +10,22 @@ public class Arm : UpgradableItem
 
 	private ArmType type;
 
-    public Arm(string name, float baseValue, int level, int levelCap, ArmType type)
-		: base(name, baseValue, level, levelCap)
+    public Arm(string name, float baseValue, int level, int levelCap, int tier, ArmType type)
+		: base(name, baseValue, level, levelCap, tier)
 	{
 		this.type = type;
 	}
 
 	public Arm(JSONObject json)
-		: base(json.GetField("name").str, json.GetField("basevalue").f, (int)json.GetField("level").f, (int)json.GetField("levelcap").f)
+		: base(json.GetField("name").str, json.GetField("basevalue").f, 
+		       (int)json.GetField("level").f, (int)json.GetField("levelcap").f, (int)json.GetField("tier").f)
 	{
 		type = parseArmType(json.GetField("type").str);
+
+		setGrowth(json.GetField("growth").f);
+
+		List<JSONObject> stats = json.GetField("stats").list;
+		setBase(stats[0].f, stats[1].f, stats[2].f, stats[3].f, stats[4].f);
 	}
 
     public JSONObject jsonify()
@@ -30,6 +36,16 @@ public class Arm : UpgradableItem
 		json.AddField("basevalue", BaseValue);
 		json.AddField("level", Level);
 		json.AddField("levelcap", LevelCap);
+		json.AddField("tier", Tier);
+
+		json.AddField("growth", GrowthFactor);
+
+		JSONObject stats = new JSONObject(JSONObject.Type.ARRAY);
+        foreach (float stat in getStatsInList())
+		{
+			stats.Add(stat);
+		}
+		json.AddField("stats", stats);
 
 		json.AddField("type", type.ToString());
 
