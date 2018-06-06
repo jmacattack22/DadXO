@@ -31,6 +31,11 @@ public class Manager : Person {
     private int tournamentCount;
     private int tournamentPriority;
 
+	private List<Consumable> consumables;
+	private List<Arm> arms;
+	private List<Legs> legs;
+	private List<Implant> implants;
+
     private TournamentProtocol.Level currentRanking;
     
 	public Manager(
@@ -53,6 +58,11 @@ public class Manager : Person {
 
         tournamentCount = 0;
         tournamentPriority = 0;
+
+		consumables = new List<Consumable>();
+		arms = new List<Arm>();
+		legs = new List<Legs>();
+		implants = new List<Implant>();
 	}
 
     public Manager(JSONObject json)
@@ -102,6 +112,30 @@ public class Manager : Person {
 		{
 			previousOpponents.Add((int)r.i);
 		}
+
+		consumables = new List<Consumable>();
+        foreach (JSONObject r in json.GetField("consumables").list)
+		{
+			consumables.Add(new Consumable(r));
+		}
+
+        arms = new List<Arm>();
+        foreach (JSONObject r in json.GetField("arms").list)
+		{
+			arms.Add(new Arm(r));
+		}
+
+        legs = new List<Legs>();
+        foreach (JSONObject r in json.GetField("legs").list)
+		{
+			legs.Add(new Legs(r));	
+		}
+
+        implants = new List<Implant>();
+		foreach (JSONObject r in json.GetField("implants").list)
+		{
+			implants.Add(new Implant(r));
+		}
 	}   
 
     public void archiveBoxerELO()
@@ -135,12 +169,7 @@ public class Manager : Person {
 
 	public ManagerProtocol.FacilityShortcut chooseTraining()
     {
-        return trainingRegime[generateRandomInt(0, trainingRegime.Count - 1)];
-    }
-
-	private static int generateRandomInt(int min, int max)
-    {
-        return new System.Random((int)System.DateTime.Now.Ticks).Next(min, max);
+        return trainingRegime[Rng.generateRandomInt(0, trainingRegime.Count - 1)];
     }
 
     public string getDetails(){
@@ -315,6 +344,34 @@ public class Manager : Person {
 			prevOpp.Add(index);
 		}
 		json.AddField("previousopponents", prevOpp);
+
+		JSONObject consume = new JSONObject(JSONObject.Type.ARRAY);
+        foreach (Consumable c in consumables)
+		{
+			consume.Add(c.jsonify());
+		}
+		json.AddField("consumables", consume);
+
+		JSONObject arm = new JSONObject(JSONObject.Type.ARRAY);
+        foreach (Arm a in arms)
+		{
+			arm.Add(a.jsonify());
+		}
+		json.AddField("arms", arm);
+
+		JSONObject leg = new JSONObject(JSONObject.Type.ARRAY);
+        foreach (Legs l in legs)
+		{
+			leg.Add(l.jsonify());
+		}
+		json.AddField("legs", leg);
+
+		JSONObject impl = new JSONObject(JSONObject.Type.ARRAY);
+        foreach (Implant i in implants)
+		{
+			impl.Add(i.jsonify());
+		}
+		json.AddField("implants", impl);
 
         return json;
     }

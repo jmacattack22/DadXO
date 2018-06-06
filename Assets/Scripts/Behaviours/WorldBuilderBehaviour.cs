@@ -22,9 +22,6 @@ public class WorldBuilderBehaviour : MonoBehaviour
 	public int regionWidth;
 	public int regionHeight;
 
-	private int debugRegionID = 0;
-	private string debugState = "";
-
 	private bool regionsCreated = false;
 	private Thread regionThread;
 
@@ -250,11 +247,7 @@ public class WorldBuilderBehaviour : MonoBehaviour
     {
 		for (int i = 0; i < worldData.Regions.Count; i++)
         {
-			debugRegionID = i;
-
-			debugState = "capitol";
 			WorldBuilderProtocol.createCapitol(ref worldData, i);
-			debugState = "town";
 			WorldBuilderProtocol.createTowns(ref worldData, i);
         }
 

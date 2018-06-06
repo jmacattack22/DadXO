@@ -57,11 +57,9 @@ public static class TournamentProtocol {
 	{
 		Dictionary<int, List<Vector2Int>> schedule = worldData.getTournamentFromCapitolIndex(capitolIndex, rank).getSchedule();
 		List<int> managerIndexes = worldData.getTournamentFromCapitolIndex(capitolIndex, rank).getManagerIndexes();
-        int currentRound = 0;
 
         foreach (int round in schedule.Keys)
         {
-            currentRound = round;
             foreach (Vector2Int match in schedule[round])
             {
                 if (match.x != -1 && match.y != -1)
@@ -97,10 +95,6 @@ public static class TournamentProtocol {
 		Level level = worldData.getTournamentFromCapitolIndex(capitolIndex, rank).Level;
 
         float boxerPercentage = (float)worldData.Distribution[rank] / worldData.Managers.Count;
-
-		//if (rank.Equals(Level.E)){
-		//	Debug.Log(boxerPercentage);
-		//}
 
         if (boxerPercentage > 0.1f)
         {
@@ -138,10 +132,8 @@ public static class TournamentProtocol {
 	public static void SimWholeTournament(ref DataPool worldData, int townIndex){
 		Dictionary<int, List<Vector2Int>> schedule = worldData.getTournamentFromTownIndex(townIndex).getSchedule();
 		List<int> managerIndexes = worldData.getTournamentFromTownIndex(townIndex).getManagerIndexes();
-		int currentRound = 0;
 
         foreach (int round in schedule.Keys){
-            currentRound = round;
             foreach (Vector2Int match in schedule[round])
             {
                 if (match.x != -1 && match.y != -1)
