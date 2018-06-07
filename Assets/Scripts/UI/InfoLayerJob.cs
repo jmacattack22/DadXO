@@ -5,7 +5,7 @@ public class InfoLayerJob
 {
     public enum InfoJob
 	{
-		Clear, Region, Town
+		Clear, Region, Town, RegionPreview, TownPreview
 	}
 
 	private InfoJob job;
@@ -30,6 +30,16 @@ public class InfoLayerJob
 		else if (job.Equals(InfoJob.Town))
 		{
 			labels.Add(InfoLayerBehaviour.Labels.Title);
+		}
+		else if (job.Equals(InfoJob.RegionPreview))
+		{
+			labels.Add(InfoLayerBehaviour.Labels.RightInfoPanelTitle);
+			labels.Add(InfoLayerBehaviour.Labels.RightInfoPanelDetail);
+		}
+		else if (job.Equals(InfoJob.TownPreview))
+		{
+			labels.Add(InfoLayerBehaviour.Labels.RightInfoPanelTitle);
+            labels.Add(InfoLayerBehaviour.Labels.RightInfoPanelDetail);
 		}
 	}
 

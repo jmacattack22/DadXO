@@ -2,9 +2,6 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.IO;
-using System;
 
 public class WorldHandlerBehaviour : MonoBehaviour
 {
@@ -114,7 +111,27 @@ public class WorldHandlerBehaviour : MonoBehaviour
             mapDrawer.drawRegion(ref worldData, tile.ID);
             mapState = MapState.Region;
 			cursor.setMovement(0.04f);
-        }      
+        }    
+
+        if (Input.GetKeyDown(KeyCode.R))
+		{
+			if (cursor.CurrentTile != null)
+			{
+				if (cursor.CurrentTile.ID >= 0)
+				{
+					infoLayer.sendJob(new InfoLayerJob(InfoLayerJob.InfoJob.RegionPreview, cursor.CurrentTile.ID));
+                    infoLayer.toggleRightPanel();
+				}
+			}
+		}
+
+		if (cursor.CurrentTile != null)
+        {
+            if (cursor.CurrentTile.ID >= 0)
+            {
+                infoLayer.sendJob(new InfoLayerJob(InfoLayerJob.InfoJob.Region, cursor.CurrentTile.ID));
+            }
+        }
 	}
 
 	public void advanceWeek(){
