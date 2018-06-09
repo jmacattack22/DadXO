@@ -76,6 +76,35 @@ public static class EvaluationProtocol
 		return 40 + generateRandomInt(statValues[rate - 1] - 5, statValues[rate - 1] + 5);
 	}
 
+    public static EvaluationProtocol.Stats getStatFromJson(JSONObject json)
+	{
+		string stat = json.str;
+
+        if (stat.Equals("Accuracy"))
+		{
+			return Stats.Accuracy;
+		}
+		else if (stat.Equals("Endurance"))
+		{
+			return Stats.Endurance;
+		}
+		else if (stat.Equals("Health"))
+		{
+			return Stats.Health;
+		}
+		else if (stat.Equals("Speed"))
+		{
+			return Stats.Speed;
+		}
+		else if (stat.Equals("Strength"))
+		{
+			return Stats.Strength;
+		}
+
+		return Stats.Accuracy;
+
+	}
+
 	private static int generateRandomInt(int min, int max)
     {
         return new System.Random((int)System.DateTime.Now.Ticks).Next(min, max);

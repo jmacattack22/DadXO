@@ -4,11 +4,24 @@ using System.Linq;
 using System.Threading;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
+using System;
 
 public class WorldHandlerBehaviour : MonoBehaviour
 {
-    public WorldMapDrawer mapDrawer;
+    public enum ControllerState
+	{
+		None, Map
+	}
 
+    public enum MapState
+	{
+		None, Region, World
+	}
+
+    public WorldMapDrawer mapDrawer;
+	public TopLayerDrawer topLayer;
+	public RegionDrawer regionDrawer;
+	public MapPositionCaster cursor;
 	public InfoLayerBehaviour infoLayer;
 
 	private bool creatingNewWorld = false;
@@ -16,10 +29,15 @@ public class WorldHandlerBehaviour : MonoBehaviour
 
 	private DataPool worldData;
 
+	private ControllerState controllerState;
+	private MapState mapState;
+
 	void Start()
 	{
 		worldBuilder.createNewWorld();
 		creatingNewWorld = true;
+		controllerState = ControllerState.Map;
+		mapState = MapState.None;
 	}
 
 	void Update()
@@ -32,34 +50,74 @@ public class WorldHandlerBehaviour : MonoBehaviour
 			Thread saveMapThread = new Thread(new ThreadStart(worldData.saveWorldMapThread));
 			saveMapThread.Start();
 
-			mapDrawer.drawRegions(ref worldData);
+			mapState = MapState.World;
+			regionDrawer.drawRegions(ref worldData);
 			creatingNewWorld = false;
 
 			infoLayer.updateWorldData(worldData);
-		}    
-
-		if (!creatingNewWorld)
-		{
-			if (!mapDrawer.ViewingRegions)
-            {
-                if (mapDrawer.RegionToView != -1)
-                {
-                    mapDrawer.drawRegion(ref worldData, mapDrawer.RegionToView);
-                    mapDrawer.setRegionToView(-1);
-                }
-            }
-            else
-            {
-                if (!mapDrawer.RegionsDrawn)
-                {
-                    mapDrawer.drawRegions(ref worldData);
-                }
-            }
+			controllerState = ControllerState.Map;
 		}
-      
+
+		handleInput();
 	}
 
-    public void advanceWeek(){
+    private void handleInput()
+	{
+		if (controllerState.Equals(ControllerState.Map))
+		{
+			handleMapInput();
+            
+		}
+	}
+
+	private void handleMapInput()
+	{
+		if (mapState.Equals(MapState.World))
+		{
+			handleWorldMapInput();
+		}
+		else if (mapState.Equals(MapState.Region))
+        {
+			handleRegionMapInput();
+        }
+	}
+
+	private void handleRegionMapInput()
+	{
+		if (Input.GetKeyDown(KeyCode.B))
+        {
+            mapDrawer.setActive(false);
+            regionDrawer.setActive(true);
+            regionDrawer.drawRegions(ref worldData);
+            mapState = MapState.World;
+			cursor.setMovement(0.5f);
+			topLayer.cleanTileMap();
+        }
+
+		mapDrawer.handleInput();
+
+		MapPositionCaster.CursorPosition cursorPosition = cursor.getCursorPosition();
+        if (!cursorPosition.Equals(MapPositionCaster.CursorPosition.Central))
+		{
+			mapDrawer.panMap(cursorPosition);
+			topLayer.panMap(cursorPosition);
+		}
+	}
+
+	private void handleWorldMapInput()
+	{
+		if (Input.GetKeyDown(KeyCode.Space))
+        {
+            TileInfo tile = cursor.CurrentTile;
+            regionDrawer.setActive(false);
+            mapDrawer.setActive(true);
+            mapDrawer.drawRegion(ref worldData, tile.ID);
+            mapState = MapState.Region;
+			cursor.setMovement(0.04f);
+        }      
+	}
+
+	public void advanceWeek(){
 		TournamentHandlerProtocol.simTournamentsAndTraining(ref worldData);
 		worldData.updateBoxerDistribution();
 
