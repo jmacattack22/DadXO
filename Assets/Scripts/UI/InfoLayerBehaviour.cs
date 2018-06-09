@@ -8,17 +8,28 @@ public class InfoLayerBehaviour : MonoBehaviour {
    
     public enum Labels 
 	{
-		Title
+		Title, RightInfoPanelTitle, RightInfoPanelDetail
 	}
 
 	private Dictionary<Labels, TextMeshProUGUI> textLabels = new Dictionary<Labels, TextMeshProUGUI>();
+
+	private Transform rightInfoPanel;
 
 	private List<InfoLayerJob> jobs = new List<InfoLayerJob>();
 
 	private DataPool worldData;
 
 	void Start () {
+		loadUI();
+	}
+
+	private void loadUI()
+	{
 		textLabels.Add(Labels.Title, transform.GetChild(0).GetComponent<TextMeshProUGUI>());
+		textLabels.Add(Labels.RightInfoPanelTitle, transform.GetChild(1).GetChild(1).GetComponent<TextMeshProUGUI>());
+		textLabels.Add(Labels.RightInfoPanelDetail, transform.GetChild(1).GetChild(2).GetComponent<TextMeshProUGUI>());
+
+		rightInfoPanel = transform.GetChild(1).GetComponent<Transform>();
 	}
 
 	void Update () {
@@ -28,9 +39,17 @@ public class InfoLayerBehaviour : MonoBehaviour {
 		}
 	}
 
-    private void clearInfoLayer()
+	private void clearInfoLayer()
+    {
+        foreach (Labels l in textLabels.Keys)
+        {
+            textLabels[l].SetText("");
+        }
+    }
+
+    private void clearInfoLayer(InfoLayerJob job)
 	{
-		foreach (Labels l in textLabels.Keys)
+		foreach (Labels l in job.Labels)
 		{
 			textLabels[l].SetText("");
 		}
@@ -38,7 +57,7 @@ public class InfoLayerBehaviour : MonoBehaviour {
 
     private void executeJob()
 	{
-		clearInfoLayer();
+		clearInfoLayer(jobs[0]);
 
 		populateLabels(jobs[0]);
               
@@ -47,18 +66,29 @@ public class InfoLayerBehaviour : MonoBehaviour {
 
 	protected void populateLabels(InfoLayerJob job)
 	{
-		if (job.Job.Equals(InfoLayerJob.InfoJob.Region))
+		if (job.JobIndex >= 0)
 		{
-			populateRegionLabels(job);
+			Dictionary<Labels, string> tuple = new Dictionary<Labels, string>();
+            if (job.Job.Equals(InfoLayerJob.InfoJob.Region) || job.Job.Equals(InfoLayerJob.InfoJob.RegionPreview))
+            {
+                tuple = job.JobIndex >= 0 ? InfoLayerTuple.getRegionTuple(worldData, job.JobIndex) : tuple;
+            }
+			else if (job.Job.Equals(InfoLayerJob.InfoJob.Town) || job.Job.Equals(InfoLayerJob.InfoJob.TownPreview))
+            {
+                tuple = job.JobIndex >= 0 ? InfoLayerTuple.getTownTuple(worldData, job.JobIndex) : tuple;
+            }
+
+            foreach (Labels l in job.Labels)
+            {
+                populateLabel(l, tuple[l]);
+            }	
 		}
-		else if (job.Job.Equals(InfoLayerJob.InfoJob.Town))
-		{
-			populateTownLabels(job);
-		}
-		else if (job.Job.Equals(InfoLayerJob.InfoJob.Clear))
-		{
-			clearInfoLayer();
-		}
+
+		if (job.Job.Equals(InfoLayerJob.InfoJob.Clear))
+        {
+            clearInfoLayer();
+        }
+     
 	}
 
 	private void populateLabel(Labels l, string content)
@@ -66,43 +96,14 @@ public class InfoLayerBehaviour : MonoBehaviour {
 		textLabels[l].SetText(content);
     }
 
-	private void populateRegionLabels(InfoLayerJob job)
-    {
-        foreach (Labels l in job.Labels)
-		{
-			string content = "";
-
-            if (l.Equals(Labels.Title))
-			{
-				print(job.JobIndex);
-				content = worldData.Regions[job.JobIndex].Name;
-			}
-         
-			populateLabel(l, content);
-		}
-    }   
-
-	private void populateTownLabels(InfoLayerJob job)
-	{
-		if (job.JobIndex >= 0)
-		{
-			foreach (Labels l in job.Labels)
-			{
-				string content = "";
-
-				if (l.Equals(Labels.Title))
-				{
-					content = worldData.Towns[job.JobIndex].Name;
-				}
-
-				populateLabel(l, content);
-			}
-		}
-	}
-
 	public void sendJob(InfoLayerJob job)
 	{
 		jobs.Add(job);
+	}
+
+    public void toggleRightPanel()
+	{
+		rightInfoPanel.GetComponent<EasyTween>().OpenCloseObjectAnimation();
 	}
 
 	public void updateWorldData(DataPool worldData)
