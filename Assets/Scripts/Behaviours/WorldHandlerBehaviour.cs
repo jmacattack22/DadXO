@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System;
 
 public class WorldHandlerBehaviour : MonoBehaviour
 {
@@ -58,6 +59,26 @@ public class WorldHandlerBehaviour : MonoBehaviour
 		handleInput();
 	}
 
+	private void checkHoverTile(InfoLayerJob.InfoJob job)
+    {
+        if (cursor.CurrentTile != null)
+        {
+            if (cursor.CurrentTile.ID >= 0)
+            {
+                infoLayer.sendJob(new InfoLayerJob(job, cursor.CurrentTile.ID));
+
+                if (job.Equals(InfoLayerJob.InfoJob.RegionPreview) || job.Equals(InfoLayerJob.InfoJob.TownPreview))
+				{
+					infoLayer.toggleRightPanel();
+				}
+            }
+        }
+		else
+        {
+            infoLayer.sendJob(new InfoLayerJob(InfoLayerJob.InfoJob.Clear, 0));
+        }
+    }
+
     private void handleInput()
 	{
 		if (controllerState.Equals(ControllerState.Map))
@@ -82,19 +103,31 @@ public class WorldHandlerBehaviour : MonoBehaviour
 	private void handleRegionMapInput()
 	{
 		if (Input.GetKeyDown(KeyCode.B))
-        {
-            mapDrawer.setActive(false);
-            regionDrawer.setActive(true);
-            regionDrawer.drawRegions(ref worldData);
-            mapState = MapState.World;
+		{
+			mapDrawer.setActive(false);
+			regionDrawer.setActive(true);
+			regionDrawer.drawRegions(ref worldData);
+			mapState = MapState.World;
 			cursor.setMovement(0.5f);
 			topLayer.cleanTileMap();
-        }
+		}
 
 		mapDrawer.handleInput();
 
+		checkForMapPanning();
+
+		if (Input.GetKeyDown(KeyCode.R))
+		{
+			checkHoverTile(InfoLayerJob.InfoJob.TownPreview);
+		}
+
+		checkHoverTile(InfoLayerJob.InfoJob.Town);
+	}
+
+	private void checkForMapPanning()
+	{
 		MapPositionCaster.CursorPosition cursorPosition = cursor.getCursorPosition();
-        if (!cursorPosition.Equals(MapPositionCaster.CursorPosition.Central))
+		if (!cursorPosition.Equals(MapPositionCaster.CursorPosition.Central))
 		{
 			mapDrawer.panMap(cursorPosition);
 			topLayer.panMap(cursorPosition);
@@ -115,23 +148,10 @@ public class WorldHandlerBehaviour : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.R))
 		{
-			if (cursor.CurrentTile != null)
-			{
-				if (cursor.CurrentTile.ID >= 0)
-				{
-					infoLayer.sendJob(new InfoLayerJob(InfoLayerJob.InfoJob.RegionPreview, cursor.CurrentTile.ID));
-                    infoLayer.toggleRightPanel();
-				}
-			}
+			checkHoverTile(InfoLayerJob.InfoJob.RegionPreview);
 		}
 
-		if (cursor.CurrentTile != null)
-        {
-            if (cursor.CurrentTile.ID >= 0)
-            {
-                infoLayer.sendJob(new InfoLayerJob(InfoLayerJob.InfoJob.Region, cursor.CurrentTile.ID));
-            }
-        }
+		checkHoverTile(InfoLayerJob.InfoJob.Region);
 	}
 
 	public void advanceWeek(){

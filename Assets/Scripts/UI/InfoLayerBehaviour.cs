@@ -26,8 +26,8 @@ public class InfoLayerBehaviour : MonoBehaviour {
 	private void loadUI()
 	{
 		textLabels.Add(Labels.Title, transform.GetChild(0).GetComponent<TextMeshProUGUI>());
-		textLabels.Add(Labels.RightInfoPanelTitle, transform.GetChild(1).GetChild(0).GetComponent<TextMeshProUGUI>());
-		textLabels.Add(Labels.RightInfoPanelDetail, transform.GetChild(1).GetChild(1).GetComponent<TextMeshProUGUI>());
+		textLabels.Add(Labels.RightInfoPanelTitle, transform.GetChild(1).GetChild(1).GetComponent<TextMeshProUGUI>());
+		textLabels.Add(Labels.RightInfoPanelDetail, transform.GetChild(1).GetChild(2).GetComponent<TextMeshProUGUI>());
 
 		rightInfoPanel = transform.GetChild(1).GetComponent<Transform>();
 	}
