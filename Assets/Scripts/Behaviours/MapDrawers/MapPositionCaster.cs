@@ -10,8 +10,6 @@ public class MapPositionCaster : MonoBehaviour {
 		Central, LeftBorder, RightBorder, TopBorder, BottomBorder
 	}
 
-	public InfoLayerBehaviour infoLayer;
-
 	private TileInfo currentTile;
 
 	private bool targetSet = false;
@@ -19,8 +17,6 @@ public class MapPositionCaster : MonoBehaviour {
 	private float cursorMovement = 0.5f;
 	private float cursorSpeed = 4.0f;
 	private Vector3 cursorTarget;
-
-	private bool jobSent = false;
 
 	void Update () 
 	{
@@ -61,8 +57,6 @@ public class MapPositionCaster : MonoBehaviour {
           {
               targetSet = false;
               cursorTarget = transform.position;
-              jobSent = false;
-              sendJobToInfoLayer();
           }
         }
 	}
@@ -120,27 +114,6 @@ public class MapPositionCaster : MonoBehaviour {
         }
 
         return transform.position.Equals(goal);
-    }
-
-	private void sendJobToInfoLayer()
-    {
-		if (currentTile != null && !jobSent)
-		{
-			if (currentTile.IsRegion)
-			{
-				infoLayer.sendJob(new InfoLayerJob(InfoLayerJob.InfoJob.Region, currentTile.ID));
-			}
-			else
-			{
-				infoLayer.sendJob(new InfoLayerJob(InfoLayerJob.InfoJob.Town, currentTile.ID));
-			}
-		}
-		else if (currentTile == null)
-		{
-			infoLayer.sendJob(new InfoLayerJob(InfoLayerJob.InfoJob.Clear, 0));
-		}
-
-		jobSent = true;
     }
    
 	private void setNewTarget(Vector3 direction)
