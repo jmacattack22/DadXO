@@ -12,6 +12,7 @@ public class InfoLayerJob
 	private int jobIndex;
 
 	private List<InfoLayerBehaviour.Labels> labels = new List<InfoLayerBehaviour.Labels>();
+	private bool calendarVisible = false;
 
     public InfoLayerJob(InfoJob job, int jobIndex)
 	{
@@ -35,6 +36,8 @@ public class InfoLayerJob
 		{
 			labels.Add(InfoLayerBehaviour.Labels.RightInfoPanelTitle);
 			labels.Add(InfoLayerBehaviour.Labels.RightInfoPanelDetail);
+
+			calendarVisible = true;
 		}
 		else if (job.Equals(InfoJob.TownPreview))
 		{
@@ -57,5 +60,10 @@ public class InfoLayerJob
 	public List<InfoLayerBehaviour.Labels> Labels
 	{
 		get { return labels; }
+	}
+
+    public bool CalendarVisible
+	{
+		get { return calendarVisible; }
 	}
 }

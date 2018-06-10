@@ -53,6 +53,11 @@ public static class TournamentProtocol {
 		currentRound++;
 	}
 
+	public static List<Level> getLevels()
+	{
+		return  new List<Level>(new Level[] { Level.E, Level.D, Level.C, Level.B, Level.A, Level.S });
+	}
+
     public static void simWholeQualifier(ref DataPool worldData, int capitolIndex, Level rank)
 	{
 		Dictionary<int, List<Vector2Int>> schedule = worldData.getTournamentFromCapitolIndex(capitolIndex, rank).getSchedule();
