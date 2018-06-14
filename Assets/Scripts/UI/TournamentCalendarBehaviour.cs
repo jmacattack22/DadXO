@@ -25,6 +25,8 @@ public class TournamentCalendarBehaviour : MonoBehaviour {
 				if (regionTournaments[level][i].Count > 0)
 				{
 					weekNodes[level][i-1].SetActive(true);
+					weekNodes[level][i-1].transform.GetChild(0).GetComponent<WeekNode>().setupNode(level, 0, regionTournaments[level][i].Count);
+					//weekNodes[level][i - 1].GetComponent<WeekNode>().setupNode(level, 0, regionTournaments[level][i].Count);
 				}
 			}
 		}

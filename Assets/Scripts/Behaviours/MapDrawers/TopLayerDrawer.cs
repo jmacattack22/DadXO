@@ -29,7 +29,7 @@ public class TopLayerDrawer : MapDrawer {
 
 	private void loadContent()
     {
-        content.Add(RegionCreator.TileType.Town, Resources.Load<Transform>("Prefabs/Town"));
+        content.Add(RegionCreator.TileType.Town, Resources.Load<Transform>("Prefabs/Tiles/Town"));
     }
 
 	private void populateTileMapWithRegion(ref DataPool worldData, int regionIndex)

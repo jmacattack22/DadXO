@@ -93,15 +93,15 @@ public class WorldMapDrawer : MapDrawer {
 
 	private void loadContent()
     {
-        content.Add(RegionCreator.TileType.Water, Resources.Load<Transform>("Prefabs/Water"));
-        content.Add(RegionCreator.TileType.Shallows, Resources.Load<Transform>("Prefabs/Shallows"));
-        content.Add(RegionCreator.TileType.Beach, Resources.Load<Transform>("Prefabs/Beach"));
-        content.Add(RegionCreator.TileType.Coastal, Resources.Load<Transform>("Prefabs/Coastal"));
-        content.Add(RegionCreator.TileType.Land, Resources.Load<Transform>("Prefabs/Land"));
-        content.Add(RegionCreator.TileType.Mountain, Resources.Load<Transform>("Prefabs/Mountain"));
-        content.Add(RegionCreator.TileType.Rise, Resources.Load<Transform>("Prefabs/Rise"));
-        content.Add(RegionCreator.TileType.Peak, Resources.Load<Transform>("Prefabs/Peak"));
-		content.Add(RegionCreator.TileType.Town, Resources.Load<Transform>("Prefabs/Town"));
+        content.Add(RegionCreator.TileType.Water, Resources.Load<Transform>("Prefabs/Tiles/Water"));
+		content.Add(RegionCreator.TileType.Shallows, Resources.Load<Transform>("Prefabs/Tiles/Shallows"));
+		content.Add(RegionCreator.TileType.Beach, Resources.Load<Transform>("Prefabs/Tiles/Beach"));
+		content.Add(RegionCreator.TileType.Coastal, Resources.Load<Transform>("Prefabs/Tiles/Coastal"));
+		content.Add(RegionCreator.TileType.Land, Resources.Load<Transform>("Prefabs/Tiles/Land"));
+		content.Add(RegionCreator.TileType.Mountain, Resources.Load<Transform>("Prefabs/Tiles/Mountain"));
+		content.Add(RegionCreator.TileType.Rise, Resources.Load<Transform>("Prefabs/Tiles/Rise"));
+		content.Add(RegionCreator.TileType.Peak, Resources.Load<Transform>("Prefabs/Tiles/Peak"));
+		content.Add(RegionCreator.TileType.Town, Resources.Load<Transform>("Prefabs/Tiles/Town"));
     }
 
 	private void populateTileMapWithRegion(ref DataPool worldData, int regionIndex)
