@@ -83,12 +83,12 @@ public class WorldMapDrawer : MapDrawer {
 		topLayer.setOffset(-125.0f);
 		topLayer.drawRegion(ref worldData, regionIndex);
 
-		setScaleFloor(0.03f);
+		setScaleFloor(0.02f);
 		setScaleCeiling(0.5f);
               
         populateTileMapWithRegion(ref worldData, regionIndex);
 
-		transform.localScale = new Vector3(0.1f, 0.1f);
+		scaleAndTranslate(0.033f, -9.8f);
     }
 
 	private void loadContent()

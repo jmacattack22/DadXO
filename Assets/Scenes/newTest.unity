@@ -2452,6 +2452,11 @@ Prefab:
       propertyPath: m_AnchorMin.x
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 114500314173928628, guid: 26adcc6763f544c8c9de9e5ff304250d,
+        type: 2}
+      propertyPath: worldHandlerTest
+      value: 
+      objectReference: {fileID: 989342945}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 26adcc6763f544c8c9de9e5ff304250d, type: 2}
   m_IsPrefabParent: 0

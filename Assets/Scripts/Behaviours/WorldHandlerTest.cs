@@ -60,16 +60,62 @@ public class WorldHandlerTest : MonoBehaviour
             controllerState = ControllerState.Map;
         }
 
-        if (listController.Focused)
+        if (listController.State.Equals(ListController.ListState.Focused))
 		{
 			RowInfoInitializer rowInfo = listController.getSelectedRow();
 			if (rowInfo.ID >= 0)
 			{
-				infoLayer.sendJob(new InfoLayerJob(InfoLayerJob.InfoJob.RegionPreview, rowInfo.ID));
-				cursor.setTarget(rowInfo.Position / 2.0f);
+				constructAndSendJob(rowInfo);
 			}
 		}
+		else if (listController.State.Equals(ListController.ListState.Clicked))
+		{
+			RowInfoInitializer rowInfo = listController.getSelectedRow();
+            if (rowInfo.ID >= 0)
+			{
+				rowClick(rowInfo);
+			}
+			listController.acknowledgeClick();
+		}
     }
+
+	private void rowClick(RowInfoInitializer rowInfo)
+	{
+		if (rowInfo.Type.Equals(RowInfo.Type.Region))
+		{
+			loadRegion(rowInfo.ID);
+            listController.addRows(generateTownRowInfos(rowInfo.ID));
+            listController.focusOnList();	
+		}
+	}
+
+	private void constructAndSendJob(RowInfoInitializer rowInfo)
+	{
+		if (rowInfo.Type.Equals(RowInfo.Type.Region))
+		{
+			infoLayer.sendJob(new InfoLayerJob(InfoLayerJob.InfoJob.RegionPreview, rowInfo.ID));
+            cursor.setTarget(rowInfo.Position / 2.0f);
+		}
+		else if (rowInfo.Type.Equals(RowInfo.Type.Town))
+		{
+			infoLayer.sendJob(new InfoLayerJob(InfoLayerJob.InfoJob.TownPreview, rowInfo.ID));
+			cursor.setTarget(rowInfo.Position / 30.0f);
+		}
+	}
+
+	private List<RowInfoInitializer> generateTownRowInfos(int regionId)
+	{
+		List<RowInfoInitializer> rowInfos = new List<RowInfoInitializer>();
+
+		foreach (int index in worldData.Regions[regionId].getRegionsTownIndexes())
+		{
+			RowInfoInitializer infoInitializer = new RowInfoInitializer(
+				RowInfo.Type.Town, index, worldData.Towns[index].Location, worldData.Towns[index].Name);
+			rowInfos.Add(infoInitializer);
+		}
+
+        return rowInfos;
+	}
 
 	private List<RowInfoInitializer> generateRegionRowInfos()
 	{
@@ -83,6 +129,15 @@ public class WorldHandlerTest : MonoBehaviour
 		}
 
 		return rowInfos;
+	}
+    
+    public void loadRegion(int id)
+	{
+		regionDrawer.setActive(false);
+        mapDrawer.setActive(true);
+        mapDrawer.drawRegion(ref worldData, id);
+        mapState = MapState.Region;
+        cursor.setMovement(0.04f); 
 	}
 
 	//Getters

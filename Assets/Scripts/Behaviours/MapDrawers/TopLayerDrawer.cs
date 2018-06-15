@@ -24,7 +24,7 @@ public class TopLayerDrawer : MapDrawer {
               
         populateTileMapWithRegion(ref worldData, regionIndex);
 
-		transform.localScale = new Vector3(0.1f, 0.1f);
+		scaleAndTranslate(0.033f, -9.8f);
     }
 
 	private void loadContent()

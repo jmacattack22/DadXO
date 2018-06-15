@@ -12,6 +12,11 @@ public class ListController : MonoBehaviour {
 		Custom, Blue, Red, Green, Orange, Yellow, White
 	}
 
+    public enum ListState
+	{
+		None, Focused, Clicked
+	}
+
 	private Transform content;
 	private Dictionary<RowColor, Transform> rowOptions;
 
@@ -20,7 +25,7 @@ public class ListController : MonoBehaviour {
 
 	private List<RowInfoInitializer> currentList;
 
-	private bool focused = false;
+	private ListState state = ListState.None;
     
 	void Start () {
 		loadUI();
@@ -35,6 +40,7 @@ public class ListController : MonoBehaviour {
     public void addRow(RowInfoInitializer info)
 	{
 		Transform tile = Instantiate(rowOptions[rowColour], new Vector3(0.0f, 0.0f), Quaternion.identity) as Transform;
+		tile.GetComponent<Button>().onClick.AddListener(rowClick);
 		tile.GetComponent<RowInfo>().type = info.Type;
         tile.GetComponent<RowInfo>().id = info.ID;
         tile.GetComponent<RowInfo>().position = info.Position;
@@ -46,10 +52,12 @@ public class ListController : MonoBehaviour {
 
     public void addRows(List<RowInfoInitializer> rowInfos)
 	{
+		cleanupList();
 		currentList.Clear();
 		foreach (RowInfoInitializer info in rowInfos)
 		{
 			Transform tile = Instantiate(rowOptions[rowColour], new Vector3(0.0f, 0.0f), Quaternion.identity) as Transform;
+			tile.GetComponent<Button>().onClick.AddListener(rowClick);
             tile.GetComponent<RowInfo>().type = info.Type;
             tile.GetComponent<RowInfo>().id = info.ID;
 			tile.GetComponent<RowInfo>().position = info.Position;
@@ -60,10 +68,27 @@ public class ListController : MonoBehaviour {
 		}
 	}
 
+    public void acknowledgeClick()
+	{
+		state = ListState.Focused;
+	}
+
+    public void cleanupList()
+	{
+		var children = new List<GameObject>();
+        foreach (Transform child in content) children.Add(child.gameObject);
+        children.ForEach(child => Destroy(child));
+	}
+
+    public void rowClick()
+	{
+		state = ListState.Clicked;
+	}
+
     public void focusOnList()
 	{
 		content.GetChild(0).GetComponent<Button>().Select();
-		focused = true;
+		state = ListState.Focused;
 	}
 
     public RowInfoInitializer getSelectedRow()
@@ -106,8 +131,8 @@ public class ListController : MonoBehaviour {
 	}
 
     //Getters
-    public bool Focused
+    public ListState State
 	{
-		get { return focused; }
+		get { return state; }
 	}
 }
