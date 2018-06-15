@@ -8,7 +8,7 @@ public class InfoLayerBehaviour : MonoBehaviour {
    
     public enum Labels 
 	{
-		Title, RightInfoPanelTitle, RightInfoPanelDetail
+		Title, RightInfoPanelTitle, RightInfoPanelSubTitle
 	}
 
 	private Dictionary<Labels, TextMeshProUGUI> textLabels = new Dictionary<Labels, TextMeshProUGUI>();
@@ -17,7 +17,7 @@ public class InfoLayerBehaviour : MonoBehaviour {
 	private TournamentCalendarBehaviour rightInfoPanelCalendar;
 
 	private List<InfoLayerJob> jobs = new List<InfoLayerJob>();
-
+    
 	private DataPool worldData;
 
 	void Start () 
@@ -27,12 +27,12 @@ public class InfoLayerBehaviour : MonoBehaviour {
 
 	private void loadUI()
 	{
-		textLabels.Add(Labels.Title, transform.GetChild(0).GetComponent<TextMeshProUGUI>());
-		textLabels.Add(Labels.RightInfoPanelTitle, transform.GetChild(1).GetChild(1).GetComponent<TextMeshProUGUI>());
-		textLabels.Add(Labels.RightInfoPanelDetail, transform.GetChild(1).GetChild(2).GetComponent<TextMeshProUGUI>());
+		//textLabels.Add(Labels.Title, transform.GetChild(0).GetComponent<TextMeshProUGUI>());
+		textLabels.Add(Labels.RightInfoPanelTitle, transform.GetChild(0).GetComponent<TextMeshProUGUI>());
+		textLabels.Add(Labels.RightInfoPanelSubTitle, transform.GetChild(1).GetComponent<TextMeshProUGUI>());
 
-		rightInfoPanel = transform.GetChild(1).GetComponent<Transform>();
-		rightInfoPanelCalendar = transform.GetChild(1).GetChild(3).GetComponent<TournamentCalendarBehaviour>();
+		//rightInfoPanel = transform.GetChild(1).GetComponent<Transform>();
+		rightInfoPanelCalendar = transform.GetChild(2).GetComponent<TournamentCalendarBehaviour>();
 	}
 
 	void Update () {

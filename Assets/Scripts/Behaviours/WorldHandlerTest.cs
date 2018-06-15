@@ -21,6 +21,8 @@ public class WorldHandlerTest : MonoBehaviour
     public RegionDrawer regionDrawer;
 
 	public ListController listController;
+	public MapPositionCaster cursor;
+	public InfoLayerBehaviour infoLayer;
 
 	private bool creatingNewWorld = false;
     public WorldBuilderBehaviour worldBuilder;
@@ -50,12 +52,23 @@ public class WorldHandlerTest : MonoBehaviour
 
             mapState = MapState.World;
             regionDrawer.drawRegions(ref worldData);
+			infoLayer.updateWorldData(worldData);
 			listController.addRows(generateRegionRowInfos());
 			listController.focusOnList();
             creatingNewWorld = false;
             
             controllerState = ControllerState.Map;
         }
+
+        if (listController.Focused)
+		{
+			RowInfoInitializer rowInfo = listController.getSelectedRow();
+			if (rowInfo.ID >= 0)
+			{
+				infoLayer.sendJob(new InfoLayerJob(InfoLayerJob.InfoJob.RegionPreview, rowInfo.ID));
+				cursor.setTarget(rowInfo.Position / 2.0f);
+			}
+		}
     }
 
 	private List<RowInfoInitializer> generateRegionRowInfos()

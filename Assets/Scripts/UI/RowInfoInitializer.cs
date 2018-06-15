@@ -25,7 +25,7 @@ public class RowInfoInitializer
 
     public int ID
 	{
-		get { return ID; }
+		get { return id; }
 	}
 
 	public Vector2 Position

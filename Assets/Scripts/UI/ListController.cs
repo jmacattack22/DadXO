@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class ListController : MonoBehaviour {
@@ -18,6 +19,8 @@ public class ListController : MonoBehaviour {
 	private RowColor rowColour;
 
 	private List<RowInfoInitializer> currentList;
+
+	private bool focused = false;
     
 	void Start () {
 		loadUI();
@@ -60,6 +63,25 @@ public class ListController : MonoBehaviour {
     public void focusOnList()
 	{
 		content.GetChild(0).GetComponent<Button>().Select();
+		focused = true;
+	}
+
+    public RowInfoInitializer getSelectedRow()
+	{
+		for (int i = 0; i < content.childCount; i++)
+		{
+			if (content.GetChild(i).gameObject == EventSystem.current.currentSelectedGameObject)
+			{
+				return new RowInfoInitializer(
+					content.GetChild(i).GetComponent<RowInfo>().type,
+					content.GetChild(i).GetComponent<RowInfo>().id,
+					content.GetChild(i).GetComponent<RowInfo>().position,
+					content.GetChild(i).GetComponent<RowInfo>().text
+				);
+			}
+		}
+
+		return new RowInfoInitializer(RowInfo.Type.Region, -1, new Vector2(0, 0), "");
 	}
 
 	private void loadRowOptions()
@@ -83,8 +105,9 @@ public class ListController : MonoBehaviour {
 		rowColour = color;
 	}
 
-	// Update is called once per frame
-	void Update () {
-		
+    //Getters
+    public bool Focused
+	{
+		get { return focused; }
 	}
 }

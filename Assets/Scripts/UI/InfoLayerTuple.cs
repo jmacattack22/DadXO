@@ -11,7 +11,7 @@ public static class InfoLayerTuple
 
 		tuple.Add(InfoLayerBehaviour.Labels.Title, region.Name);
 		tuple.Add(InfoLayerBehaviour.Labels.RightInfoPanelTitle, region.Name);
-		tuple.Add(InfoLayerBehaviour.Labels.RightInfoPanelDetail, (region.getRegionsTownIndexes().Count + 1).ToString());
+		tuple.Add(InfoLayerBehaviour.Labels.RightInfoPanelSubTitle, (region.getRegionsTownIndexes().Count + 1).ToString() + " Towns");
 
 		return tuple;
 	}
@@ -24,7 +24,7 @@ public static class InfoLayerTuple
 
         tuple.Add(InfoLayerBehaviour.Labels.Title, town.Name);
         tuple.Add(InfoLayerBehaviour.Labels.RightInfoPanelTitle, town.Name);
-        tuple.Add(InfoLayerBehaviour.Labels.RightInfoPanelDetail, town.Tournament.Name);
+        tuple.Add(InfoLayerBehaviour.Labels.RightInfoPanelSubTitle, town.Tournament.Name);
 
         return tuple;
     }

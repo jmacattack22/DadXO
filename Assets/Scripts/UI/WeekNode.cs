@@ -11,7 +11,7 @@ public class WeekNode : MonoBehaviour {
 
 	private Dictionary<WeekNodeLabel, TMPro.TextMeshProUGUI> uiElements;
 
-	void Start () {
+	void Awake () {
 		uiElements = new Dictionary<WeekNodeLabel, TMPro.TextMeshProUGUI>();
 		loadUI();
 	}

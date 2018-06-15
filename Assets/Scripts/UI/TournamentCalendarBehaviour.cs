@@ -5,11 +5,9 @@ using UnityEngine;
 
 public class TournamentCalendarBehaviour : MonoBehaviour {
 
-	public GameObject weekNode;
-   
 	private Dictionary<TournamentProtocol.Level, List<GameObject>> weekNodes;
 
-	void Start () {
+	void Awake () {
 		weekNodes = new Dictionary<TournamentProtocol.Level, List<GameObject>>();
 		loadContent();
 	}
