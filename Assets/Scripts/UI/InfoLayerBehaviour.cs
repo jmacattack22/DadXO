@@ -8,28 +8,31 @@ public class InfoLayerBehaviour : MonoBehaviour {
    
     public enum Labels 
 	{
-		Title, RightInfoPanelTitle, RightInfoPanelDetail
+		Title, RightInfoPanelTitle, RightInfoPanelSubTitle, MapRegionTitle, MapTownTitle
 	}
 
 	private Dictionary<Labels, TextMeshProUGUI> textLabels = new Dictionary<Labels, TextMeshProUGUI>();
 
 	private Transform rightInfoPanel;
+	private TournamentCalendarBehaviour rightInfoPanelCalendar;
 
 	private List<InfoLayerJob> jobs = new List<InfoLayerJob>();
-
+    
 	private DataPool worldData;
 
-	void Start () {
+	void Start () 
+	{
 		loadUI();
 	}
 
 	private void loadUI()
 	{
-		textLabels.Add(Labels.Title, transform.GetChild(0).GetComponent<TextMeshProUGUI>());
-		textLabels.Add(Labels.RightInfoPanelTitle, transform.GetChild(1).GetChild(1).GetComponent<TextMeshProUGUI>());
-		textLabels.Add(Labels.RightInfoPanelDetail, transform.GetChild(1).GetChild(2).GetComponent<TextMeshProUGUI>());
+		textLabels.Add(Labels.RightInfoPanelTitle, GameObject.FindWithTag("RightInfoTitle").GetComponent<TextMeshProUGUI>());
+		textLabels.Add(Labels.RightInfoPanelSubTitle, GameObject.FindWithTag("RightInfoSubTitle").GetComponent<TextMeshProUGUI>());
+		textLabels.Add(Labels.MapRegionTitle, GameObject.FindWithTag("MapRegionTitle").GetComponent<TextMeshProUGUI>());
+		textLabels.Add(Labels.MapTownTitle, GameObject.FindWithTag("MapTownTitle").GetComponent<TextMeshProUGUI>());      
 
-		rightInfoPanel = transform.GetChild(1).GetComponent<Transform>();
+		rightInfoPanelCalendar = GameObject.FindWithTag("RightInfoCalendar").GetComponent<TournamentCalendarBehaviour>();
 	}
 
 	void Update () {
@@ -43,7 +46,7 @@ public class InfoLayerBehaviour : MonoBehaviour {
     {
         foreach (Labels l in textLabels.Keys)
         {
-            textLabels[l].SetText("");
+			textLabels[l].SetText("");
         }
     }
 
@@ -80,8 +83,13 @@ public class InfoLayerBehaviour : MonoBehaviour {
 
             foreach (Labels l in job.Labels)
             {
-                populateLabel(l, tuple[l]);
-            }	
+				populateLabel(l, tuple[l]);
+            }
+
+            if (job.CalendarVisible)
+			{
+				populateCalendar(job);
+			}         
 		}
 
 		if (job.Job.Equals(InfoLayerJob.InfoJob.Clear))
@@ -89,6 +97,14 @@ public class InfoLayerBehaviour : MonoBehaviour {
             clearInfoLayer();
         }
      
+	}
+
+	private void populateCalendar(InfoLayerJob job)
+	{
+		if (job.Job.Equals(InfoLayerJob.InfoJob.RegionPreview))
+		{
+			rightInfoPanelCalendar.drawCalendar(WorldDetailProtocol.getRegionTournamentsForMonth(ref worldData, job.JobIndex, 0));
+		}
 	}
 
 	private void populateLabel(Labels l, string content)

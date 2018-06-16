@@ -37,7 +37,7 @@ public class WorldBuilderBehaviour : MonoBehaviour
 
 	private Stopwatch stopwatch;
 
-	void Start()
+	void Awake()
 	{
 		stopwatch = new Stopwatch();
 		state = BuilderState.None;

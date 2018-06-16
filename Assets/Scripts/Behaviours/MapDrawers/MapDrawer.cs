@@ -82,6 +82,12 @@ public class MapDrawer: MonoBehaviour
         }
     }
 
+    public void scaleAndTranslate(float scaler, float translate)
+	{
+		transform.localScale = new Vector3(scaler, scaler);
+        //transform.Translate(new Vector3(translate, 0.0f, 0.0f));
+	}
+
 	public void setActive(bool value)
     {
         gameObject.SetActive(value);

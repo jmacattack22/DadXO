@@ -41,4 +41,34 @@ public static class WorldDetailProtocol {
 
         return managerIndexes;
     }
+
+	public static Dictionary<TournamentProtocol.Level, Dictionary<int, List<int>>> getRegionTournamentsForMonth(
+	    ref DataPool worldData, int regionIndex, int monthModifier)
+	{
+		Dictionary<TournamentProtocol.Level, Dictionary<int, List<int>>> regionTournaments = 
+			new Dictionary<TournamentProtocol.Level, Dictionary<int, List<int>>>();
+		
+        foreach (TournamentProtocol.Level level in TournamentProtocol.getLevels())
+		{
+			regionTournaments.Add(level, new Dictionary<int, List<int>>());
+
+			for (int i = 1; i <= 4; i++)
+			{
+				regionTournaments[level].Add(i, new List<int>());
+			}
+		}      
+
+		int month = worldData.Calendar.Month + monthModifier;
+		
+		foreach (int index in worldData.Regions[regionIndex].getRegionsTownIndexes())
+        {
+            Tournament tournament = worldData.Towns[index].Tournament;
+			if (tournament.TournamentDate.Month.Equals(month))
+			{
+				regionTournaments[tournament.Level][tournament.TournamentDate.Week].Add(index);
+			}
+        }
+
+		return regionTournaments;
+	}
 }
