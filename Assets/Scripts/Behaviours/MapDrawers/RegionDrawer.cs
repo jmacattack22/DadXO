@@ -20,7 +20,7 @@ public class RegionDrawer : MapDrawer
 
 	private void loadContent()
 	{
-		region = Resources.Load<Transform>("Prefabs/Region");
+		region = Resources.Load<Transform>("Prefabs/Tiles/Region");
     }
 
 	private void populateTileMapWithRegions(ref DataPool worldData)
