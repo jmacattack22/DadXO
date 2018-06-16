@@ -59,6 +59,7 @@ public class BaseController : MonoBehaviour {
         RaycastHit2D hit = Physics2D.Raycast(position, direction, distance, groundLayer);
         if (hit.collider != null)
         {
+            Debug.Log("Grounded");
             return true;
         }
         return false;

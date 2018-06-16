@@ -17,6 +17,7 @@ public class PlayerController : BaseController
         {
             QuickAttack = true;
             attacking = true;
+            Debug.Log("I'm QuickAtk");
         }
         else if (Input.GetButtonDown("MediumAttack") && !AttackCheck() && IsGrounded())
         {

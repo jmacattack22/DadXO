@@ -125,7 +125,7 @@ GameObject:
   - component: {fileID: 454958579}
   m_Layer: 0
   m_Name: HurtBox
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -151,7 +151,7 @@ BoxCollider2D:
     type: 2}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 454958577}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Density: 1
   m_Material: {fileID: 0}
   m_IsTrigger: 0
@@ -388,6 +388,11 @@ Prefab:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 95848903265396230, guid: 9905d1664212b0540bfaa6bbf1404402,
+        type: 2}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 9905d1664212b0540bfaa6bbf1404402, type: 2}
   m_IsPrefabParent: 0
@@ -465,6 +470,7 @@ GameObject:
   - component: {fileID: 1534788137}
   - component: {fileID: 1534788136}
   - component: {fileID: 1534788134}
+  - component: {fileID: 1534788135}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Enemy
@@ -483,20 +489,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62c2b014ad70b01428e7f95856650e19, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fallMultiplier: 2.5
-  lowJumpMultiplier: 2
-  facingRight: 1
-  jump: 0
-  quickAttack: 0
-  mediumAttack: 0
-  heavyAttack: 0
-  slideAttack: 0
-  attacking: 0
-  crouch: 0
   health: 30
   alive: 0
   iframe: 0
   rb: {fileID: 0}
+--- !u!61 &1534788135
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1534788133}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0.02, y: -0.04}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.32, y: 0.32}
+    newSize: {x: 0.8, y: 0.8}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 0.09, y: 0.24}
+  m_EdgeRadius: 0
 --- !u!50 &1534788136
 Rigidbody2D:
   serializedVersion: 4
