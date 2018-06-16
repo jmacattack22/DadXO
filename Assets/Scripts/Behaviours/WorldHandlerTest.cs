@@ -131,7 +131,7 @@ public class WorldHandlerTest : MonoBehaviour
 		else if (rowInfo.Type.Equals(RowInfo.Type.Town))
 		{
 			infoLayer.sendJob(new InfoLayerJob(InfoLayerJob.InfoJob.TownPreview, rowInfo.ID));
-			cursor.setTarget(rowInfo.Position / 30.0f);
+			cursor.setTarget(rowInfo.Position / 300.0f);
 		}
 	}
 

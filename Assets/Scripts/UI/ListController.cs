@@ -48,6 +48,8 @@ public class ListController : MonoBehaviour {
         tile.GetChild(0).GetComponent<TMPro.TextMeshProUGUI>().text = info.Text;
         tile.SetParent(content);
 		currentList.Add(info);
+
+		tile.localScale = new Vector3(1.0f, 1.0f, 1.0f);
 	}
 
     public void addRows(List<RowInfoInitializer> rowInfos)
@@ -65,6 +67,8 @@ public class ListController : MonoBehaviour {
 			tile.GetChild(0).GetComponent<TMPro.TextMeshProUGUI>().text = info.Text;
             tile.SetParent(content);
 			currentList.Add(info);
+
+			tile.localScale = new Vector3(1.0f, 1.0f, 1.0f);
 		}
 	}
 
