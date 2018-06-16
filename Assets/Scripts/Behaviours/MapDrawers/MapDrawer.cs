@@ -50,7 +50,7 @@ public class MapDrawer: MonoBehaviour
 
         transform.Translate(direction * mapPanSpeed * elapsed);
 
-        if (Mathf.Abs(Vector3.Dot(direction, Vector3.Normalize(goal - transform.position)) + 1) < 0.25f)
+        if (Mathf.Abs(Vector3.Dot(direction, Vector3.Normalize(goal - transform.position)) + 1) < 0.28f)
         {
             transform.Translate(goal - transform.position);
         }

@@ -67,6 +67,8 @@ public class WorldHandlerTest : MonoBehaviour
 		{
 			toggleMapControls();
 		}
+
+		handleFreeMovement(InfoLayerJob.InfoJob.RegionPreview);
 	}
 
 	private void toggleMapControls()
@@ -74,10 +76,28 @@ public class WorldHandlerTest : MonoBehaviour
 		if (listController.State.Equals(ListController.ListState.Focused))
 		{
 			listController.unfocusList();
+
+			if (mapState.Equals(MapState.World))
+			{
+				cursor.setMovement(0.5f);
+			}
+			else if (mapState.Equals(MapState.Region))
+			{
+				cursor.setMovement(0.16f);
+			}
 		}
 		else if (listController.State.Equals(ListController.ListState.None))
         {
 			listController.focusOnList();
+
+			if (mapState.Equals(MapState.World))
+            {
+                cursor.setMovement(10.0f);
+            }
+            else if (mapState.Equals(MapState.Region))
+            {
+                cursor.setMovement(0.08f);
+            }
         }
 	}
 
@@ -89,14 +109,27 @@ public class WorldHandlerTest : MonoBehaviour
 		}
 
 		if (Input.GetKeyDown(KeyCode.Tab))
-        {
-            toggleMapControls();
-        }
+		{
+			toggleMapControls();
+		}
 
+		handleFreeMovement(InfoLayerJob.InfoJob.TownPreview);
+	}
+
+	private void handleFreeMovement(InfoLayerJob.InfoJob infoJob)
+	{
 		if (listController.State.Equals(ListController.ListState.None))
-        {
-			checkHoverTile(InfoLayerJob.InfoJob.TownPreview);
-        }
+		{
+			checkHoverTile(infoJob);
+
+            if (Input.GetKeyDown(KeyCode.Space))
+			{
+				if (mapState.Equals(MapState.World))
+				{
+					loadRegion();
+				}            
+			}
+		}
 	}
 
 	private void checkHoverTile(InfoLayerJob.InfoJob job)
@@ -204,6 +237,25 @@ public class WorldHandlerTest : MonoBehaviour
 
 		return rowInfos;
 	}
+
+	private void loadRegion()
+    {
+        if (cursor.CurrentTile != null)
+        {
+            if (cursor.CurrentTile.ID >= 0)
+            {
+                regionDrawer.setActive(false);
+				terrainDrawer.setActive(true);
+                topLayer.setActive(true);
+                terrainDrawer.drawRegion(ref worldData, cursor.CurrentTile.ID);
+                mapState = MapState.Region;
+                cursor.setMovement(0.08f);
+
+				listController.addRows(generateTownRowInfos(cursor.CurrentTile.ID));
+                listController.focusOnList();
+            }
+        }
+    }
     
     public void loadRegion(int id)
 	{
@@ -212,7 +264,7 @@ public class WorldHandlerTest : MonoBehaviour
 		topLayer.setActive(true);
         terrainDrawer.drawRegion(ref worldData, id);
         mapState = MapState.Region;
-        cursor.setMovement(0.06f);
+        cursor.setMovement(0.08f);
 		mapState = MapState.Region;
 	}
 

@@ -88,14 +88,23 @@ public class MapPositionCaster : MonoBehaviour {
 
     private TileInfo mapCast()
     {
-        Vector3 fwd = transform.TransformDirection(Vector3.forward);
+		for (float x = -0.02f; x < 0.02f; x += 0.005f)
+		{
+			for (float y = -0.02f; y < 0.02f; y += 0.005f)
+			{
+				Vector3 fwd = transform.TransformDirection(Vector3.forward);
 
-        RaycastHit hit;
+				fwd.x += x;
+				fwd.y += y;
 
-        if (Physics.Raycast(transform.position, fwd, out hit))
-        {
-            return hit.transform.gameObject.GetComponent<TileInfo>();
-        }
+				RaycastHit hit;
+
+                if (Physics.Raycast(transform.position, fwd, out hit))
+                {
+                    return hit.transform.gameObject.GetComponent<TileInfo>();
+                }
+			}
+		}
 
 		return null;
     }
@@ -108,7 +117,7 @@ public class MapPositionCaster : MonoBehaviour {
         
 		transform.Translate(direction * cursorSpeed * elapsed);
 
-        if (Mathf.Abs(Vector3.Dot(direction, Vector3.Normalize(goal - transform.position)) + 1) < 0.2f)
+        if (Mathf.Abs(Vector3.Dot(direction, Vector3.Normalize(goal - transform.position)) + 1) < 0.25f)
         {
             transform.Translate(goal - transform.position);
         }
