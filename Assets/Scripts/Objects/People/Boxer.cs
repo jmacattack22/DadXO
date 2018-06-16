@@ -88,7 +88,7 @@ public class Boxer : Person {
 		stress = (int)json.GetField("stress").i;
 	}
 
-    public void applyTrainingResults(TrainingResult results){
+	public void applyTrainingResults(TrainingResult results){
 		accuracy += accuracy + results.Accuracy > 999 ? 0 : results.Accuracy;
 		endurance += endurance + results.Endurance > 999 ? 0 : results.Endurance;
 		health += health + results.Health > 999 ? 0 : results.Health;
