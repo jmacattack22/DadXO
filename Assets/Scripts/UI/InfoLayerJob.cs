@@ -36,6 +36,7 @@ public class InfoLayerJob
 		{
 			labels.Add(InfoLayerBehaviour.Labels.RightInfoPanelTitle);
 			labels.Add(InfoLayerBehaviour.Labels.RightInfoPanelSubTitle);
+			labels.Add(InfoLayerBehaviour.Labels.MapRegionTitle);
 
 			calendarVisible = true;
 		}
@@ -43,6 +44,7 @@ public class InfoLayerJob
 		{
 			labels.Add(InfoLayerBehaviour.Labels.RightInfoPanelTitle);
             labels.Add(InfoLayerBehaviour.Labels.RightInfoPanelSubTitle);
+			labels.Add(InfoLayerBehaviour.Labels.MapTownTitle);
 		}
 	}
 

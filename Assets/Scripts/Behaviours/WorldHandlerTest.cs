@@ -16,7 +16,7 @@ public class WorldHandlerTest : MonoBehaviour
         None, Region, World
     }
 
-	public WorldMapDrawer mapDrawer;
+	public WorldMapDrawer terrainDrawer;
     public TopLayerDrawer topLayer;
     public RegionDrawer regionDrawer;
 
@@ -41,26 +41,42 @@ public class WorldHandlerTest : MonoBehaviour
     }
     
     void Update()
-    {
-		if (creatingNewWorld && worldBuilder.State.Equals(WorldBuilderBehaviour.BuilderState.Complete))
-        {
-            worldData = worldBuilder.getWorldData();
+	{
+		newWorldCreationCheck();
 
-            worldData.setSaveDirectories("AutoSave1", "AutoSave1");
-            Thread saveMapThread = new Thread(new ThreadStart(worldData.saveWorldMapThread));
-            saveMapThread.Start();
+		handleListControllers();
 
-            mapState = MapState.World;
-            regionDrawer.drawRegions(ref worldData);
-			infoLayer.updateWorldData(worldData);
-			listController.addRows(generateRegionRowInfos());
-			listController.focusOnList();
-            creatingNewWorld = false;
-            
-            controllerState = ControllerState.Map;
-        }
+		handleInput();
+	}
 
-        if (listController.State.Equals(ListController.ListState.Focused))
+	private void handleInput()
+	{
+		if (mapState.Equals(MapState.World))
+		{
+			handleWorldInput();
+		}
+		else if (mapState.Equals(MapState.Region))
+		{
+			handleRegionInput();
+		}
+	}
+
+	private void handleWorldInput()
+	{
+		
+	}
+
+	private void handleRegionInput()
+	{
+		if (Input.GetKeyDown(KeyCode.B))
+		{
+			loadRegionHub();
+		}
+	}
+
+	private void handleListControllers()
+	{
+		if (listController.State.Equals(ListController.ListState.Focused))
 		{
 			RowInfoInitializer rowInfo = listController.getSelectedRow();
 			if (rowInfo.ID >= 0)
@@ -71,13 +87,29 @@ public class WorldHandlerTest : MonoBehaviour
 		else if (listController.State.Equals(ListController.ListState.Clicked))
 		{
 			RowInfoInitializer rowInfo = listController.getSelectedRow();
-            if (rowInfo.ID >= 0)
+			if (rowInfo.ID >= 0)
 			{
 				rowClick(rowInfo);
 			}
 			listController.acknowledgeClick();
 		}
-    }
+	}
+
+	private void newWorldCreationCheck()
+	{
+		if (creatingNewWorld && worldBuilder.State.Equals(WorldBuilderBehaviour.BuilderState.Complete))
+		{
+			worldData = worldBuilder.getWorldData();
+
+			worldData.setSaveDirectories("AutoSave1", "AutoSave1");
+			Thread saveMapThread = new Thread(new ThreadStart(worldData.saveWorldMapThread));
+			saveMapThread.Start();
+
+			loadRegionHub();
+
+			controllerState = ControllerState.Map;
+		}
+	}
 
 	private void rowClick(RowInfoInitializer rowInfo)
 	{
@@ -134,10 +166,25 @@ public class WorldHandlerTest : MonoBehaviour
     public void loadRegion(int id)
 	{
 		regionDrawer.setActive(false);
-        mapDrawer.setActive(true);
-        mapDrawer.drawRegion(ref worldData, id);
+        terrainDrawer.setActive(true);
+		topLayer.setActive(true);
+        terrainDrawer.drawRegion(ref worldData, id);
         mapState = MapState.Region;
-        cursor.setMovement(0.04f); 
+        cursor.setMovement(0.04f);
+		mapState = MapState.Region;
+	}
+
+    public void loadRegionHub()
+	{
+		terrainDrawer.setActive(false);
+		topLayer.setActive(false);
+		regionDrawer.setActive(true);  
+		mapState = MapState.World;
+        regionDrawer.drawRegions(ref worldData);
+        infoLayer.updateWorldData(worldData);
+        listController.addRows(generateRegionRowInfos());
+        listController.focusOnList();
+        creatingNewWorld = false;
 	}
 
 	//Getters

@@ -8,7 +8,7 @@ public class InfoLayerBehaviour : MonoBehaviour {
    
     public enum Labels 
 	{
-		Title, RightInfoPanelTitle, RightInfoPanelSubTitle
+		Title, RightInfoPanelTitle, RightInfoPanelSubTitle, MapRegionTitle, MapTownTitle
 	}
 
 	private Dictionary<Labels, TextMeshProUGUI> textLabels = new Dictionary<Labels, TextMeshProUGUI>();
@@ -27,12 +27,12 @@ public class InfoLayerBehaviour : MonoBehaviour {
 
 	private void loadUI()
 	{
-		//textLabels.Add(Labels.Title, transform.GetChild(0).GetComponent<TextMeshProUGUI>());
-		textLabels.Add(Labels.RightInfoPanelTitle, transform.GetChild(0).GetComponent<TextMeshProUGUI>());
-		textLabels.Add(Labels.RightInfoPanelSubTitle, transform.GetChild(1).GetComponent<TextMeshProUGUI>());
+		textLabels.Add(Labels.RightInfoPanelTitle, GameObject.FindWithTag("RightInfoTitle").GetComponent<TextMeshProUGUI>());
+		textLabels.Add(Labels.RightInfoPanelSubTitle, GameObject.FindWithTag("RightInfoSubTitle").GetComponent<TextMeshProUGUI>());
+		textLabels.Add(Labels.MapRegionTitle, GameObject.FindWithTag("MapRegionTitle").GetComponent<TextMeshProUGUI>());
+		textLabels.Add(Labels.MapTownTitle, GameObject.FindWithTag("MapTownTitle").GetComponent<TextMeshProUGUI>());      
 
-		//rightInfoPanel = transform.GetChild(1).GetComponent<Transform>();
-		rightInfoPanelCalendar = transform.GetChild(2).GetComponent<TournamentCalendarBehaviour>();
+		rightInfoPanelCalendar = GameObject.FindWithTag("RightInfoCalendar").GetComponent<TournamentCalendarBehaviour>();
 	}
 
 	void Update () {
