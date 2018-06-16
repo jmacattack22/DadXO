@@ -88,8 +88,13 @@ public class InfoLayerBehaviour : MonoBehaviour {
 
             if (job.CalendarVisible)
 			{
+				rightInfoPanelCalendar.gameObject.SetActive(true);
 				populateCalendar(job);
-			}         
+			}
+			else
+			{
+				rightInfoPanelCalendar.gameObject.SetActive(false);
+			}
 		}
 
 		if (job.Job.Equals(InfoLayerJob.InfoJob.Clear))

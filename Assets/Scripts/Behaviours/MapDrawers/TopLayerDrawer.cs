@@ -48,7 +48,7 @@ public class TopLayerDrawer : MapDrawer {
 			tile.gameObject.GetComponent<TileInfo>().setPosition(worldData.Towns[townIndex].Location);
 			tile.gameObject.GetComponent<TileInfo>().setIsRegion(false);
 			tile.gameObject.GetComponent<TileInfo>().setId(townIndex);
-			tile.localScale = new Vector3(3.5f, 3.5f);
+			tile.localScale = new Vector3(6.5f, 6.5f);
 
 			tile.parent = transform;
 		}

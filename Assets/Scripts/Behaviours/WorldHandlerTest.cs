@@ -63,7 +63,22 @@ public class WorldHandlerTest : MonoBehaviour
 
 	private void handleWorldInput()
 	{
-		
+		if (Input.GetKeyDown(KeyCode.Tab))
+		{
+			toggleMapControls();
+		}
+	}
+
+	private void toggleMapControls()
+	{
+		if (listController.State.Equals(ListController.ListState.Focused))
+		{
+			listController.unfocusList();
+		}
+		else if (listController.State.Equals(ListController.ListState.None))
+        {
+			listController.focusOnList();
+        }
 	}
 
 	private void handleRegionInput()
@@ -72,7 +87,32 @@ public class WorldHandlerTest : MonoBehaviour
 		{
 			loadRegionHub();
 		}
+
+		if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            toggleMapControls();
+        }
+
+		if (listController.State.Equals(ListController.ListState.None))
+        {
+			checkHoverTile(InfoLayerJob.InfoJob.TownPreview);
+        }
 	}
+
+	private void checkHoverTile(InfoLayerJob.InfoJob job)
+    {
+        if (cursor.CurrentTile != null)
+        {
+            if (cursor.CurrentTile.ID >= 0)
+            {
+                infoLayer.sendJob(new InfoLayerJob(job, cursor.CurrentTile.ID));
+            }
+        }
+        else
+        {
+            infoLayer.sendJob(new InfoLayerJob(InfoLayerJob.InfoJob.Clear, 0));
+        }
+    }
 
 	private void handleListControllers()
 	{
@@ -93,6 +133,8 @@ public class WorldHandlerTest : MonoBehaviour
 			}
 			listController.acknowledgeClick();
 		}
+
+		listController.resolveSelection();
 	}
 
 	private void newWorldCreationCheck()
@@ -126,12 +168,12 @@ public class WorldHandlerTest : MonoBehaviour
 		if (rowInfo.Type.Equals(RowInfo.Type.Region))
 		{
 			infoLayer.sendJob(new InfoLayerJob(InfoLayerJob.InfoJob.RegionPreview, rowInfo.ID));
-            cursor.setTarget(rowInfo.Position / 2.0f);
+			cursor.setTarget(new Vector3(rowInfo.Position.x / 2.0f, rowInfo.Position.y / 2.0f, -6.0f));
 		}
 		else if (rowInfo.Type.Equals(RowInfo.Type.Town))
 		{
 			infoLayer.sendJob(new InfoLayerJob(InfoLayerJob.InfoJob.TownPreview, rowInfo.ID));
-			cursor.setTarget(rowInfo.Position / 300.0f);
+			cursor.setTarget(new Vector3(rowInfo.Position.x / 30.0f, rowInfo.Position.y / 30.0f, -6.0f));
 		}
 	}
 
@@ -170,7 +212,7 @@ public class WorldHandlerTest : MonoBehaviour
 		topLayer.setActive(true);
         terrainDrawer.drawRegion(ref worldData, id);
         mapState = MapState.Region;
-        cursor.setMovement(0.04f);
+        cursor.setMovement(0.06f);
 		mapState = MapState.Region;
 	}
 

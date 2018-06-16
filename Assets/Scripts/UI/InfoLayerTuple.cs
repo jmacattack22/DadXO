@@ -11,6 +11,7 @@ public static class InfoLayerTuple
 
 		tuple.Add(InfoLayerBehaviour.Labels.Title, region.Name);
 		tuple.Add(InfoLayerBehaviour.Labels.MapRegionTitle, region.Name);
+		tuple.Add(InfoLayerBehaviour.Labels.MapTownTitle, "");
 		tuple.Add(InfoLayerBehaviour.Labels.RightInfoPanelTitle, region.Name);
 		tuple.Add(InfoLayerBehaviour.Labels.RightInfoPanelSubTitle, (region.getRegionsTownIndexes().Count + 1).ToString() + " Towns");
 
