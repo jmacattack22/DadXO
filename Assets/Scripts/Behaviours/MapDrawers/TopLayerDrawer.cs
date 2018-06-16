@@ -24,12 +24,12 @@ public class TopLayerDrawer : MapDrawer {
               
         populateTileMapWithRegion(ref worldData, regionIndex);
 
-		scaleAndTranslate(0.033f, -9.8f);
+		transform.localScale = new Vector3(0.1f, 0.1f);
     }
 
 	private void loadContent()
     {
-        content.Add(RegionCreator.TileType.Town, Resources.Load<Transform>("Prefabs/Tiles/Town"));
+        content.Add(RegionCreator.TileType.Town, Resources.Load<Transform>("Prefabs/Town"));
     }
 
 	private void populateTileMapWithRegion(ref DataPool worldData, int regionIndex)

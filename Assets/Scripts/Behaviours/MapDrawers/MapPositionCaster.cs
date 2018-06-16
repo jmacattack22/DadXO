@@ -15,7 +15,7 @@ public class MapPositionCaster : MonoBehaviour {
 	private bool targetSet = false;
     
 	private float cursorMovement = 0.5f;
-	private float cursorSpeed = 10.0f;
+	private float cursorSpeed = 4.0f;
 	private Vector3 cursorTarget;
 
 	void Update () 
@@ -86,7 +86,7 @@ public class MapPositionCaster : MonoBehaviour {
 		return CursorPosition.Central;
 	}
 
-    private TileInfo mapCast()
+	private TileInfo mapCast()
     {
         Vector3 fwd = transform.TransformDirection(Vector3.forward);
 
@@ -126,12 +126,6 @@ public class MapPositionCaster : MonoBehaviour {
 	{
 		transform.position = new Vector3(0.0f, 0.0f, -5.0f);
 		cursorMovement = movement;
-	}
-
-	public void setTarget(Vector3 position)
-	{
-		cursorTarget = position;
-        targetSet = true;
 	}
 
     //Getters

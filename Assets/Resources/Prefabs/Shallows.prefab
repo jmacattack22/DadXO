@@ -9,31 +9,31 @@ Prefab:
     m_Modifications: []
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
-  m_RootGameObject: {fileID: 1629112876967572}
+  m_RootGameObject: {fileID: 1771090162887768}
   m_IsPrefabParent: 1
---- !u!1 &1629112876967572
+--- !u!1 &1771090162887768
 GameObject:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 5
   m_Component:
-  - component: {fileID: 4013774208546456}
-  - component: {fileID: 212851019282745330}
-  - component: {fileID: 114192161683929110}
+  - component: {fileID: 4408188199467104}
+  - component: {fileID: 212105540794281574}
+  - component: {fileID: 114929169144032620}
   m_Layer: 0
-  m_Name: Mountain
+  m_Name: Shallows
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4013774208546456
+--- !u!4 &4408188199467104
 Transform:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1629112876967572}
+  m_GameObject: {fileID: 1771090162887768}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -41,23 +41,23 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &114192161683929110
+--- !u!114 &114929169144032620
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1629112876967572}
+  m_GameObject: {fileID: 1771090162887768}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 74d5e32c2aa0c4aee87083e8c1e5f1c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!212 &212851019282745330
+--- !u!212 &212105540794281574
 SpriteRenderer:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1629112876967572}
+  m_GameObject: {fileID: 1771090162887768}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -65,6 +65,7 @@ SpriteRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 4294967295
   m_Materials:
   - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
@@ -87,7 +88,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: a9ee60f7915f447aba10f6a02cb923f5, type: 3}
-  m_Color: {r: 0.4705882, g: 0.417516, b: 0.27681658, a: 1}
+  m_Color: {r: 0.42647058, g: 0.76886773, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

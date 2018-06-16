@@ -83,25 +83,25 @@ public class WorldMapDrawer : MapDrawer {
 		topLayer.setOffset(-125.0f);
 		topLayer.drawRegion(ref worldData, regionIndex);
 
-		setScaleFloor(0.02f);
+		setScaleFloor(0.03f);
 		setScaleCeiling(0.5f);
               
         populateTileMapWithRegion(ref worldData, regionIndex);
 
-		scaleAndTranslate(0.033f, -9.8f);
+		transform.localScale = new Vector3(0.1f, 0.1f);
     }
 
 	private void loadContent()
     {
-        content.Add(RegionCreator.TileType.Water, Resources.Load<Transform>("Prefabs/Tiles/Water"));
-		content.Add(RegionCreator.TileType.Shallows, Resources.Load<Transform>("Prefabs/Tiles/Shallows"));
-		content.Add(RegionCreator.TileType.Beach, Resources.Load<Transform>("Prefabs/Tiles/Beach"));
-		content.Add(RegionCreator.TileType.Coastal, Resources.Load<Transform>("Prefabs/Tiles/Coastal"));
-		content.Add(RegionCreator.TileType.Land, Resources.Load<Transform>("Prefabs/Tiles/Land"));
-		content.Add(RegionCreator.TileType.Mountain, Resources.Load<Transform>("Prefabs/Tiles/Mountain"));
-		content.Add(RegionCreator.TileType.Rise, Resources.Load<Transform>("Prefabs/Tiles/Rise"));
-		content.Add(RegionCreator.TileType.Peak, Resources.Load<Transform>("Prefabs/Tiles/Peak"));
-		content.Add(RegionCreator.TileType.Town, Resources.Load<Transform>("Prefabs/Tiles/Town"));
+        content.Add(RegionCreator.TileType.Water, Resources.Load<Transform>("Prefabs/Water"));
+        content.Add(RegionCreator.TileType.Shallows, Resources.Load<Transform>("Prefabs/Shallows"));
+        content.Add(RegionCreator.TileType.Beach, Resources.Load<Transform>("Prefabs/Beach"));
+        content.Add(RegionCreator.TileType.Coastal, Resources.Load<Transform>("Prefabs/Coastal"));
+        content.Add(RegionCreator.TileType.Land, Resources.Load<Transform>("Prefabs/Land"));
+        content.Add(RegionCreator.TileType.Mountain, Resources.Load<Transform>("Prefabs/Mountain"));
+        content.Add(RegionCreator.TileType.Rise, Resources.Load<Transform>("Prefabs/Rise"));
+        content.Add(RegionCreator.TileType.Peak, Resources.Load<Transform>("Prefabs/Peak"));
+		content.Add(RegionCreator.TileType.Town, Resources.Load<Transform>("Prefabs/Town"));
     }
 
 	private void populateTileMapWithRegion(ref DataPool worldData, int regionIndex)

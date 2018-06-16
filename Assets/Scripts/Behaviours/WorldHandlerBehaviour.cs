@@ -59,16 +59,6 @@ public class WorldHandlerBehaviour : MonoBehaviour
 		handleInput();
 	}
 
-	private void checkForMapPanning()
-    {
-        MapPositionCaster.CursorPosition cursorPosition = cursor.getCursorPosition();
-        if (!cursorPosition.Equals(MapPositionCaster.CursorPosition.Central))
-        {
-            mapDrawer.panMap(cursorPosition);
-            topLayer.panMap(cursorPosition);
-        }
-    }
-
 	private void checkHoverTile(InfoLayerJob.InfoJob job)
     {
         if (cursor.CurrentTile != null)
@@ -114,7 +104,12 @@ public class WorldHandlerBehaviour : MonoBehaviour
 	{
 		if (Input.GetKeyDown(KeyCode.B))
 		{
-			loadRegionHub();
+			mapDrawer.setActive(false);
+			regionDrawer.setActive(true);
+			regionDrawer.drawRegions(ref worldData);
+			mapState = MapState.World;
+			cursor.setMovement(0.5f);
+			topLayer.cleanTileMap();
 		}
 
 		mapDrawer.handleInput();
@@ -129,44 +124,34 @@ public class WorldHandlerBehaviour : MonoBehaviour
 		checkHoverTile(InfoLayerJob.InfoJob.Town);
 	}
 
-	private void loadRegionHub()
+	private void checkForMapPanning()
 	{
-		mapDrawer.setActive(false);
-		regionDrawer.setActive(true);
-		regionDrawer.drawRegions(ref worldData);
-		mapState = MapState.World;
-		cursor.setMovement(0.5f);
-		topLayer.cleanTileMap();
+		MapPositionCaster.CursorPosition cursorPosition = cursor.getCursorPosition();
+		if (!cursorPosition.Equals(MapPositionCaster.CursorPosition.Central))
+		{
+			mapDrawer.panMap(cursorPosition);
+			topLayer.panMap(cursorPosition);
+		}
 	}
 
 	private void handleWorldMapInput()
 	{
 		if (Input.GetKeyDown(KeyCode.Space))
-		{
-			loadRegion();
-		}
+        {
+            TileInfo tile = cursor.CurrentTile;
+            regionDrawer.setActive(false);
+            mapDrawer.setActive(true);
+            mapDrawer.drawRegion(ref worldData, tile.ID);
+            mapState = MapState.Region;
+			cursor.setMovement(0.04f);
+        }    
 
-		if (Input.GetKeyDown(KeyCode.R))
+        if (Input.GetKeyDown(KeyCode.R))
 		{
 			checkHoverTile(InfoLayerJob.InfoJob.RegionPreview);
 		}
 
 		checkHoverTile(InfoLayerJob.InfoJob.Region);
-	}
-
-	private void loadRegion()
-	{
-		if (cursor.CurrentTile != null)
-		{
-			if (cursor.CurrentTile.ID >= 0)
-			{
-				regionDrawer.setActive(false);
-				mapDrawer.setActive(true);
-				mapDrawer.drawRegion(ref worldData, cursor.CurrentTile.ID);
-				mapState = MapState.Region;
-				cursor.setMovement(0.04f);            
-			}
-		}
 	}
 
 	public void advanceWeek(){
@@ -175,8 +160,6 @@ public class WorldHandlerBehaviour : MonoBehaviour
 
         worldData.Calendar.progessWeek();
         Debug.Log(worldData.Calendar.getDate(Calendar.DateType.fullLong));
-
-		infoLayer.updateWorldData(worldData);
     }
 
     public void advanceFourYears()

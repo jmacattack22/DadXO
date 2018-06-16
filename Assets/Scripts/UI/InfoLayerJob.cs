@@ -12,7 +12,6 @@ public class InfoLayerJob
 	private int jobIndex;
 
 	private List<InfoLayerBehaviour.Labels> labels = new List<InfoLayerBehaviour.Labels>();
-	private bool calendarVisible = false;
 
     public InfoLayerJob(InfoJob job, int jobIndex)
 	{
@@ -35,16 +34,12 @@ public class InfoLayerJob
 		else if (job.Equals(InfoJob.RegionPreview))
 		{
 			labels.Add(InfoLayerBehaviour.Labels.RightInfoPanelTitle);
-			labels.Add(InfoLayerBehaviour.Labels.RightInfoPanelSubTitle);
-			labels.Add(InfoLayerBehaviour.Labels.MapRegionTitle);
-
-			calendarVisible = true;
+			labels.Add(InfoLayerBehaviour.Labels.RightInfoPanelDetail);
 		}
 		else if (job.Equals(InfoJob.TownPreview))
 		{
 			labels.Add(InfoLayerBehaviour.Labels.RightInfoPanelTitle);
-            labels.Add(InfoLayerBehaviour.Labels.RightInfoPanelSubTitle);
-			labels.Add(InfoLayerBehaviour.Labels.MapTownTitle);
+            labels.Add(InfoLayerBehaviour.Labels.RightInfoPanelDetail);
 		}
 	}
 
@@ -62,10 +57,5 @@ public class InfoLayerJob
 	public List<InfoLayerBehaviour.Labels> Labels
 	{
 		get { return labels; }
-	}
-
-    public bool CalendarVisible
-	{
-		get { return calendarVisible; }
 	}
 }
