@@ -4,6 +4,7 @@ using System.Collections.Generic;
 public class RegionDrawer : MapDrawer
 {
 	private Transform region;
+	private Transform emptyRegion;
     
 	void Awake()
     {
@@ -15,12 +16,13 @@ public class RegionDrawer : MapDrawer
         if (transform.childCount > 0)
             cleanTileMap();
 
-        populateTileMapWithRegions(ref worldData);
+		populateTileMapWithRegions(ref worldData);
     }
 
 	private void loadContent()
 	{
 		region = Resources.Load<Transform>("Prefabs/Tiles/Region");
+		emptyRegion = Resources.Load<Transform>("Prefabs/Tiles/Empty");
     }
 
 	private void populateTileMapWithRegions(ref DataPool worldData)
@@ -42,16 +44,23 @@ public class RegionDrawer : MapDrawer
                 }
 
                 if (regionIndex != -1)
-                {
-                    tile = Instantiate(region, new Vector3(x / 2.0f, y / 2.0f), Quaternion.identity) as Transform;
+				{
+					tile = Instantiate(region, new Vector3(x, y), Quaternion.identity) as Transform;
+					tile.gameObject.GetComponent<TileInfo>().setPosition(new Vector2Int(x, y));
+					tile.gameObject.GetComponent<TileInfo>().setId(regionIndex);
+                    tile.gameObject.GetComponent<TileInfo>().setIsRegion(true);
+					tile.GetChild(0).GetComponent<TMPro.TextMeshProUGUI>().text = worldData.Regions[regionIndex].Level.ToString();
+				}
+				else
+				{
+					tile = Instantiate(region, new Vector3(x, y), Quaternion.identity) as Transform;
+                    tile.gameObject.GetComponent<TileInfo>().setPosition(new Vector2Int(x, y));
                     tile.gameObject.GetComponent<TileInfo>().setId(regionIndex);
                     tile.gameObject.GetComponent<TileInfo>().setIsRegion(true);
-                    tile.localScale = new Vector3(0.5f, 0.5f);
-                    tile.GetChild(0).GetChild(0).GetComponent<TMPro.TextMeshProUGUI>().text = worldData.Regions[regionIndex].Level.ToString();
-                }
+				}
 
                 if (tile != null)
-                    tile.parent = transform;
+				    tile.transform.SetParent(transform);
             }
         }
 

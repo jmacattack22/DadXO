@@ -38,11 +38,11 @@ public class TopLayerDrawer : MapDrawer {
 		{
 			Transform tile = null;
 
-			float xPos = worldData.Towns[townIndex].Location.x + Offset - 1.0f;
-			float yPos = worldData.Towns[townIndex].Location.y + Offset - 1.0f;
+			float xPos = worldData.Towns[townIndex].Location.x + XOffset - 1.0f;
+			float yPos = worldData.Towns[townIndex].Location.y + YOffset - 1.0f;
 
 			tile = Instantiate(content[RegionCreator.TileType.Town],
-							   new Vector3(xPos, yPos, 0),
+			                   new Vector3(xPos, yPos, 0),
 							   Quaternion.identity) as Transform;
 
 			tile.gameObject.GetComponent<TileInfo>().setPosition(worldData.Towns[townIndex].Location);
@@ -50,7 +50,7 @@ public class TopLayerDrawer : MapDrawer {
 			tile.gameObject.GetComponent<TileInfo>().setId(townIndex);
 			tile.localScale = new Vector3(6.5f, 6.5f);
 
-			tile.parent = transform;
+			tile.transform.SetParent(transform);
 		}
 	}
 }

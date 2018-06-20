@@ -8,208 +8,93 @@ public class WorldHandlerTest : MonoBehaviour
 {
 	public enum ControllerState
     {
-        None, Map
+        None, Map, WorldCreation
     }
-
-    public enum MapState
-    {
-        None, Region, World
-    }
-
-	public WorldMapDrawer terrainDrawer;
-    public TopLayerDrawer topLayer;
-    public RegionDrawer regionDrawer;
-
-	public ListController listController;
-	public MapPositionCaster cursor;
+    
 	public InfoLayerBehaviour infoLayer;
-
-	private bool creatingNewWorld = false;
-    public WorldBuilderBehaviour worldBuilder;
+	public WorldBuilderMenuHandler worldBuilderMenu;
+	public UIHandlerBehaviour uIHandler;
+	public MapMenuHandler mapMenu;
 
     private DataPool worldData;
 
     private ControllerState controllerState;
-    private MapState mapState;
 
     void Start()
     {
-		worldBuilder.createNewWorld();
-        creatingNewWorld = true;
-        controllerState = ControllerState.Map;
-        mapState = MapState.None;
+		controllerState = ControllerState.WorldCreation;
+		worldBuilderMenu.createWorld();
     }
     
     void Update()
 	{
-		newWorldCreationCheck();
-
-		handleListControllers();
-
-		handleInput();
-	}
-
-	private void handleInput()
-	{
-		if (mapState.Equals(MapState.World))
+		if (controllerState.Equals(ControllerState.WorldCreation) && !worldBuilderMenu.creationInProgress)
 		{
-			handleWorldInput();
+			worldData = worldBuilderMenu.extractWorldData();
+			//infoLayer.updateWorldData(worldData);
+			mapMenu.loadRegionHub(ref worldData);
+			controllerState = ControllerState.Map;
 		}
-		else if (mapState.Equals(MapState.Region))
+		else if (controllerState.Equals(ControllerState.Map))
 		{
-			handleRegionInput();
-		}
-	}
+			mapMenu.manualUpdate(ref worldData);
 
-	private void handleWorldInput()
-	{
-		if (Input.GetKeyDown(KeyCode.Tab))
-		{
-			toggleMapControls();
-		}
-
-		handleFreeMovement(InfoLayerJob.InfoJob.RegionPreview);
-	}
-
-	private void toggleMapControls()
-	{
-		if (listController.State.Equals(ListController.ListState.Focused))
-		{
-			listController.unfocusList();
-
-			if (mapState.Equals(MapState.World))
+            if (mapMenu.getMapState().Equals(MapMenuHandler.MapState.World))
 			{
-				cursor.setMovement(0.5f);
+				constructAndSendJob(mapMenu.getCurrentTile());
 			}
-			else if (mapState.Equals(MapState.Region))
-			{
-				cursor.setMovement(0.16f);
-			}
-		}
-		else if (listController.State.Equals(ListController.ListState.None))
-        {
-			listController.focusOnList();
-
-			if (mapState.Equals(MapState.World))
+			else if (mapMenu.getMapState().Equals(MapMenuHandler.MapState.Region))
             {
-                cursor.setMovement(10.0f);
+				checkHoverTile(InfoLayerJob.InfoJob.TownPreview);
             }
-            else if (mapState.Equals(MapState.Region))
-            {
-                cursor.setMovement(0.08f);
-            }
-        }
-	}
-
-	private void handleRegionInput()
-	{
-		if (Input.GetKeyDown(KeyCode.B))
+		}
+		else
 		{
-			loadRegionHub();
+			
 		}
 
-		if (Input.GetKeyDown(KeyCode.Tab))
+        if (Input.GetKeyDown(KeyCode.T))
 		{
-			toggleMapControls();
+			uIHandler.showUI(UIHandlerBehaviour.Type.Map);
+			mapMenu.focusList();
+			controllerState = ControllerState.Map;
 		}
 
-		handleFreeMovement(InfoLayerJob.InfoJob.TownPreview);
-	}
-
-	private void handleFreeMovement(InfoLayerJob.InfoJob infoJob)
-	{
-		if (listController.State.Equals(ListController.ListState.None))
+        if (Input.GetKeyDown(KeyCode.Y))
 		{
-			checkHoverTile(infoJob);
-
-            if (Input.GetKeyDown(KeyCode.Space))
-			{
-				if (mapState.Equals(MapState.World))
-				{
-					loadRegion();
-				}            
-			}
+			uIHandler.hideAllUI();
+			controllerState = ControllerState.None;
 		}
 	}
 
 	private void checkHoverTile(InfoLayerJob.InfoJob job)
     {
-        if (cursor.CurrentTile != null)
-        {
-            if (cursor.CurrentTile.ID >= 0)
-            {
-                infoLayer.sendJob(new InfoLayerJob(job, cursor.CurrentTile.ID));
-            }
-        }
-        else
-        {
-            infoLayer.sendJob(new InfoLayerJob(InfoLayerJob.InfoJob.Clear, 0));
-        }
+		RowInfoInitializer rowInfo = mapMenu.getCurrentTile();
+
+		if (rowInfo != null)
+		{
+			if (rowInfo.ID >= 0)
+			{
+				//infoLayer.sendJob(new InfoLayerJob(job, rowInfo.ID));
+			}
+		}
+		else
+		{
+			//infoLayer.sendJob(new InfoLayerJob(InfoLayerJob.InfoJob.Clear, 0));
+		}
     }
-
-	private void handleListControllers()
-	{
-		if (listController.State.Equals(ListController.ListState.Focused))
-		{
-			RowInfoInitializer rowInfo = listController.getSelectedRow();
-			if (rowInfo.ID >= 0)
-			{
-				constructAndSendJob(rowInfo);
-			}
-		}
-		else if (listController.State.Equals(ListController.ListState.Clicked))
-		{
-			RowInfoInitializer rowInfo = listController.getSelectedRow();
-			if (rowInfo.ID >= 0)
-			{
-				rowClick(rowInfo);
-			}
-			listController.acknowledgeClick();
-		}
-
-		listController.resolveSelection();
-	}
-
-	private void newWorldCreationCheck()
-	{
-		if (creatingNewWorld && worldBuilder.State.Equals(WorldBuilderBehaviour.BuilderState.Complete))
-		{
-			worldData = worldBuilder.getWorldData();
-
-			worldData.setSaveDirectories("AutoSave1", "AutoSave1");
-			Thread saveMapThread = new Thread(new ThreadStart(worldData.saveWorldMapThread));
-			saveMapThread.Start();
-
-			loadRegionHub();
-
-			controllerState = ControllerState.Map;
-		}
-	}
-
-	private void rowClick(RowInfoInitializer rowInfo)
-	{
-		if (rowInfo.Type.Equals(RowInfo.Type.Region))
-		{
-			loadRegion(rowInfo.ID);
-            listController.addRows(generateTownRowInfos(rowInfo.ID));
-            listController.focusOnList();	
-		}
-	}
 
 	private void constructAndSendJob(RowInfoInitializer rowInfo)
 	{
 		if (rowInfo.Type.Equals(RowInfo.Type.Region))
 		{
-			infoLayer.sendJob(new InfoLayerJob(InfoLayerJob.InfoJob.RegionPreview, rowInfo.ID));
-			cursor.setTarget(new Vector3(rowInfo.Position.x / 2.0f, rowInfo.Position.y / 2.0f, -6.0f));
+			//infoLayer.sendJob(new InfoLayerJob(InfoLayerJob.InfoJob.RegionPreview, rowInfo.ID));
+			mapMenu.setCursorTarget(rowInfo);
 		}
 		else if (rowInfo.Type.Equals(RowInfo.Type.Town))
 		{
 			infoLayer.sendJob(new InfoLayerJob(InfoLayerJob.InfoJob.TownPreview, rowInfo.ID));
-			Vector3 pos = new Vector3((rowInfo.Position.x + terrainDrawer.Offset) / 30.0f,
-									  (rowInfo.Position.y + terrainDrawer.Offset) / 30.0f,
-									  -6.0f);
-			cursor.setTarget(pos);
+			mapMenu.setCursorTarget(rowInfo);
 		}
 	}
 
@@ -239,49 +124,6 @@ public class WorldHandlerTest : MonoBehaviour
 		}
 
 		return rowInfos;
-	}
-
-	private void loadRegion()
-    {
-        if (cursor.CurrentTile != null)
-        {
-            if (cursor.CurrentTile.ID >= 0)
-            {
-                regionDrawer.setActive(false);
-				terrainDrawer.setActive(true);
-                topLayer.setActive(true);
-                terrainDrawer.drawRegion(ref worldData, cursor.CurrentTile.ID);
-                mapState = MapState.Region;
-                cursor.setMovement(0.08f);
-
-				listController.addRows(generateTownRowInfos(cursor.CurrentTile.ID));
-                listController.focusOnList();
-            }
-        }
-    }
-    
-    public void loadRegion(int id)
-	{
-		regionDrawer.setActive(false);
-        terrainDrawer.setActive(true);
-		topLayer.setActive(true);
-        terrainDrawer.drawRegion(ref worldData, id);
-        mapState = MapState.Region;
-        cursor.setMovement(0.08f);
-		mapState = MapState.Region;
-	}
-
-    public void loadRegionHub()
-	{
-		terrainDrawer.setActive(false);
-		topLayer.setActive(false);
-		regionDrawer.setActive(true);  
-		mapState = MapState.World;
-        regionDrawer.drawRegions(ref worldData);
-        infoLayer.updateWorldData(worldData);
-        listController.addRows(generateRegionRowInfos());
-        listController.focusOnList();
-        creatingNewWorld = false;
 	}
 
 	//Getters

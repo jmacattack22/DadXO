@@ -3,7 +3,7 @@ using System.Collections;
 
 public class TileInfo : MonoBehaviour
 {
-	private Vector2Int position;
+	public Vector2Int position;
 	private int id = -1;
 	private bool isRegion = false;
 

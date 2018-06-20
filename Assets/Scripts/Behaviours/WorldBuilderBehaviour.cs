@@ -295,7 +295,7 @@ public class WorldBuilderBehaviour : MonoBehaviour
 		{
             if (!drawingRegions)
 			{
-				drawRegions();
+				//drawRegions();
 			}        
 		}
 			

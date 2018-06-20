@@ -9,6 +9,8 @@ TagManager:
   - RightInfoCalendar
   - MapRegionTitle
   - MapTownTitle
+  - MapDrawers
+  - MapUI
   layers:
   - Default
   - TransparentFX
@@ -45,4 +47,7 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Tilemap
+    uniqueID: 521945025
     locked: 0

@@ -21,9 +21,10 @@ public class WorldMapDrawer : MapDrawer {
 
 	public void addPlainRegionTileToWorldMap(Vector3 pos)
     {
-        Transform tile = Instantiate(content[RegionCreator.TileType.Land], pos / 2.0f, Quaternion.identity) as Transform;
-		tile.localScale = new Vector3(0.5f, 0.5f);
-        tile.parent = transform;
+        Transform tile = Instantiate(content[RegionCreator.TileType.Land], pos, Quaternion.identity) as Transform;
+		tile.transform.SetParent(transform, false);
+		//tile.localScale = new Vector3(0.5f, 0.5f);
+        //tile.parent = transform;
     }
 
     public void addRegionTileToWorldMap(DataPool worldData, int regionIndex, Vector3 pos)
@@ -79,8 +80,8 @@ public class WorldMapDrawer : MapDrawer {
         if (transform.childCount > 0)
             cleanTileMap();
 
-		setOffset(-125.0f);
-		topLayer.setOffset(-125.0f);
+		setOffsets(-150.0f, -130.0f);
+		topLayer.setOffsets(-150.0f, -130.0f);
 		topLayer.drawRegion(ref worldData, regionIndex);
 
 		setScaleFloor(0.02f);
@@ -112,13 +113,12 @@ public class WorldMapDrawer : MapDrawer {
         {
             for (int y = 0; y < map.GetLength(0); y++)
             {
-                Transform tile = null;
-
+                Transform tile = null;            
+                
                 if (!map[x, y].Equals(RegionCreator.TileType.Town))
                 {
-                    float xPos = x + Offset;
-                    float yPos = y + Offset;
-
+                    float xPos = x + XOffset;
+                    float yPos = y + YOffset;
 
                     if (!map[x, y].Equals(RegionCreator.TileType.Water))
                     {
@@ -129,8 +129,13 @@ public class WorldMapDrawer : MapDrawer {
                 }
 
                 if (tile != null)
-                    tile.parent = transform;
+					tile.transform.SetParent(transform);
             }
         }
-    }   
+    }
+
+	private Vector3 getParent()
+	{
+		return transform.parent.parent.transform.position;
+	}
 }

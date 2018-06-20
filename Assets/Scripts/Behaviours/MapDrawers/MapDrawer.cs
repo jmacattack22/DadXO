@@ -3,7 +3,8 @@ using System.Collections.Generic;
 
 public class MapDrawer: MonoBehaviour
 {
-	private float offset = 0.0f;
+	private float xOffset = 0.0f;
+	private float yOffset = 0.0f;
     private Vector3 scaler = new Vector3(0.001f, 0.001f, 0.0f);
 
     private float scaleFloor = 0.05f;
@@ -104,9 +105,10 @@ public class MapDrawer: MonoBehaviour
 		isMapPanning = true;
 	}
 
-    public void setOffset(float offset)
+	public void setOffsets(float x, float y)
     {
-        this.offset = offset;
+		this.xOffset = x;
+		this.yOffset = y;
     }
 
     public void setScaleCeiling(float ceiling)
@@ -135,9 +137,14 @@ public class MapDrawer: MonoBehaviour
     }
 
     //Getters
-    public float Offset
+    public float XOffset
 	{
-		get { return offset; }
+		get { return xOffset; }
+	}
+
+    public float YOffset
+	{
+		get { return yOffset; }
 	}
 
 	public Vector3 Scaler
