@@ -4,73 +4,77 @@ using UnityEngine;
 
 public class PlayerController : BaseController
 {
-
-    public Sprite theSpriteToShow; 
-    private string[] attackAnimations = { "PixelCharAnim_Sword_quickAtk", "PixelCharAnim_Sword_mediumAtk", "PixelCharAnim_Sword_heavyAtk", "PixelCharAnim_Sword_slideAtk" };
+    private float setAttackCooldown = 1f;
+    private bool justJumped;
 
     void Update()
-    {
+    { 
+        if(stats.currentHealth <= 0)
+        {
+            Debug.Log("Toodles!");
+            Destroy(gameObject);
+        }
         if (JumpCheck())
         {
             Jump = true;
+            dashTimer = 0f;
         }
-        else if (Input.GetButtonDown("QuickAttack") && !AttackCheck() && IsGrounded())
+        else if (Input.GetButtonDown("QuickAttack") && AttackCheck() && IsGrounded())
         {
             QuickAttack = true;
-            attacking = true;
+            attackCooldown = setAttackCooldown;
         }
-        else if (Input.GetButtonDown("MediumAttack") && !AttackCheck() && IsGrounded())
+        else if (Input.GetButtonDown("MediumAttack") && AttackCheck() && IsGrounded())
         {
             MediumAttack = true;
-            attacking = true;
+            attackCooldown = setAttackCooldown;
         }
-        else if (Input.GetButtonDown("HeavyAttack") && !AttackCheck() && IsGrounded())
+        else if (Input.GetButtonDown("HeavyAttack") && AttackCheck() && IsGrounded())
         {
             HeavyAttack = true;
-            attacking = true;
+            attackCooldown = setAttackCooldown;
         }
-        else if (Input.GetButtonDown("SlideAttack") && !AttackCheck() && IsGrounded())
+        else if (Input.GetButtonDown("SlideAttack") && AttackCheck())
         {
             SlideAttack = true;
-            attacking = true;
+            attackCooldown = setAttackCooldown;
+            dashTimer = 0.5f;
         }
-        else if (Input.GetButtonDown("Crouch") && !AttackCheck() && IsGrounded())
+        else if (Input.GetButtonDown("Crouch") && AttackCheck() && IsGrounded())
         {
             Crouch = !Crouch;
             Anim.SetBool("Crouch", Crouch);
         }
+        dashTimer -= Time.deltaTime;
+        attackCooldown -= Time.deltaTime;
+        iframe -= Time.deltaTime;
+
     }
    
     void FixedUpdate()
     {
-        float horizMove = Input.GetAxis("Horizontal");
-        Anim.SetFloat("Speed", Mathf.Abs(horizMove));
+        movementInputCheck();
 
-        if (Alive)
+        jumpInputCheck();
+
+        attackInputCheck();
+
+        if (IsGrounded() && (rb.velocity.y == 0) && !justJumped)
         {
-
-            if (horizMove * GetComponent<Rigidbody2D>().velocity.x < speedCheck())
-            {
-                rb.AddForce(Vector2.right * horizMove * MoveForce);
-            }
-            if (Mathf.Abs(GetComponent<Rigidbody2D>().velocity.x) > speedCheck())
-            {
-                rb.velocity = new Vector2(Mathf.Sign(GetComponent<Rigidbody2D>().velocity.x) * speedCheck(), GetComponent<Rigidbody2D>().velocity.y);
-            }
-            if (horizMove > 0 && !facingRight)
-            {
-                Flip();
-            }
-            else if (horizMove < 0 && facingRight)
-            {
-                Flip();
-            }
+            Anim.SetBool("Grounded",true);
         }
+        justJumped = false;
+    }
+
+    private void jumpInputCheck()
+    {
         if (Jump)
         {
+            Anim.SetBool("Grounded", false);
+            rb.AddForce(new Vector2(0f, stats.jumpForce));
             Anim.SetTrigger("Jump");
-            rb.AddForce(new Vector2(0f, JumpForce));
             Jump = false;
+            justJumped = true;
         }
         if (rb.velocity.y < 0)
         {
@@ -80,103 +84,49 @@ public class PlayerController : BaseController
         {
             rb.velocity += Vector2.up * Physics2D.gravity.y * (lowJumpMultiplier - 1) * Time.deltaTime;
         }
-
-        if (QuickAttack)
-        {
-            Anim.SetTrigger("Quick Attack");
-            QuickAttack = false;
-            attacking = false;
-        }
-        if (MediumAttack)
-        {
-            Anim.SetTrigger("Medium Attack");
-            MediumAttack = false;
-            attacking = false;
-        }
-        if (HeavyAttack)
-        {
-            Anim.SetTrigger("Heavy Attack");
-            HeavyAttack = false;
-            attacking = false;
-        }
-        if (SlideAttack)
-        {
-            Anim.SetTrigger("Slide Attack");
-            StartCoroutine(Dash());
-            if (facingRight)
-            {
-                rb.AddForce(Vector2.right * 600);
-            }
-            else
-            {
-                rb.AddForce(Vector2.left * 600);
-            }
-            SlideAttack = false;
-            attacking = false;
-        }
     }
 
-    private bool JumpCheck()
+    private void movementInputCheck()
     {
-        return Input.GetButtonDown("Jump") && IsGrounded();
+        float horizMove = Input.GetAxis("Horizontal");
+        Anim.SetFloat("Speed", Mathf.Abs(horizMove));
+        if (horizMove * GetComponent<Rigidbody2D>().velocity.x < SpeedCheck())
+        {
+            rb.AddForce(Vector2.right * horizMove * stats.moveForce);
+        }
+        if (Mathf.Abs(GetComponent<Rigidbody2D>().velocity.x) > SpeedCheck())
+        {
+            rb.velocity = new Vector2(Mathf.Sign(GetComponent<Rigidbody2D>().velocity.x) * SpeedCheck(), GetComponent<Rigidbody2D>().velocity.y);
+        }
+        if (horizMove > 0 && !facingRight)
+        {
+            Flip();
+        }
+        else if (horizMove < 0 && facingRight)
+        {
+            Flip();
+        }
     }
 
     void OnTriggerStay2D(Collider2D col)
     {
         if (col.gameObject.CompareTag("Enemy") && HitBox.isActiveAndEnabled)
         {
-            if (col.gameObject.GetComponent<EnemyController>().CheckIFrame())
+            if (col.gameObject.GetComponentInParent<EnemyController>().CheckIFrame())
             {
                 return;
             }
-            col.gameObject.GetComponent<EnemyController>().Damage(2);
-            Debug.Log("Hit");
+            col.gameObject.GetComponentInParent<FighterDamage>().Damage(5);
+            col.gameObject.GetComponentInParent<EnemyController>().iframe = 1f;
+            StartCoroutine(col.gameObject.GetComponentInParent<EnemyController>().DamageFlash());
             if (facingRight)
             {
-                col.gameObject.GetComponent<Rigidbody2D>().AddForce(Vector2.right * AttackForce);
+                col.gameObject.GetComponentInParent<Rigidbody2D>().AddForce(Vector2.right * stats.attackForce);
             }
             else
             {
-                col.gameObject.GetComponent<Rigidbody2D>().AddForce(Vector2.left * AttackForce);
+                col.gameObject.GetComponentInParent<Rigidbody2D>().AddForce(Vector2.left * stats.attackForce);
             }        
         }
-    }
-
-    private bool AttackCheck()
-    {
-        if (attacking)
-        {
-            return true;
-        }
-        foreach (string attackAnimation in attackAnimations)
-        {
-            if (Anim.GetCurrentAnimatorStateInfo(0).IsName(attackAnimation))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    IEnumerator Dash()
-    {
-        var go = new GameObject();
-        var sr = go.AddComponent<SpriteRenderer>();
-        sr.sprite = theSpriteToShow;
-
-        go.transform.position = transform.position;
-        go.transform.localScale = transform.localScale;
-
-        float aValue = 0; //the transparency amount to go towards
-        float aTime = 0.5f; //how long it takes
-        float alpha = sr.color.a;
-        for (float t = 0.0f; t < 1.0f; t += Time.deltaTime / aTime)
-        {
-            Color newColor = new Color(1, 1, 1, Mathf.Lerp(alpha, aValue, t));
-            sr.color = newColor;
-            yield return null;
-        }
-
-        GameObject.Destroy(go);
     }
 }       
