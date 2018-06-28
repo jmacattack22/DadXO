@@ -15,14 +15,13 @@ public class Stats : MonoBehaviour {
     public float jumpForce = 100f;
     public float attackForce = 120f;
     [HideInInspector]
-    public float ap = 100f;
+    public int ap = 100;
     [HideInInspector]
     public float apCheck;
 
 
     void Start () {
         setBoxer(new Boxer(new Vector2Int(0, 0), "Dusty", "Bushwhacker", 0, 0, BoxerClass.Type.BushWacker, 30, 0, 30, 0, 30, 0, 30, 0, 30, 0));
-        apCheck = (float)ap;
         currentHealth = maxHealth;
     }
 	

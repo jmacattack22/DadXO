@@ -40,6 +40,7 @@ public class EnemyController : BaseController
 
     void Update()
     {
+		Timers();
         if (GetComponent<Stats>().currentHealth <= 0)
         {
             Destroy(gameObject);
@@ -62,7 +63,7 @@ public class EnemyController : BaseController
         }
         if (horizMove != 0)
         {
-            stats.ap = stats.ap - Time.deltaTime;
+            //stats.ap = stats.ap - Time.deltaTime;
         }
         if (transform.position.x > startingPos.x + 3 || transform.position.x < startingPos.x - 9)
         {
@@ -110,13 +111,13 @@ public class EnemyController : BaseController
         }
     }
 
-    private void AttackInitiate()
+    /*private void AttackInitiate()
     {
         if((state != State.Cautious) && AttackCheck())
 		{
 			return;
 		}
-    }
+    }*/
 
     private void ChooseAttack()
     {
@@ -133,11 +134,6 @@ public class EnemyController : BaseController
                 heavyAttack = true;
                 break;
         }
-    }
-
-    private void APCheck()
-    {
-
     }
 
     private void OnCollisionEnter2D(Collision2D col)

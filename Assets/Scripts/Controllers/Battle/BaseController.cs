@@ -6,9 +6,11 @@ public class BaseController : MonoBehaviour {
 
     protected float fallMultiplier = 2.5f;
     protected float lowJumpMultiplier = 2f;
-    protected bool facingRight = true;
+	protected float setAttackCooldown = 1f;
+	protected bool facingRight = true;
     protected bool jump = false;
-    protected bool quickAttack = false;
+	protected bool justJumped = false;
+	protected bool quickAttack = false;
     protected bool mediumAttack = false;
     protected bool heavyAttack = false;
     protected bool slideAttack = false;
@@ -42,6 +44,7 @@ public class BaseController : MonoBehaviour {
         alive = true;
         rb = GetComponent<Rigidbody2D>();
         stats = GetComponent<Stats>();
+        StartCoroutine(APRegen());
     }
 
     public void Flip()
@@ -65,7 +68,14 @@ public class BaseController : MonoBehaviour {
         return false;
     }
 
-    public bool CheckIFrame()
+	protected void Timers()
+	{
+		dashTimer -= Time.deltaTime;
+		attackCooldown -= Time.deltaTime;
+		iframe -= Time.deltaTime;
+	}
+
+	public bool CheckIFrame()
     {
         if (iframe > 0)
         {
@@ -74,20 +84,15 @@ public class BaseController : MonoBehaviour {
         return false;
     }
 
-    protected bool AttackCheck()
+	protected bool AttackCheck(int apCost)
     {
-        if (attackCooldown < 0)
+        if (attackCooldown < 0 && stats.ap >= apCost)
         {
             return true;
         }
         return false;
     }
-
-    protected bool JumpCheck()
-    {
-        return Input.GetButtonDown("Jump") && IsGrounded();
-    }
-    
+   
     protected float SpeedCheck()
     {
         if (dashTimer > 0f)
@@ -101,37 +106,26 @@ public class BaseController : MonoBehaviour {
         return stats.maxSpeed;
     }
 
-    public IEnumerator DamageFlash()
-    {
-        Color defColor = GetComponent<SpriteRenderer>().color;
-        while (CheckIFrame())
-        {
-            GetComponent<SpriteRenderer>().color = Color.white;
-            yield return new WaitForSeconds(0.1f);
-            GetComponent<SpriteRenderer>().color = defColor;
-            yield return new WaitForSeconds(0.1f);
-        }
-        GetComponent<SpriteRenderer>().color = defColor;
-        yield return null;
-    }
-
     protected void attackInputCheck()
     {
         if (QuickAttack)
         {
             Anim.SetTrigger("Quick Attack");
             QuickAttack = false;
+			stats.ap -= 5;
         }
         else if (MediumAttack)
         {
             Anim.SetTrigger("Medium Attack");
             MediumAttack = false;
-        }
+			stats.ap -= 5;
+		}
         else if (HeavyAttack)
         {
             Anim.SetTrigger("Heavy Attack");
             HeavyAttack = false;
-        }
+			stats.ap -= 5;
+		}
         else if (SlideAttack)
         {
             Anim.SetTrigger("Slide Attack");
@@ -146,10 +140,38 @@ public class BaseController : MonoBehaviour {
                 rb.AddForce(Vector2.left * 300);
             }
             SlideAttack = false;
-        }
+			stats.ap -= 5;
+		}
     }
 
-    IEnumerator Dash()
+	protected IEnumerator APRegen()
+	{
+        while (true)
+        {
+            if (stats.ap < 100)
+            {
+                stats.ap += 1;
+            }
+            yield return new WaitForSeconds(2);            
+        }
+
+	}
+
+	public IEnumerator DamageFlash()
+	{
+		Color defColor = GetComponent<SpriteRenderer>().color;
+		while (CheckIFrame())
+		{
+			GetComponent<SpriteRenderer>().color = Color.white;
+			yield return new WaitForSeconds(0.1f);
+			GetComponent<SpriteRenderer>().color = defColor;
+			yield return new WaitForSeconds(0.1f);
+		}
+		GetComponent<SpriteRenderer>().color = defColor;
+		yield return null;
+	}
+
+	IEnumerator Dash()
     {
         var go = new GameObject();
         var sr = go.AddComponent<SpriteRenderer>();
@@ -178,7 +200,7 @@ public class BaseController : MonoBehaviour {
         GameObject.Destroy(go);
     }
 
-    //Getters
+    //Getters and Setters
     public bool Jump
     {
         get { return jump; }
@@ -225,10 +247,12 @@ public class BaseController : MonoBehaviour {
     {
         get { return anim; }
     }
+
     public BoxCollider2D HitBox
     {
         get { return hitBox; }
     }
+
     public BoxCollider2D HurtBox
     {
         get { return hurtBox; }

@@ -4,54 +4,14 @@ using UnityEngine;
 
 public class PlayerController : BaseController
 {
-    private float setAttackCooldown = 1f;
-    private bool justJumped;
 
     void Update()
-    { 
-        if(stats.currentHealth <= 0)
-        {
-            Debug.Log("Toodles!");
-            Destroy(gameObject);
-        }
-        if (JumpCheck())
-        {
-            Jump = true;
-            dashTimer = 0f;
-        }
-        else if (Input.GetButtonDown("QuickAttack") && AttackCheck() && IsGrounded())
-        {
-            QuickAttack = true;
-            attackCooldown = setAttackCooldown;
-        }
-        else if (Input.GetButtonDown("MediumAttack") && AttackCheck() && IsGrounded())
-        {
-            MediumAttack = true;
-            attackCooldown = setAttackCooldown;
-        }
-        else if (Input.GetButtonDown("HeavyAttack") && AttackCheck() && IsGrounded())
-        {
-            HeavyAttack = true;
-            attackCooldown = setAttackCooldown;
-        }
-        else if (Input.GetButtonDown("SlideAttack") && AttackCheck())
-        {
-            SlideAttack = true;
-            attackCooldown = setAttackCooldown;
-            dashTimer = 0.5f;
-        }
-        else if (Input.GetButtonDown("Crouch") && AttackCheck() && IsGrounded())
-        {
-            Crouch = !Crouch;
-            Anim.SetBool("Crouch", Crouch);
-        }
-        dashTimer -= Time.deltaTime;
-        attackCooldown -= Time.deltaTime;
-        iframe -= Time.deltaTime;
+	{
+		InputCheck();
+		Timers();
+	}
 
-    }
-   
-    void FixedUpdate()
+	void FixedUpdate()
     {
         movementInputCheck();
 
@@ -68,7 +28,7 @@ public class PlayerController : BaseController
 
     private void jumpInputCheck()
     {
-        if (Jump)
+        if (jump)
         {
             Anim.SetBool("Grounded", false);
             rb.AddForce(new Vector2(0f, stats.jumpForce));
@@ -86,7 +46,42 @@ public class PlayerController : BaseController
         }
     }
 
-    private void movementInputCheck()
+	private void InputCheck()
+	{
+		if (Input.GetButtonDown("Jump") && IsGrounded())
+		{
+			jump = true;
+			dashTimer = 0f;
+		}
+		else if (Input.GetButtonDown("QuickAttack") && AttackCheck(5) && IsGrounded())
+		{
+			QuickAttack = true;
+			attackCooldown = setAttackCooldown;
+		}
+		else if (Input.GetButtonDown("MediumAttack") && AttackCheck(5) && IsGrounded())
+		{
+			MediumAttack = true;
+			attackCooldown = setAttackCooldown;
+		}
+		else if (Input.GetButtonDown("HeavyAttack") && AttackCheck(5) && IsGrounded())
+		{
+			HeavyAttack = true;
+			attackCooldown = setAttackCooldown;
+		}
+		else if (Input.GetButtonDown("SlideAttack") && AttackCheck(5))
+		{
+			SlideAttack = true;
+			attackCooldown = setAttackCooldown;
+			dashTimer = 0.5f;
+		}
+		else if (Input.GetButtonDown("Crouch") && AttackCheck(5) && IsGrounded())
+		{
+			Crouch = !Crouch;
+			Anim.SetBool("Crouch", Crouch);
+		}
+	}
+
+	private void movementInputCheck()
     {
         float horizMove = Input.GetAxis("Horizontal");
         Anim.SetFloat("Speed", Mathf.Abs(horizMove));
@@ -108,7 +103,7 @@ public class PlayerController : BaseController
         }
     }
 
-    void OnTriggerStay2D(Collider2D col)
+	void OnTriggerStay2D(Collider2D col)
     {
         if (col.gameObject.CompareTag("Enemy") && HitBox.isActiveAndEnabled)
         {
