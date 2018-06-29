@@ -8,7 +8,7 @@ public class InfoLayerBehaviour : MonoBehaviour {
    
     public enum Labels 
 	{
-		Title, RightInfoPanelTitle, RightInfoPanelSubTitle, MapRegionTitle, MapTownTitle
+		RightInfoPanelTitle, RightInfoPanelSubTitle, MapRegionTitle, MapTownTitle
 	}
 
 	private Dictionary<Labels, TextMeshProUGUI> textLabels = new Dictionary<Labels, TextMeshProUGUI>();
@@ -54,6 +54,7 @@ public class InfoLayerBehaviour : MonoBehaviour {
 	{
 		foreach (Labels l in job.Labels)
 		{
+			print(l);
 			textLabels[l].SetText("");
 		}
 	}
@@ -88,12 +89,7 @@ public class InfoLayerBehaviour : MonoBehaviour {
 
             if (job.CalendarVisible)
 			{
-				rightInfoPanelCalendar.gameObject.SetActive(true);
 				populateCalendar(job);
-			}
-			else
-			{
-				rightInfoPanelCalendar.gameObject.SetActive(false);
 			}
 		}
 

@@ -39,8 +39,6 @@ public class MapDrawer: MonoBehaviour
         {
             Destroy(child.gameObject);
         }
-
-        transform.localScale = new Vector3(1.0f, 1.0f);
     }
 
 	private bool MoveTowardsPoint(Vector3 goal, float elapsed)

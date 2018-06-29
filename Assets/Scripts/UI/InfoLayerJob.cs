@@ -26,11 +26,16 @@ public class InfoLayerJob
 	{
 		if (job.Equals(InfoJob.Region))
 		{
-			labels.Add(InfoLayerBehaviour.Labels.Title);
+			labels.Add(InfoLayerBehaviour.Labels.RightInfoPanelTitle);
+            labels.Add(InfoLayerBehaviour.Labels.RightInfoPanelSubTitle);
+            labels.Add(InfoLayerBehaviour.Labels.MapRegionTitle);
+            labels.Add(InfoLayerBehaviour.Labels.MapTownTitle);
 		} 
 		else if (job.Equals(InfoJob.Town))
 		{
-			labels.Add(InfoLayerBehaviour.Labels.Title);
+			labels.Add(InfoLayerBehaviour.Labels.RightInfoPanelTitle);
+            labels.Add(InfoLayerBehaviour.Labels.RightInfoPanelSubTitle);
+            labels.Add(InfoLayerBehaviour.Labels.MapTownTitle);
 		}
 		else if (job.Equals(InfoJob.RegionPreview))
 		{

@@ -14,18 +14,31 @@ public class TopLayerDrawer : MapDrawer {
 		toggleMapPanAbility();
     }
 
-	public void drawRegion(ref DataPool worldData, int regionIndex)
+	public void drawRegion(Dictionary<int, Vector3> townPositions)
     {
         if (transform.childCount > 0)
             cleanTileMap();
+      
+        foreach (int key in townPositions.Keys)
+		{
+			Transform tile = null;
 
-		setScaleFloor(0.03f);
-		setScaleCeiling(0.5f);
-              
-        populateTileMapWithRegion(ref worldData, regionIndex);
+			tile = Instantiate(content[RegionCreator.TileType.Town], townPositions[key], Quaternion.identity) as Transform;
+			tile.gameObject.GetComponent<TileInfo>().setIsRegion(false);
+			tile.gameObject.GetComponent<TileInfo>().setId(key);
+			tile.localScale = new Vector3(7.0f, 7.0f);
 
-		scaleAndTranslate(0.033f, -9.8f);
+			tile.SetParent(transform, false);
+		}
     }
+
+    public void drawRegion(ref DataPool worldData, int regionIndex)
+	{
+		if (transform.childCount > 0)
+            cleanTileMap();
+
+		populateTileMapWithRegion(ref worldData, regionIndex);
+	}
 
 	private void loadContent()
     {
@@ -48,7 +61,6 @@ public class TopLayerDrawer : MapDrawer {
 			tile.gameObject.GetComponent<TileInfo>().setPosition(worldData.Towns[townIndex].Location);
 			tile.gameObject.GetComponent<TileInfo>().setIsRegion(false);
 			tile.gameObject.GetComponent<TileInfo>().setId(townIndex);
-			tile.localScale = new Vector3(6.5f, 6.5f);
 
 			tile.transform.SetParent(transform);
 		}

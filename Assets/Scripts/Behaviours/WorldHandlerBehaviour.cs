@@ -21,6 +21,7 @@ public class WorldHandlerBehaviour : MonoBehaviour
 	public RegionDrawer regionDrawer;
 	public MapPositionCaster cursor;
 	public InfoLayerBehaviour infoLayer;
+	public ListController listController;
 
 	private bool creatingNewWorld = false;
 	public WorldBuilderBehaviour worldBuilder;
@@ -49,7 +50,9 @@ public class WorldHandlerBehaviour : MonoBehaviour
 			saveMapThread.Start();
 
 			mapState = MapState.World;
-			regionDrawer.drawRegions(ref worldData);
+
+			loadRegionHub();
+         
 			creatingNewWorld = false;
 
 			infoLayer.updateWorldData(worldData);
@@ -57,6 +60,7 @@ public class WorldHandlerBehaviour : MonoBehaviour
 		}
 
 		handleInput();
+		handleListControllers();
 	}
 
 	private void checkForMapPanning()
@@ -94,9 +98,23 @@ public class WorldHandlerBehaviour : MonoBehaviour
 		if (controllerState.Equals(ControllerState.Map))
 		{
 			handleMapInput();
-            
 		}
 	}
+
+	private void handleListControllers()
+    {
+        if (listController.State.Equals(ListController.ListState.Clicked))
+        {
+            RowInfoInitializer rowInfo = listController.getSelectedRow();
+            if (rowInfo.ID >= 0)
+            {
+                rowClick(ref worldData, rowInfo);
+            }
+            listController.acknowledgeClick();
+        }
+
+        listController.resolveSelection();
+    }
 
 	private void handleMapInput()
 	{
@@ -119,25 +137,8 @@ public class WorldHandlerBehaviour : MonoBehaviour
 
 		mapDrawer.handleInput();
 
-		checkForMapPanning();
-
-		if (Input.GetKeyDown(KeyCode.R))
-		{
-			checkHoverTile(InfoLayerJob.InfoJob.TownPreview);
-		}
-
 		checkHoverTile(InfoLayerJob.InfoJob.Town);
-	}
-
-	private void loadRegionHub()
-	{
-		mapDrawer.setActive(false);
-		regionDrawer.setActive(true);
-		regionDrawer.drawRegions(ref worldData);
-		mapState = MapState.World;
-		cursor.setMovement(0.5f);
-		topLayer.cleanTileMap();
-	}
+	}   
 
 	private void handleWorldMapInput()
 	{
@@ -146,14 +147,9 @@ public class WorldHandlerBehaviour : MonoBehaviour
 			loadRegion();
 		}
 
-		if (Input.GetKeyDown(KeyCode.R))
-		{
-			checkHoverTile(InfoLayerJob.InfoJob.RegionPreview);
-		}
-
 		checkHoverTile(InfoLayerJob.InfoJob.Region);
 	}
-
+       
 	private void loadRegion()
 	{
 		if (cursor.CurrentTile != null)
@@ -164,10 +160,45 @@ public class WorldHandlerBehaviour : MonoBehaviour
 				mapDrawer.setActive(true);
 				mapDrawer.drawRegion(ref worldData, cursor.CurrentTile.ID);
 				mapState = MapState.Region;
+				listController.addRows(MapMenuUtils.generateTownRowInfos(cursor.CurrentTile.ID, ref worldData));
+                listController.focusOnList();
 				cursor.setMovement(0.04f);            
 			}
 		}
 	}
+
+    private void loadRegion(int regionIndex)
+	{
+        regionDrawer.setActive(false);
+        mapDrawer.setActive(true);
+        mapDrawer.drawRegion(ref worldData, regionIndex);
+        mapState = MapState.Region;
+		listController.addRows(MapMenuUtils.generateTownRowInfos(regionIndex, ref worldData));
+        listController.focusOnList();
+        cursor.setMovement(0.04f);  
+	}
+
+	private void loadRegionHub()
+    {
+        mapDrawer.setActive(false);
+        regionDrawer.setActive(true);
+        regionDrawer.drawRegions(ref worldData);
+        mapState = MapState.World;
+        cursor.setMovement(0.5f);
+		listController.addRows(MapMenuUtils.generateRegionRowInfos(ref worldData));
+        listController.focusOnList();
+        topLayer.cleanTileMap();
+    }
+
+	private void rowClick(ref DataPool worldData, RowInfoInitializer rowInfo)
+    {
+        if (rowInfo.Type.Equals(RowInfo.Type.Region))
+        {
+			loadRegion(rowInfo.ID);
+            listController.addRows(MapMenuUtils.generateTownRowInfos(rowInfo.ID, ref worldData));
+            listController.focusOnList();
+        }
+    }
 
 	public void advanceWeek(){
 		TournamentHandlerProtocol.simTournamentsAndTraining(ref worldData);

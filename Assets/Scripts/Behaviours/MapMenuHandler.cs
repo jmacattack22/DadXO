@@ -47,7 +47,7 @@ public class MapMenuHandler : MonoBehaviour
 			return listController.getSelectedRow();
 		}
 
-		return convertTileInfoToRowInfo(cursor.CurrentTile);;
+		return convertTileInfoToRowInfo(cursor.CurrentTile);
 	}
 
     public MapState getMapState()
@@ -136,7 +136,6 @@ public class MapMenuHandler : MonoBehaviour
             RowInfoInitializer rowInfo = listController.getSelectedRow();
             if (rowInfo.ID >= 0)
             {
-				print("wat");
                 rowClick(ref worldData, rowInfo);
             }
             listController.acknowledgeClick();
@@ -177,7 +176,6 @@ public class MapMenuHandler : MonoBehaviour
     
 	private void loadRegion(ref DataPool worldData)
     {
-		print("what");
         if (cursor.CurrentTile != null)
         {
             if (cursor.CurrentTile.ID >= 0)
@@ -197,7 +195,6 @@ public class MapMenuHandler : MonoBehaviour
 
     public void loadRegion(ref DataPool worldData, int id)
     {
-		print("what");
         regionDrawer.setActive(false);
         terrainDrawer.setActive(true);
         topLayer.setActive(true);
@@ -220,7 +217,6 @@ public class MapMenuHandler : MonoBehaviour
 
 	private void rowClick(ref DataPool worldData, RowInfoInitializer rowInfo)
     {
-		print("wat");
         if (rowInfo.Type.Equals(RowInfo.Type.Region))
         {
             loadRegion(ref worldData, rowInfo.ID);
