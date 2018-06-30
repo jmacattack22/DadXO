@@ -364,6 +364,7 @@ MonoBehaviour:
   player: {fileID: 122790965}
   playerStats: {fileID: 0}
   apThreshold: 45
+  rndAttack: 0
 --- !u!50 &322069325
 Rigidbody2D:
   serializedVersion: 4
@@ -2417,6 +2418,7 @@ MonoBehaviour:
   player: {fileID: 122790965}
   playerStats: {fileID: 0}
   apThreshold: 45
+  rndAttack: 0
 --- !u!50 &1777568380
 Rigidbody2D:
   serializedVersion: 4
