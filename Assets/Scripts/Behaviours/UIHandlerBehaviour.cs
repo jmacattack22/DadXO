@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UIHandlerBehaviour : MonoBehaviour {
 
@@ -10,34 +11,27 @@ public class UIHandlerBehaviour : MonoBehaviour {
 		Map, Inventory, Stats, Main
 	}
 
-	Dictionary<Type, List<Transform>> uiHolders;
-
-	Dictionary<Type, List<Transform>> fadeElements;
+	Dictionary<Type, Transform> uiHolders;
+	Transform modal;
+	Transform tabMenu;
 
 	List<Type> typeList;
     
-	void Start()
+	void Awake()
 	{
 		typeList = new List<Type>(new Type[]{ Type.Map, Type.Inventory, Type.Stats, Type.Main});
 
-		uiHolders = new Dictionary<Type, List<Transform>>();
-		fadeElements = new Dictionary<Type, List<Transform>>();
+		uiHolders = new Dictionary<Type, Transform>();
 		loadUI();
 	}
 
 	private void loadUI()
 	{
-		uiHolders.Add(Type.Map, new List<Transform>());
-		fadeElements.Add(Type.Map, new List<Transform>());
-		fadeElements[Type.Map].Add(GameObject.FindWithTag("MapDrawers").transform.GetChild(0).transform);
-		Transform mapUI = GameObject.FindWithTag("MapUI").transform;
-        uiHolders[Type.Map].Add(mapUI.GetChild(0).transform);
-		uiHolders[Type.Map].Add(mapUI.GetChild(1).transform);
-		uiHolders[Type.Map].Add(mapUI.GetChild(2).transform);
-		uiHolders[Type.Map].Add(mapUI.GetChild(3).transform);
-		uiHolders[Type.Map].Add(mapUI.GetChild(4).transform);
-		uiHolders[Type.Map].Add(mapUI.GetChild(5).transform);
+		uiHolders.Add(Type.Map, GameObject.FindWithTag("MapUI").transform);
 
+		modal = GameObject.FindWithTag("ModalBackground").transform;
+		tabMenu = GameObject.FindWithTag("TabMenu").transform;
+		tabMenu.GetComponent<EasyTween>().OpenCloseObjectAnimation();
 	}
 
 	public void showUI(Type type)
@@ -45,27 +39,40 @@ public class UIHandlerBehaviour : MonoBehaviour {
 		List<Type> otherTypes = getOtherTypes(type);
 
 		hideUI(otherTypes);
-
+        
         if (uiHolders.ContainsKey(type))
 		{
 			toggleUI(uiHolders[type], true); 
 		}
 
-        if (fadeElements.ContainsKey(type))
+		toggleModal(true);
+	}
+
+	private void toggleModal(bool desiredState)
+	{
+		modal.GetComponent<Image>().enabled = desiredState;
+        if (desiredState)
 		{
-			toggleFade(fadeElements[type], true);
+			if (!tabMenu.GetComponent<EasyTween>().isActiveAndEnabled)
+			{
+				modal.GetComponent<EasyTween>().OpenCloseObjectAnimation();
+			}
+		}
+		else
+		{
+			if (!tabMenu.GetComponent<EasyTween>().isActiveAndEnabled)
+            {
+                modal.GetComponent<EasyTween>().OpenCloseObjectAnimation();
+            }
 		}
 	}
 
-	private void toggleUI(List<Transform> transforms, bool desiredState)
+	private void toggleUI(Transform transform, bool desiredState)
 	{
-		foreach (Transform t in transforms)
+		if (transform.GetComponent<EasyTween>().IsObjectOpened() != desiredState)
         {
-			if (t.GetComponent<EasyTween>().IsObjectOpened() != desiredState)
-			{
-				t.GetComponent<EasyTween>().OpenCloseObjectAnimation();
-			}
-        } 
+            transform.GetComponent<EasyTween>().OpenCloseObjectAnimation();
+        }
 	}
 
     public void hideAllUI()
@@ -76,12 +83,9 @@ public class UIHandlerBehaviour : MonoBehaviour {
 			{
 				toggleUI(uiHolders[type], false);
 			}
-
-            if (fadeElements.ContainsKey(type))
-			{
-				toggleFade(fadeElements[type], false);
-			}
 		}
+
+		toggleModal(false);
 	}
 
 	private void hideUI(List<Type> otherTypes)
@@ -92,11 +96,6 @@ public class UIHandlerBehaviour : MonoBehaviour {
 			{
 				toggleUI(uiHolders[type], false);          
 			}
-
-			if (fadeElements.ContainsKey(type))
-            {
-                toggleFade(fadeElements[type], false);
-            }
 		}
 	}
 
@@ -115,18 +114,8 @@ public class UIHandlerBehaviour : MonoBehaviour {
 		return otherTypes;
 	}
 
-	private void toggleFade(List<Transform> transforms, bool fadeOut)
-    {
-        foreach (Transform t in transforms)
-        {
-            if (t.GetComponent<SpriteRenderer>().color.a <= (1.0f / 255.0f) && !fadeOut)
-            {
-                //t.GetComponent<FadeOut>().fadeIn();
-            }
-            else if (t.GetComponent<SpriteRenderer>().color.a >= (253.0f / 255.0f) && fadeOut)
-            {
-                //t.GetComponent<FadeOut>().fadeOut();
-            }
-        }
-    }
+    public bool isDisplaying()
+	{
+		return modal.GetComponent<Image>().enabled;
+	}
 }

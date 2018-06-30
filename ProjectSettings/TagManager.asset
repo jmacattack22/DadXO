@@ -11,6 +11,8 @@ TagManager:
   - MapTownTitle
   - MapDrawers
   - MapUI
+  - ModalBackground
+  - TabMenu
   layers:
   - Default
   - TransparentFX

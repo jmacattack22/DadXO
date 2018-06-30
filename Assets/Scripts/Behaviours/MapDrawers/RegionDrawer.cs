@@ -5,6 +5,9 @@ public class RegionDrawer : MapDrawer
 {
 	private Transform region;
 	private Transform emptyRegion;
+
+	public GameObject xLegend;
+	public GameObject yLegend;
     
 	void Awake()
     {
@@ -68,4 +71,10 @@ public class RegionDrawer : MapDrawer
             }
         }
     }
+
+    public void toggleLegend(bool desiredState)
+	{
+		xLegend.SetActive(desiredState);
+		yLegend.SetActive(desiredState);
+	}
 }

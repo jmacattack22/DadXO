@@ -30,12 +30,14 @@ public class InfoLayerJob
             labels.Add(InfoLayerBehaviour.Labels.RightInfoPanelSubTitle);
             labels.Add(InfoLayerBehaviour.Labels.MapRegionTitle);
             labels.Add(InfoLayerBehaviour.Labels.MapTownTitle);
+			calendarVisible = true;
 		} 
 		else if (job.Equals(InfoJob.Town))
 		{
 			labels.Add(InfoLayerBehaviour.Labels.RightInfoPanelTitle);
             labels.Add(InfoLayerBehaviour.Labels.RightInfoPanelSubTitle);
             labels.Add(InfoLayerBehaviour.Labels.MapTownTitle);
+			calendarVisible = false;
 		}
 		else if (job.Equals(InfoJob.RegionPreview))
 		{

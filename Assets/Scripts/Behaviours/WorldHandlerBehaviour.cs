@@ -23,6 +23,8 @@ public class WorldHandlerBehaviour : MonoBehaviour
 	public InfoLayerBehaviour infoLayer;
 	public ListController listController;
 
+	public UIHandlerBehaviour uIHandler;
+
 	private bool creatingNewWorld = false;
 	public WorldBuilderBehaviour worldBuilder;
 
@@ -51,12 +53,11 @@ public class WorldHandlerBehaviour : MonoBehaviour
 
 			mapState = MapState.World;
 
+			infoLayer.updateWorldData(worldData);
+
 			loadRegionHub();
          
 			creatingNewWorld = false;
-
-			infoLayer.updateWorldData(worldData);
-			controllerState = ControllerState.Map;
 		}
 
 		handleInput();
@@ -73,28 +74,67 @@ public class WorldHandlerBehaviour : MonoBehaviour
         }
     }
 
-	private void checkHoverTile(InfoLayerJob.InfoJob job)
+	private RowInfoInitializer convertTileInfoToRowInfo(TileInfo currentTile)
     {
-        if (cursor.CurrentTile != null)
+        if (currentTile != null)
         {
-            if (cursor.CurrentTile.ID >= 0)
+            if (currentTile.ID >= 0)
             {
-                infoLayer.sendJob(new InfoLayerJob(job, cursor.CurrentTile.ID));
-
-                if (job.Equals(InfoLayerJob.InfoJob.RegionPreview) || job.Equals(InfoLayerJob.InfoJob.TownPreview))
-				{
-					infoLayer.toggleRightPanel();
-				}
+                return new RowInfoInitializer(
+                currentTile.IsRegion ? RowInfo.Type.Region : RowInfo.Type.Town,
+                currentTile.ID,
+                currentTile.Position,
+                "");
             }
         }
+
+		return new RowInfoInitializer(
+                RowInfo.Type.Town,
+                -1,
+			    new Vector2(0f,0f),
+                "");
+    }
+
+    private RowInfoInitializer getCurrentTile()
+	{
+		if (listController.State.Equals(ListController.ListState.Focused))
+		{
+			return listController.getSelectedRow();
+		}
+
+		return convertTileInfoToRowInfo(cursor.CurrentTile);
+	}
+
+	private void checkHoverTile(InfoLayerJob.InfoJob job)
+    {
+		RowInfoInitializer tile = getCurrentTile();
+
+		if (tile.ID >= 0)
+		{
+			infoLayer.sendJob(new InfoLayerJob(job, tile.ID));
+		}
 		else
-        {
-            infoLayer.sendJob(new InfoLayerJob(InfoLayerJob.InfoJob.Clear, 0));
-        }
+		{
+			infoLayer.sendJob(new InfoLayerJob(InfoLayerJob.InfoJob.Clear, 0));
+		}
     }
 
     private void handleInput()
 	{
+        if (Input.GetKeyDown(KeyCode.M))
+		{
+			if (uIHandler.isDisplaying())
+			{
+				uIHandler.hideAllUI();
+                controllerState = ControllerState.None;
+			}
+			else
+			{
+				uIHandler.showUI(UIHandlerBehaviour.Type.Map);
+                controllerState = ControllerState.Map;
+			}
+		}
+
 		if (controllerState.Equals(ControllerState.Map))
 		{
 			handleMapInput();
@@ -142,10 +182,12 @@ public class WorldHandlerBehaviour : MonoBehaviour
 
 	private void handleWorldMapInput()
 	{
-		if (Input.GetKeyDown(KeyCode.Space))
-		{
-			loadRegion();
-		}
+		//if (Input.GetKeyDown(KeyCode.Space))
+		//{
+		//	loadRegion();
+		//}
+
+
 
 		checkHoverTile(InfoLayerJob.InfoJob.Region);
 	}
@@ -157,6 +199,7 @@ public class WorldHandlerBehaviour : MonoBehaviour
 			if (cursor.CurrentTile.ID >= 0)
 			{
 				regionDrawer.setActive(false);
+				regionDrawer.toggleLegend(false);
 				mapDrawer.setActive(true);
 				mapDrawer.drawRegion(ref worldData, cursor.CurrentTile.ID);
 				mapState = MapState.Region;
@@ -170,6 +213,7 @@ public class WorldHandlerBehaviour : MonoBehaviour
     private void loadRegion(int regionIndex)
 	{
         regionDrawer.setActive(false);
+		regionDrawer.toggleLegend(false);
         mapDrawer.setActive(true);
         mapDrawer.drawRegion(ref worldData, regionIndex);
         mapState = MapState.Region;
@@ -182,6 +226,7 @@ public class WorldHandlerBehaviour : MonoBehaviour
     {
         mapDrawer.setActive(false);
         regionDrawer.setActive(true);
+		regionDrawer.toggleLegend(true);
         regionDrawer.drawRegions(ref worldData);
         mapState = MapState.World;
         cursor.setMovement(0.5f);

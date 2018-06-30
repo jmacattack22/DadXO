@@ -20,7 +20,7 @@ public class InfoLayerBehaviour : MonoBehaviour {
     
 	private DataPool worldData;
 
-	void Start () 
+	void Awake () 
 	{
 		loadUI();
 	}
@@ -54,7 +54,6 @@ public class InfoLayerBehaviour : MonoBehaviour {
 	{
 		foreach (Labels l in job.Labels)
 		{
-			print(l);
 			textLabels[l].SetText("");
 		}
 	}
@@ -89,7 +88,12 @@ public class InfoLayerBehaviour : MonoBehaviour {
 
             if (job.CalendarVisible)
 			{
+				rightInfoPanelCalendar.gameObject.SetActive(true);
 				populateCalendar(job);
+			}
+			else
+			{
+				rightInfoPanelCalendar.gameObject.SetActive(false);
 			}
 		}
 
@@ -102,10 +106,7 @@ public class InfoLayerBehaviour : MonoBehaviour {
 
 	private void populateCalendar(InfoLayerJob job)
 	{
-		if (job.Job.Equals(InfoLayerJob.InfoJob.RegionPreview))
-		{
-			rightInfoPanelCalendar.drawCalendar(WorldDetailProtocol.getRegionTournamentsForMonth(ref worldData, job.JobIndex, 0));
-		}
+		rightInfoPanelCalendar.drawCalendar(WorldDetailProtocol.getRegionTournamentsForMonth(ref worldData, job.JobIndex, 0));
 	}
 
 	private void populateLabel(Labels l, string content)
