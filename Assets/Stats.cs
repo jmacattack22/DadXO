@@ -12,6 +12,7 @@ public class Stats : MonoBehaviour {
     public int strength;
     public float moveForce;
     public float maxSpeed;
+
     public float jumpForce = 100f;
     public float attackForce = 120f;
     [HideInInspector]

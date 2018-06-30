@@ -14,21 +14,14 @@ public class EnemyController : BaseController
     Vector3 startingPos;
     protected State state;
     private float randJumpTimer;
+    public float stateTimer;
     public GameObject player;
     public Stats playerStats;
     public float apThreshold = 45f;
     private float attackRange = 1f;
-    public int rndAttack = 0;
-
-    
-    public System.Random rnd;
-
-
-    //On start
 
     private void Start()
     {
-        System.Random rnd = new System.Random();
         startingPos = transform.position;
         state = State.Neutral;
         playerStats = player.GetComponent<Stats>();
@@ -39,31 +32,12 @@ public class EnemyController : BaseController
     void Update()
     {
 		Timers();
+        stateTimer -= Time.deltaTime;
         if (GetComponent<Stats>().currentHealth <= 0)
         {
             Destroy(gameObject);
         }
 
-        /*if(randTimer < 0)
-        {
-            horizMove = 0;
-            horizMove = rnd.Next(-1, 2);
-            randTimer = 3f;
-        }
-        if (randJumpTimer < 0)
-        {
-            rndJump = rnd.Next(-1, 2);
-            if(rndJump == -1)
-            {
-                jump = true;
-            }            
-            randJumpTimer = 3f;
-        }*/
-
-
-        randJumpTimer -= Time.deltaTime;
-        randTimer -= Time.deltaTime;
-        iframe -= Time.deltaTime;
         DetermineState();
         print(state);
     }
@@ -72,32 +46,25 @@ public class EnemyController : BaseController
     {
         if (state == State.Aggressive)
         {
-            if(Vector2.Distance(player.transform.position,transform.position) < attackRange)
+            AggressiveMovement();
+        }
+
+        if (state == State.Neutral && stateTimer <= 0)
+        {
+            if (Random.Range(0, 4) < 2)
             {
-                print("close");
-                if (AttackCheck(5))
-                {
-                    ChooseAttack();
-                }
-            }
-            else if (player.transform.position.y > transform.position.y && IsGrounded()) 
-            {
-                jump = true;
-            }
-            if (player.transform.position.x < transform.position.x)
-            {
-                horizMove = -1;
+                AggressiveMovement();
             }
             else
             {
-                horizMove = 1;
+                DefensiveMovement();
             }
-        }
+            stateTimer = 3f;
+        }        
         MovementCheck();
         attackInputCheck();
-
     }
-
+    
     //Action Checks
 
     private void MovementCheck()
@@ -126,17 +93,45 @@ public class EnemyController : BaseController
         }
     }
 
-    /*private void AttackInitiate()
+    private void DefensiveMovement()
     {
-        if((state != State.Cautious) && AttackCheck())
-		{
-			return;
-		}
-    }*/
+        if (player.transform.position.x < transform.position.x)
+        {
+            horizMove = 1;
+        }
+        else
+        {
+            horizMove = -1;
+        }
+    }
+
+    private void AggressiveMovement()
+    {
+        if (Vector2.Distance(player.transform.position, transform.position) < attackRange)
+        {
+            if (AttackCheck(5))
+            {
+                ChooseAttack();
+            }
+        }
+        else if (player.transform.position.y > transform.position.y && IsGrounded())
+        {
+            jump = true;
+        }
+        if (player.transform.position.x < transform.position.x)
+        {
+            horizMove = -1;
+        }
+        else
+        {
+            horizMove = 1;
+        }
+
+    }
 
     public void ChooseAttack()
     {
-        rndAttack = 0;//rnd.Next(0, 3);
+        int rndAttack = Random.Range(0, 3);
         switch (rndAttack)
         {
             case 0:
@@ -151,9 +146,9 @@ public class EnemyController : BaseController
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D col)
+    private void OnTriggerStay2D(Collider2D col)
     {
-        if (col.gameObject.CompareTag("Player"))
+        if (col.gameObject.CompareTag("Player") && HitBox.isActiveAndEnabled)
         {
             if (col.gameObject.GetComponentInParent<PlayerController>().CheckIFrame())
             {

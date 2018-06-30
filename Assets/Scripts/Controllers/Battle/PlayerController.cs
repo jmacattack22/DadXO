@@ -13,9 +13,9 @@ public class PlayerController : BaseController
 
 	void FixedUpdate()
     {
-        movementInputCheck();
-
         jumpInputCheck();
+
+        movementInputCheck(); 
 
         attackInputCheck();
 
@@ -31,7 +31,7 @@ public class PlayerController : BaseController
         if (jump)
         {
             Anim.SetBool("Grounded", false);
-            rb.AddForce(new Vector2(0f, stats.jumpForce));
+            rb.AddForce(new Vector2(0f, stats.jumpForce));            
             Anim.SetTrigger("Jump");
             Jump = false;
             justJumped = true;
@@ -43,6 +43,10 @@ public class PlayerController : BaseController
         else if (rb.velocity.y > 0 && !Input.GetButton("Jump"))
         {
             rb.velocity += Vector2.up * Physics2D.gravity.y * (lowJumpMultiplier - 1) * Time.deltaTime;
+        }
+        if (rb.velocity.y > 6f)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, 6f);
         }
     }
 
@@ -89,9 +93,9 @@ public class PlayerController : BaseController
         {
             rb.AddForce(Vector2.right * horizMove * stats.moveForce);
         }
-        if (Mathf.Abs(GetComponent<Rigidbody2D>().velocity.x) > SpeedCheck())
+        if (Mathf.Abs(rb.velocity.x) > SpeedCheck())
         {
-            rb.velocity = new Vector2(Mathf.Sign(GetComponent<Rigidbody2D>().velocity.x) * SpeedCheck(), GetComponent<Rigidbody2D>().velocity.y);
+            rb.velocity = new Vector2(Mathf.Sign(rb.velocity.x) * SpeedCheck(), rb.velocity.y);
         }
         if (horizMove > 0 && !facingRight)
         {
