@@ -6089,12 +6089,12 @@ Prefab:
     - target: {fileID: 224800296525438342, guid: 48907438e85184ec8beab4b89391faac,
         type: 2}
       propertyPath: m_AnchoredPosition.x
-      value: -1000
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 224800296525438342, guid: 48907438e85184ec8beab4b89391faac,
         type: 2}
       propertyPath: m_AnchoredPosition.y
-      value: 222
+      value: 500
       objectReference: {fileID: 0}
     - target: {fileID: 114533944627809800, guid: 48907438e85184ec8beab4b89391faac,
         type: 2}
@@ -6135,6 +6135,51 @@ Prefab:
         type: 2}
       propertyPath: animationParts.PositionPropetiesAnim.TweenCurveExitPos.m_Curve.Array.data[1].value
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 224800296525438342, guid: 48907438e85184ec8beab4b89391faac,
+        type: 2}
+      propertyPath: m_AnchorMin.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 224800296525438342, guid: 48907438e85184ec8beab4b89391faac,
+        type: 2}
+      propertyPath: m_AnchorMin.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 224800296525438342, guid: 48907438e85184ec8beab4b89391faac,
+        type: 2}
+      propertyPath: m_AnchorMax.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 224800296525438342, guid: 48907438e85184ec8beab4b89391faac,
+        type: 2}
+      propertyPath: m_AnchorMax.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 224800296525438342, guid: 48907438e85184ec8beab4b89391faac,
+        type: 2}
+      propertyPath: m_SizeDelta.x
+      value: 500
+      objectReference: {fileID: 0}
+    - target: {fileID: 114120248911505184, guid: 48907438e85184ec8beab4b89391faac,
+        type: 2}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114120248911505184, guid: 48907438e85184ec8beab4b89391faac,
+        type: 2}
+      propertyPath: m_Color.g
+      value: 0.59760714
+      objectReference: {fileID: 0}
+    - target: {fileID: 114120248911505184, guid: 48907438e85184ec8beab4b89391faac,
+        type: 2}
+      propertyPath: m_Color.b
+      value: 0.3537736
+      objectReference: {fileID: 0}
+    - target: {fileID: 224113625349268826, guid: 48907438e85184ec8beab4b89391faac,
+        type: 2}
+      propertyPath: m_AnchoredPosition.x
+      value: -1000
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 114533944627809800, guid: 48907438e85184ec8beab4b89391faac, type: 2}
@@ -6184,20 +6229,56 @@ MonoBehaviour:
       positionEnabled: 1
       TweenCurveEnterPos:
         serializedVersion: 2
-        m_Curve: []
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 0
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 2
+          outSlope: 2
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
       TweenCurveExitPos:
         serializedVersion: 2
-        m_Curve: []
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 0
+          inSlope: 2
+          outSlope: 2
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
-      StartPos: {x: 0, y: 222, z: 0}
-      EndPos: {x: 1000, y: 222, z: 0}
-      StartWorldPos: {x: 0, y: 222, z: 0}
-      EndWorldPos: {x: 1000, y: 222, z: 0}
+      StartPos: {x: 0, y: 500, z: 0}
+      EndPos: {x: 0, y: 225, z: 0}
+      StartWorldPos: {x: 0, y: 500, z: 0}
+      EndWorldPos: {x: 0, y: 225, z: 0}
     ScalePropetiesAnim:
       scaleEnabled: 0
       TweenCurveEnterScale:
@@ -6251,7 +6332,7 @@ MonoBehaviour:
         m_Calls: []
       m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
         Culture=neutral, PublicKeyToken=null
-    animationDuration: 0.8
+    animationDuration: 0.2
 --- !u!114 &2003903845 stripped
 MonoBehaviour:
   m_PrefabParentObject: {fileID: 114977518729062812, guid: 48907438e85184ec8beab4b89391faac,

@@ -31,7 +31,7 @@ public class UIHandlerBehaviour : MonoBehaviour {
 
 		modal = GameObject.FindWithTag("ModalBackground").transform;
 		tabMenu = GameObject.FindWithTag("TabMenu").transform;
-		tabMenu.GetComponent<EasyTween>().OpenCloseObjectAnimation();
+		//tabMenu.GetComponent<EasyTween>().OpenCloseObjectAnimation();
 	}
 
 	public void showUI(Type type)
@@ -55,14 +55,14 @@ public class UIHandlerBehaviour : MonoBehaviour {
 		{
 			if (!tabMenu.GetComponent<EasyTween>().isActiveAndEnabled)
 			{
-				modal.GetComponent<EasyTween>().OpenCloseObjectAnimation();
+				tabMenu.GetComponent<EasyTween>().OpenCloseObjectAnimation();
 			}
 		}
 		else
 		{
-			if (!tabMenu.GetComponent<EasyTween>().isActiveAndEnabled)
+			if (tabMenu.GetComponent<EasyTween>().isActiveAndEnabled)
             {
-                modal.GetComponent<EasyTween>().OpenCloseObjectAnimation();
+				tabMenu.GetComponent<EasyTween>().OpenCloseObjectAnimation();
             }
 		}
 	}
