@@ -6,8 +6,13 @@ public class RegionDrawer : MapDrawer
 	private Transform region;
 	private Transform emptyRegion;
 
+	private Color normal;
+	private Color highlighted;
+
 	public GameObject xLegend;
 	public GameObject yLegend;
+
+	private int currentHighlightedIndex = -1;
     
 	void Awake()
     {
@@ -23,13 +28,16 @@ public class RegionDrawer : MapDrawer
 	{
 		region = Resources.Load<Transform>("Prefabs/Tiles/Region");
 		emptyRegion = Resources.Load<Transform>("Prefabs/Tiles/Empty");
+
+		normal = region.GetComponent<SpriteRenderer>().color;
+		highlighted = Resources.Load<Transform>("Prefabs/Tiles/HighlightedRegion").GetComponent<SpriteRenderer>().color;
     }
 
     private int determineIndex(int x, int y)
 	{
 		int index = 0;
 		int row = 8 + x;
-
+        
 		index += row * 17;
 
 		int column = 8 + y;
@@ -37,6 +45,22 @@ public class RegionDrawer : MapDrawer
 		index += column;
 
 		return index;
+	}
+
+	public void highlightRegion(RowInfoInitializer tile)
+	{
+		int index = determineIndex((int)tile.Position.x, (int)tile.Position.y);
+
+        if (index != currentHighlightedIndex)
+		{
+			if (currentHighlightedIndex >= 0)
+			{
+				transform.GetChild(currentHighlightedIndex).GetComponent<SpriteRenderer>().color = normal;
+			}
+
+			transform.GetChild(index).GetComponent<SpriteRenderer>().color = highlighted;
+			currentHighlightedIndex = index;
+		}
 	}
 
 	private void populateTileMapWithRegions(ref DataPool worldData)

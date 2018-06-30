@@ -5,6 +5,10 @@ using UnityEngine;
 public class TopLayerDrawer : MapDrawer {
 	private Dictionary<RegionCreator.TileType, Transform> content;
 
+	private Color normal;
+	private Color highlighted;
+	private int currentlyHighlightedIndex = -1;
+
 	void Awake()
     {
         content = new Dictionary<RegionCreator.TileType, Transform>();
@@ -43,6 +47,9 @@ public class TopLayerDrawer : MapDrawer {
 	private void loadContent()
     {
         content.Add(RegionCreator.TileType.Town, Resources.Load<Transform>("Prefabs/Tiles/Town"));
+
+		normal = Resources.Load<Transform>("Prefabs/Tiles/Town").GetComponent<SpriteRenderer>().color;
+		highlighted = Resources.Load<Transform>("Prefabs/Tiles/HighlightedRegion").GetComponent<SpriteRenderer>().color;
     }
 
 	private void populateTileMapWithRegion(ref DataPool worldData, int regionIndex)
@@ -63,6 +70,32 @@ public class TopLayerDrawer : MapDrawer {
 			tile.gameObject.GetComponent<TileInfo>().setId(townIndex);
 
 			tile.transform.SetParent(transform);
+		}
+	}
+
+	public void highlightTown(RowInfoInitializer tile)
+	{
+		if (tile.ID != currentlyHighlightedIndex)
+		{
+			if (currentlyHighlightedIndex >= 0)
+			{
+				for (int i = 0; i < transform.childCount; i++)
+				{
+					if (transform.GetChild(i).GetComponent<TileInfo>().ID == currentlyHighlightedIndex)
+					{
+						transform.GetChild(i).GetComponent<SpriteRenderer>().color = normal;
+					}
+				}
+			}
+
+			for (int i = 0; i < transform.childCount; i++)
+            {
+                if (transform.GetChild(i).GetComponent<TileInfo>().ID == tile.ID)
+                {
+					transform.GetChild(i).GetComponent<SpriteRenderer>().color = highlighted;
+					currentlyHighlightedIndex = tile.ID;
+                }
+            }
 		}
 	}
 }

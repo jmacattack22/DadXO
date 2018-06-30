@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -58,6 +58,9 @@ public class ListController : MonoBehaviour {
 	{
 		cleanupList();
 		currentList.Clear();
+
+		rowInfos = rowInfos.OrderBy(x => x.Text).ToList();
+
 		foreach (RowInfoInitializer info in rowInfos)
 		{
 			Transform tile = Instantiate(rowOptions[rowColour], new Vector3(0.0f, 0.0f), Quaternion.identity) as Transform;

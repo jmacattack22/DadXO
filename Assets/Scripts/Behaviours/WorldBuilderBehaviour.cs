@@ -120,9 +120,54 @@ public class WorldBuilderBehaviour : MonoBehaviour
         drawingRegions = false;
     }
 
-    private void generateRegions()
+    private string generateRegionName(int x, int y)
 	{
-		createRegion("Region 0", new Vector2Int(0, 0));
+		string xValue = getLetterFromX(x);
+		string yValue = (8 + y).ToString();
+
+		return "Region " + xValue + yValue;
+	}
+
+	private string getLetterFromX(int x)
+	{
+		switch (x)
+		{
+			case -7:
+				return "A";
+			case -6:
+				return "B";
+			case -5:
+				return "C";
+			case -4:
+				return "D";
+			case -3:
+				return "E";
+			case -2:
+				return "F";
+			case -1:
+				return "G";
+			case 0:
+				return "H";
+			case 1:
+				return "I";
+			case 2:
+				return "J";
+			case 3:
+				return "K";
+			case 4:
+				return "L";
+			case 6:
+				return "M";
+			case 7:
+				return "N";
+		}
+
+		return "";
+	}
+
+	private void generateRegions()
+	{
+		createRegion(generateRegionName(0,0), new Vector2Int(0, 0));
 		regionLocationIndexes.Add(0);
 
 		List<int> regionIndexes = new List<int>();
@@ -133,7 +178,7 @@ public class WorldBuilderBehaviour : MonoBehaviour
         while (worldData.Regions.Count < regionTarget)
 		{
 			temporaryNewIndexes = new List<int>();
-
+            
             foreach (int index in regionIndexes)
 			{
 				List<Vector2Int> newRegionsToAdd = getAdjacents(ref worldData, worldData.Regions[index].Position);
@@ -142,7 +187,7 @@ public class WorldBuilderBehaviour : MonoBehaviour
 				{
 					foreach (Vector2Int pos in newRegionsToAdd)
 					{
-						createRegion("Region " + regionLocationIndexes.Count, pos);
+						createRegion(generateRegionName(pos.x, pos.y), pos);
 						regionLocationIndexes.Add(regionLocationIndexes.Count - 1);
 						temporaryNewIndexes.Add(worldData.Regions.Count - 1);
 					}

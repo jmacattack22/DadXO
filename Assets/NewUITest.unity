@@ -348,8 +348,8 @@ MonoBehaviour:
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
-      StartPos: {x: 0, y: 0, z: 0}
-      EndPos: {x: 1000, y: 0, z: 0}
+      StartPos: {x: 0, y: 0, z: -50}
+      EndPos: {x: 1000, y: 0, z: -50}
       StartWorldPos: {x: 0, y: 0, z: 0}
       EndWorldPos: {x: 1000, y: 0, z: 0}
     ScalePropetiesAnim:
@@ -6181,6 +6181,11 @@ Prefab:
       propertyPath: m_AnchoredPosition.x
       value: -1000
       objectReference: {fileID: 0}
+    - target: {fileID: 224113625349268826, guid: 48907438e85184ec8beab4b89391faac,
+        type: 2}
+      propertyPath: m_AnchoredPosition.y
+      value: -50
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 114533944627809800, guid: 48907438e85184ec8beab4b89391faac, type: 2}
   m_ParentPrefab: {fileID: 100100000, guid: 48907438e85184ec8beab4b89391faac, type: 2}
@@ -6233,8 +6238,8 @@ MonoBehaviour:
         - serializedVersion: 3
           time: 0
           value: 0
-          inSlope: 0
-          outSlope: 0
+          inSlope: 2
+          outSlope: 2
           tangentMode: 0
           weightedMode: 0
           inWeight: 0
@@ -6242,8 +6247,8 @@ MonoBehaviour:
         - serializedVersion: 3
           time: 1
           value: 1
-          inSlope: 2
-          outSlope: 2
+          inSlope: 0
+          outSlope: 0
           tangentMode: 0
           weightedMode: 0
           inWeight: 0
@@ -6276,9 +6281,9 @@ MonoBehaviour:
         m_PostInfinity: 2
         m_RotationOrder: 4
       StartPos: {x: 0, y: 500, z: 0}
-      EndPos: {x: 0, y: 225, z: 0}
+      EndPos: {x: 0, y: 220, z: 0}
       StartWorldPos: {x: 0, y: 500, z: 0}
-      EndWorldPos: {x: 0, y: 225, z: 0}
+      EndWorldPos: {x: 0, y: 220, z: 0}
     ScalePropetiesAnim:
       scaleEnabled: 0
       TweenCurveEnterScale:
@@ -6332,7 +6337,7 @@ MonoBehaviour:
         m_Calls: []
       m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
         Culture=neutral, PublicKeyToken=null
-    animationDuration: 0.2
+    animationDuration: 0.4
 --- !u!114 &2003903845 stripped
 MonoBehaviour:
   m_PrefabParentObject: {fileID: 114977518729062812, guid: 48907438e85184ec8beab4b89391faac,

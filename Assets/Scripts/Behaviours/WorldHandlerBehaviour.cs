@@ -112,6 +112,7 @@ public class WorldHandlerBehaviour : MonoBehaviour
 		if (tile.ID >= 0)
 		{
 			infoLayer.sendJob(new InfoLayerJob(job, tile.ID));
+			highlightSelection(tile);
 		}
 		else
 		{
@@ -119,7 +120,19 @@ public class WorldHandlerBehaviour : MonoBehaviour
 		}
     }
 
-    private void handleInput()
+	private void highlightSelection(RowInfoInitializer tile)
+	{
+		if (tile.Type.Equals(RowInfo.Type.Region))
+		{
+			regionDrawer.highlightRegion(tile);
+		}
+		else if (tile.Type.Equals(RowInfo.Type.Town))
+        {
+			topLayer.highlightTown(tile);
+        }
+	}
+
+	private void handleInput()
 	{
         if (Input.GetKeyDown(KeyCode.M))
 		{
