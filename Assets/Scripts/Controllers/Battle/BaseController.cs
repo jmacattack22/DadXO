@@ -152,7 +152,7 @@ public class BaseController : MonoBehaviour {
             {
                 stats.ap += 1;
             }
-            yield return new WaitForSeconds(2);            
+            yield return new WaitForSeconds(1);            
         }
 
 	}

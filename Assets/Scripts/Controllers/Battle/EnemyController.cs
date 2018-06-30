@@ -8,29 +8,27 @@ public class EnemyController : BaseController
     {
         Aggressive,Neutral,Cautious
     }
+
     private float randTimer;
-    private int horizMove;
+    private int horizMove = 0;
     Vector3 startingPos;
     protected State state;
     private float randJumpTimer;
     public GameObject player;
     public Stats playerStats;
     public float apThreshold = 45f;
+    private float attackRange = 1f;
+    public int rndAttack = 0;
 
     
-    System.Random rnd;
-    int rndJump;
+    public System.Random rnd;
+
 
     //On start
 
     private void Start()
     {
-        jump = false;
-        rnd = new System.Random();
-        horizMove = rnd.Next(-1, 2);
-        rndJump = rnd.Next(-1, 2);
-        randTimer = 3f;
-        randJumpTimer = 2f;
+        System.Random rnd = new System.Random();
         startingPos = transform.position;
         state = State.Neutral;
         playerStats = player.GetComponent<Stats>();
@@ -46,7 +44,7 @@ public class EnemyController : BaseController
             Destroy(gameObject);
         }
 
-        if(randTimer < 0)
+        /*if(randTimer < 0)
         {
             horizMove = 0;
             horizMove = rnd.Next(-1, 2);
@@ -60,15 +58,7 @@ public class EnemyController : BaseController
                 jump = true;
             }            
             randJumpTimer = 3f;
-        }
-        if (horizMove != 0)
-        {
-            //stats.ap = stats.ap - Time.deltaTime;
-        }
-        if (transform.position.x > startingPos.x + 3 || transform.position.x < startingPos.x - 9)
-        {
-            horizMove *= -1;
-        }
+        }*/
 
 
         randJumpTimer -= Time.deltaTime;
@@ -80,7 +70,32 @@ public class EnemyController : BaseController
 
     private void FixedUpdate()
     {
+        if (state == State.Aggressive)
+        {
+            if(Vector2.Distance(player.transform.position,transform.position) < attackRange)
+            {
+                print("close");
+                if (AttackCheck(5))
+                {
+                    ChooseAttack();
+                }
+            }
+            else if (player.transform.position.y > transform.position.y && IsGrounded()) 
+            {
+                jump = true;
+            }
+            if (player.transform.position.x < transform.position.x)
+            {
+                horizMove = -1;
+            }
+            else
+            {
+                horizMove = 1;
+            }
+        }
         MovementCheck();
+        attackInputCheck();
+
     }
 
     //Action Checks
@@ -98,7 +113,7 @@ public class EnemyController : BaseController
         }
         if (jump)
         {
-            rb.AddForce(new Vector2(0f, GetComponent<Stats>().jumpForce * 3f));
+            rb.AddForce(new Vector2(0f, GetComponent<Stats>().jumpForce));
             jump = false;
         }
         if (horizMove > 0 && !facingRight)
@@ -119,9 +134,9 @@ public class EnemyController : BaseController
 		}
     }*/
 
-    private void ChooseAttack()
+    public void ChooseAttack()
     {
-        int rndAttack = rnd.Next(0, 4);
+        rndAttack = 0;//rnd.Next(0, 3);
         switch (rndAttack)
         {
             case 0:
