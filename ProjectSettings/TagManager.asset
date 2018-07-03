@@ -13,6 +13,7 @@ TagManager:
   - MapUI
   - ModalBackground
   - TabMenu
+  - StatsUI
   layers:
   - Default
   - TransparentFX

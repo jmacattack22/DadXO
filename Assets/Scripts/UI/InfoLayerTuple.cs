@@ -22,7 +22,9 @@ public static class InfoLayerTuple
         Dictionary<InfoLayerBehaviour.Labels, string> tuple = new Dictionary<InfoLayerBehaviour.Labels, string>();
 
 		Town town = worldData.Towns[townIndex];
-        
+
+		tuple.Add(InfoLayerBehaviour.Labels.MapRegionTitle, 
+		          worldData.Regions[WorldDetailProtocol.getRegionIndexFromTownIndex(ref worldData, townIndex)].Name + " : ");
 		tuple.Add(InfoLayerBehaviour.Labels.MapTownTitle, town.Name);
         tuple.Add(InfoLayerBehaviour.Labels.RightInfoPanelTitle, town.Name);
         tuple.Add(InfoLayerBehaviour.Labels.RightInfoPanelSubTitle, town.Tournament.Name);

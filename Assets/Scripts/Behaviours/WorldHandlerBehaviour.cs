@@ -8,7 +8,7 @@ public class WorldHandlerBehaviour : MonoBehaviour
 {
     public enum ControllerState
 	{
-		None, Map
+		None, Map, Stats
 	}
 
     public enum MapState
@@ -134,23 +134,40 @@ public class WorldHandlerBehaviour : MonoBehaviour
 
 	private void handleInput()
 	{
-        if (Input.GetKeyDown(KeyCode.M))
-		{
-			if (uIHandler.isDisplaying())
-			{
-				uIHandler.hideAllUI();
-                controllerState = ControllerState.None;
-			}
-			else
-			{
-				uIHandler.showUI(UIHandlerBehaviour.Type.Map);
-                controllerState = ControllerState.Map;
-			}
-		}
+		handleUIListeners();
 
 		if (controllerState.Equals(ControllerState.Map))
 		{
 			handleMapInput();
+		}
+	}
+
+	private void handleUIListeners()
+	{
+		if (Input.GetKeyDown(KeyCode.M))
+		{
+			if (uIHandler.isDisplaying())
+			{
+				uIHandler.hideAllUI();
+				controllerState = ControllerState.None;
+			}
+			else
+			{
+				uIHandler.showUI(UIHandlerBehaviour.Type.Map);
+				controllerState = ControllerState.Map;
+			}
+		}
+
+        if (!controllerState.Equals(ControllerState.None))
+		{
+			if (Input.GetKeyDown(KeyCode.R))
+			{
+				uIHandler.showUI(uIHandler.getPreviousType());
+			}
+			else if (Input.GetKeyDown(KeyCode.T))
+			{
+				uIHandler.showUI(uIHandler.getNextType());	
+			}
 		}
 	}
 

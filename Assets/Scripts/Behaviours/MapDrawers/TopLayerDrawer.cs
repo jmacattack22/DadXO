@@ -84,6 +84,7 @@ public class TopLayerDrawer : MapDrawer {
 					if (transform.GetChild(i).GetComponent<TileInfo>().ID == currentlyHighlightedIndex)
 					{
 						transform.GetChild(i).GetComponent<SpriteRenderer>().color = normal;
+						transform.GetChild(i).localScale = new Vector3(7.0f, 7.0f, 1.0f);
 					}
 				}
 			}
@@ -93,6 +94,7 @@ public class TopLayerDrawer : MapDrawer {
                 if (transform.GetChild(i).GetComponent<TileInfo>().ID == tile.ID)
                 {
 					transform.GetChild(i).GetComponent<SpriteRenderer>().color = highlighted;
+					transform.GetChild(i).localScale = new Vector3(12.0f, 12.0f, 1.0f);
 					currentlyHighlightedIndex = tile.ID;
                 }
             }

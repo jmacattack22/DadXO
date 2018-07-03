@@ -8,26 +8,40 @@ public class UIHandlerBehaviour : MonoBehaviour {
 
     public enum Type
 	{
-		Map, Inventory, Stats, Main
+		Map, Stats, Inventory, Main
 	}
 
-	Dictionary<Type, Transform> uiHolders;
-	Transform modal;
-	Transform tabMenu;
+	private Dictionary<Type, Transform> uiHolders;
+	private Transform modal;
+	private Transform tabMenu;
 
-	List<Type> typeList;
+	private List<Type> typeList;
+   
+	private Type currentState = Type.Map;
     
 	void Awake()
 	{
-		typeList = new List<Type>(new Type[]{ Type.Map, Type.Inventory, Type.Stats, Type.Main});
+		typeList = new List<Type>(new Type[]{ Type.Map, Type.Stats, Type.Inventory, Type.Main});
 
 		uiHolders = new Dictionary<Type, Transform>();
 		loadUI();
 	}
 
+	public Type getNextType()
+	{
+		return typeList[(typeList.IndexOf(currentState) + 1) % typeList.Count];
+	}
+
+	public Type getPreviousType()
+	{
+		int index = typeList.IndexOf(currentState) - 1;
+		return typeList[(index < 0 ? typeList.Count - 1 : index)];
+	}
+
 	private void loadUI()
 	{
 		uiHolders.Add(Type.Map, GameObject.FindWithTag("MapUI").transform);
+		uiHolders.Add(Type.Stats, GameObject.FindWithTag("StatsUI").transform);
 
 		modal = GameObject.FindWithTag("ModalBackground").transform;
 		tabMenu = GameObject.FindWithTag("TabMenu").transform;
@@ -46,6 +60,7 @@ public class UIHandlerBehaviour : MonoBehaviour {
 		}
 
 		toggleModal(true);
+		currentState = type;
 	}
 
 	private void toggleModal(bool desiredState)
@@ -117,5 +132,11 @@ public class UIHandlerBehaviour : MonoBehaviour {
     public bool isDisplaying()
 	{
 		return modal.GetComponent<Image>().enabled;
+	}
+
+    //Getters
+    public Type CurrentMenu
+	{
+		get { return currentState; }
 	}
 }
