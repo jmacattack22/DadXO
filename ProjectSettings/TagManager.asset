@@ -14,6 +14,7 @@ TagManager:
   - ModalBackground
   - TabMenu
   - StatsUI
+  - EquipmentUI
   layers:
   - Default
   - TransparentFX

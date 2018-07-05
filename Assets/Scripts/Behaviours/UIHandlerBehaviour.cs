@@ -8,7 +8,7 @@ public class UIHandlerBehaviour : MonoBehaviour {
 
     public enum Type
 	{
-		Map, Stats, Inventory, Main
+		Map, Equipment, Stats, Inventory, Options
 	}
 
 	private Dictionary<Type, Transform> uiHolders;
@@ -21,7 +21,7 @@ public class UIHandlerBehaviour : MonoBehaviour {
     
 	void Awake()
 	{
-		typeList = new List<Type>(new Type[]{ Type.Map, Type.Stats, Type.Inventory, Type.Main});
+		typeList = new List<Type>(new Type[]{ Type.Map, Type.Equipment, Type.Stats, Type.Inventory, Type.Options});
 
 		uiHolders = new Dictionary<Type, Transform>();
 		loadUI();
@@ -41,6 +41,7 @@ public class UIHandlerBehaviour : MonoBehaviour {
 	private void loadUI()
 	{
 		uiHolders.Add(Type.Map, GameObject.FindWithTag("MapUI").transform);
+		uiHolders.Add(Type.Equipment, GameObject.FindWithTag("EquipmentUI").transform);
 		uiHolders.Add(Type.Stats, GameObject.FindWithTag("StatsUI").transform);
 
 		modal = GameObject.FindWithTag("ModalBackground").transform;
