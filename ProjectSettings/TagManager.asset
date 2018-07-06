@@ -15,6 +15,7 @@ TagManager:
   - TabMenu
   - StatsUI
   - EquipmentUI
+  - InventoryUI
   layers:
   - Default
   - TransparentFX

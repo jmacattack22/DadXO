@@ -12,6 +12,7 @@ public class UIHandlerBehaviour : MonoBehaviour {
 	}
 
 	private Dictionary<Type, Transform> uiHolders;
+	private Dictionary<Type, Transform> tabHolders;
 	private Transform modal;
 	private Transform tabMenu;
 
@@ -24,6 +25,7 @@ public class UIHandlerBehaviour : MonoBehaviour {
 		typeList = new List<Type>(new Type[]{ Type.Map, Type.Equipment, Type.Stats, Type.Inventory, Type.Options});
 
 		uiHolders = new Dictionary<Type, Transform>();
+		tabHolders = new Dictionary<Type, Transform>();
 		loadUI();
 	}
 
@@ -43,10 +45,17 @@ public class UIHandlerBehaviour : MonoBehaviour {
 		uiHolders.Add(Type.Map, GameObject.FindWithTag("MapUI").transform);
 		uiHolders.Add(Type.Equipment, GameObject.FindWithTag("EquipmentUI").transform);
 		uiHolders.Add(Type.Stats, GameObject.FindWithTag("StatsUI").transform);
+		uiHolders.Add(Type.Inventory, GameObject.FindWithTag("InventoryUI").transform);
+		uiHolders.Add(Type.Options, GameObject.FindWithTag("OptionsUI").transform);
 
 		modal = GameObject.FindWithTag("ModalBackground").transform;
 		tabMenu = GameObject.FindWithTag("TabMenu").transform;
-		//tabMenu.GetComponent<EasyTween>().OpenCloseObjectAnimation();
+
+		tabHolders.Add(Type.Map, tabMenu.GetChild(0));
+		tabHolders.Add(Type.Equipment, tabMenu.GetChild(1));
+		tabHolders.Add(Type.Stats, tabMenu.GetChild(2));
+		tabHolders.Add(Type.Inventory, tabMenu.GetChild(3));
+		tabHolders.Add(Type.Options, tabMenu.GetChild(4));
 	}
 
 	public void showUI(Type type)
@@ -54,14 +63,29 @@ public class UIHandlerBehaviour : MonoBehaviour {
 		List<Type> otherTypes = getOtherTypes(type);
 
 		hideUI(otherTypes);
+		unFocusTabs(otherTypes);
         
         if (uiHolders.ContainsKey(type))
 		{
-			toggleUI(uiHolders[type], true); 
+			toggleUI(uiHolders[type], true);
+			focusOnTab(tabHolders[type]);
 		}
 
 		toggleModal(true);
 		currentState = type;
+	}
+
+	private void unFocusTabs(List<Type> otherTypes)
+	{
+		foreach (Type t in otherTypes)
+		{
+			tabHolders[t].GetComponent<Image>().color = new Color(1.0f, 1.0f, 1.0f);
+		}
+	}
+
+	private void focusOnTab(Transform transform)
+	{
+		transform.GetComponent<Image>().color = new Color(255.0f / 255.0f, 152.0f / 255.0f, 90.0f / 255.0f);
 	}
 
 	private void toggleModal(bool desiredState)
