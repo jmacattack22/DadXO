@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class Boxer : Person {
+public class Boxer : Person
+{
 
 	private BoxerClass.Type boxerClass;
 
@@ -28,10 +29,15 @@ public class Boxer : Person {
 	private int maturity;
 	private int stress;
 
+	private int equipedImplant;
+	private int equipedArms;
+	private int equipedLegs;
+
 	public Boxer(
 		Vector2Int age, string fName, string lName, int townId, float wt, BoxerClass.Type bClass,
 		int acc, int accG, int end, int endG, int hlt, int hltG, int spd, int spdG, int str, int strG
-	) : base(age, fName, lName, townId, wt){
+	) : base(age, fName, lName, townId, wt)
+	{
 
 		boxerClass = bClass;
 
@@ -49,16 +55,20 @@ public class Boxer : Person {
 
 		retired = false;
 
-		record = new Record (120.0f);
-		record.setELO (800.0f);
+		record = new Record(120.0f);
+		record.setELO(800.0f);
 
 		concussions = 0;
 		fatigue = 0;
 		maturity = 0;
 		stress = 0;
+
+		equipedArms = -1;
+		equipedLegs = -1;
+		equipedImplant = -1;
 	}
 
-	public Boxer(JSONObject json) : 
+	public Boxer(JSONObject json) :
 	base(
 		JSONTemplates.ToVector2Int(json.GetField("age")), json.GetField("firstname").str, json.GetField("lastname").str,
 		townId: (int)json.GetField("townindex").i, wt: json.GetField("weight").f
@@ -86,9 +96,14 @@ public class Boxer : Person {
 		fatigue = (int)json.GetField("fatigue").i;
 		maturity = (int)json.GetField("maturity").i;
 		stress = (int)json.GetField("stress").i;
+
+		equipedArms = (int)json.GetField("arms").i;
+		equipedLegs = (int)json.GetField("legs").i;
+		equipedImplant = (int)json.GetField("implant").i;
 	}
 
-	public void applyTrainingResults(TrainingResult results){
+	public void applyTrainingResults(TrainingResult results)
+	{
 		accuracy += accuracy + results.Accuracy > 999 ? 0 : results.Accuracy;
 		endurance += endurance + results.Endurance > 999 ? 0 : results.Endurance;
 		health += health + results.Health > 999 ? 0 : results.Health;
@@ -97,49 +112,70 @@ public class Boxer : Person {
 
 		fatigue += results.Fatigue;
 
-		if (results.Result.Equals (TrainingResult.Outcome.Failure))
+		if (results.Result.Equals(TrainingResult.Outcome.Failure))
 			maturity++;
 	}
 
-	public float getOverall(){
+	public void equipArms(int index)
+	{
+		this.equipedArms = index;
+	}
+
+	public void equipLegs(int index)
+	{
+		this.equipedLegs = index;
+	}
+
+	public void equipImplant(int index)
+	{
+		this.equipedArms = index;
+	}
+
+	public float getOverall()
+	{
 		return (float)((accuracy + endurance + health + speed + strength) / 5.0f);
 	}
 
-	public bool isBoxerFatigued(){
+	public bool isBoxerFatigued()
+	{
 		if (fatigue >= 80)
 			return true;
 
 		return false;
 	}
 
-	public void logBoxerStats(){
-		Debug.Log ("Acc " + accuracy + ", End " + endurance + ", Hlt " + health + ", spd " + speed + ", str " + strength + ", ftg " + fatigue + 
-			"AccG " + accuracyGrowth + ", EndG " + enduranceGrowth + ", HltG " + healthGrowth + ", SpdG " + speedGrowth + ", StrG " + strengthGrowth + 
+	public void logBoxerStats()
+	{
+		Debug.Log("Acc " + accuracy + ", End " + endurance + ", Hlt " + health + ", spd " + speed + ", str " + strength + ", ftg " + fatigue +
+			"AccG " + accuracyGrowth + ", EndG " + enduranceGrowth + ", HltG " + healthGrowth + ", SpdG " + speedGrowth + ", StrG " + strengthGrowth +
 			", Class " + boxerClass.ToString() + ", WR " + WeeksRemaining
 		);
 	}
 
-    public void logBoxerStats(TournamentProtocol.Level boxerLevel){
-        Debug.Log("Acc " + accuracy + ", End " + endurance + ", Hlt " + health + ", spd " + speed + ", str " + strength + ", ftg " + fatigue +
-            "AccG " + accuracyGrowth + ", EndG " + enduranceGrowth + ", HltG " + healthGrowth + ", SpdG " + speedGrowth + ", StrG " + strengthGrowth +
-                  ", Class " + boxerClass.ToString() + ", WR " + WeeksRemaining + ", " + boxerLevel.ToString() + ", W " + record.Wins + " L " + record.Losses
-        );
-    }
+	public void logBoxerStats(TournamentProtocol.Level boxerLevel)
+	{
+		Debug.Log("Acc " + accuracy + ", End " + endurance + ", Hlt " + health + ", spd " + speed + ", str " + strength + ", ftg " + fatigue +
+			"AccG " + accuracyGrowth + ", EndG " + enduranceGrowth + ", HltG " + healthGrowth + ", SpdG " + speedGrowth + ", StrG " + strengthGrowth +
+				  ", Class " + boxerClass.ToString() + ", WR " + WeeksRemaining + ", " + boxerLevel.ToString() + ", W " + record.Wins + " L " + record.Losses
+		);
+	}
 
-    public void modifyStat(EvaluationProtocol.Stats stat, int value){
-        if (stat.Equals(EvaluationProtocol.Stats.Accuracy))
-            accuracy = value;
-        else if (stat.Equals(EvaluationProtocol.Stats.Endurance))
-            endurance = value;
-        else if (stat.Equals(EvaluationProtocol.Stats.Health))
-            health = value;
-        else if (stat.Equals(EvaluationProtocol.Stats.Speed))
-            speed = value;
-        else if (stat.Equals(EvaluationProtocol.Stats.Strength))
-            strength = value;
-    }
+	public void modifyStat(EvaluationProtocol.Stats stat, int value)
+	{
+		if (stat.Equals(EvaluationProtocol.Stats.Accuracy))
+			accuracy = value;
+		else if (stat.Equals(EvaluationProtocol.Stats.Endurance))
+			endurance = value;
+		else if (stat.Equals(EvaluationProtocol.Stats.Health))
+			health = value;
+		else if (stat.Equals(EvaluationProtocol.Stats.Speed))
+			speed = value;
+		else if (stat.Equals(EvaluationProtocol.Stats.Strength))
+			strength = value;
+	}
 
-	public void rest(){
+	public void rest()
+	{
 		fatigue -= fatigue - 80 < 0 ? 0 : 80;
 	}
 
@@ -172,77 +208,111 @@ public class Boxer : Person {
 		json.AddField("concussions", concussions);
 		json.AddField("fatigue", fatigue);
 		json.AddField("maturity", maturity);
-		json.AddField("stress", stress);      
+		json.AddField("stress", stress);
+
+		json.AddField("implant", equipedImplant);
+		json.AddField("arms", equipedArms);
+		json.AddField("legs", equipedLegs);
 
 		return json;
 	}
-       
+
 	//Getters
-	public BoxerClass.Type BoxerClass {
+	public BoxerClass.Type BoxerClass
+	{
 		get { return boxerClass; }
 	}
 
-	public int Accuracy {
+	public int Accuracy
+	{
 		get { return accuracy; }
 	}
 
-	public int Endurance { 
+	public int Endurance
+	{
 		get { return endurance; }
 	}
 
-	public int Health {
+	public int Health
+	{
 		get { return health; }
 	}
 
-	public int Speed {
+	public int Speed
+	{
 		get { return speed; }
 	}
 
-	public int Strength {
+	public int Strength
+	{
 		get { return strength; }
 	}
 
-	public int AccuracyGrowth {
+	public int AccuracyGrowth
+	{
 		get { return accuracyGrowth; }
 	}
 
-	public int EnduranceGrowth {
+	public int EnduranceGrowth
+	{
 		get { return enduranceGrowth; }
 	}
 
-	public int HealthGrowth {
+	public int HealthGrowth
+	{
 		get { return healthGrowth; }
 	}
 
-	public int SpeedGrowth {
+	public int SpeedGrowth
+	{
 		get { return speedGrowth; }
 	}
 
-	public int StrengthGrowth {
+	public int StrengthGrowth
+	{
 		get { return strengthGrowth; }
 	}
 
-	public int Concussions {
+	public int Concussions
+	{
 		get { return concussions; }
 	}
 
-	public int Fatigue {
+	public int Fatigue
+	{
 		get { return fatigue; }
 	}
 
-	public int Maturity {
+	public int Maturity
+	{
 		get { return maturity; }
 	}
 
-	public int Stress {
+	public int Stress
+	{
 		get { return stress; }
 	}
 
-	public Record Record {
+	public Record Record
+	{
 		get { return record; }
 	}
 
-	public bool Retired {
+	public bool Retired
+	{
 		get { return retired; }
+	}
+
+	public int EquipedArms
+	{
+		get { return equipedArms; }
+	}
+
+	public int EquipedLegs{
+		get { return equipedLegs; }
+	}
+
+	public int EquipedImplant {
+		get { return equipedImplant; }
 	}
 }

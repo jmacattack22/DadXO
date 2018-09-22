@@ -154,6 +154,7 @@ public class WorldHandlerBehaviour : MonoBehaviour
 			else
 			{
 				uIHandler.showUI(UIHandlerBehaviour.Type.Map);
+				infoLayer.sendJob(new InfoLayerJob(InfoLayerJob.InfoJob.Parameters, 5));
 				controllerState = ControllerState.Map;
 			}
 		}
@@ -259,7 +260,7 @@ public class WorldHandlerBehaviour : MonoBehaviour
 		regionDrawer.toggleLegend(true);
         regionDrawer.drawRegions(ref worldData);
         mapState = MapState.World;
-        cursor.setMovement(0.5f);
+		cursor.setMovement(0.5f);
 		listController.addRows(MapMenuUtils.generateRegionRowInfos(ref worldData));
         listController.focusOnList();
         topLayer.cleanTileMap();

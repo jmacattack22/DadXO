@@ -3,19 +3,7 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags:
-  - RightInfoTitle
-  - RightInfoSubTitle
-  - RightInfoCalendar
-  - MapRegionTitle
-  - MapTownTitle
-  - MapDrawers
-  - MapUI
-  - ModalBackground
-  - TabMenu
-  - StatsUI
-  - EquipmentUI
-  - InventoryUI
+  tags: []
   layers:
   - Default
   - TransparentFX
@@ -25,10 +13,10 @@ TagManager:
   - UI
   - 
   - 
-  - 
-  - 
-  - 
-  - 
+  - Solid
+  - OneWay
+  - Bumper
+  - Ladders
   - 
   - 
   - 
@@ -52,7 +40,4 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
-    locked: 0
-  - name: Tilemap
-    uniqueID: 521945025
     locked: 0
