@@ -8,7 +8,7 @@ public class WorldHandlerBehaviour : MonoBehaviour
 {
     public enum ControllerState
 	{
-		None, Map
+		None, Map, Stats
 	}
 
     public enum MapState
@@ -21,6 +21,9 @@ public class WorldHandlerBehaviour : MonoBehaviour
 	public RegionDrawer regionDrawer;
 	public MapPositionCaster cursor;
 	public InfoLayerBehaviour infoLayer;
+	public ListController listController;
+
+	public UIHandlerBehaviour uIHandler;
 
 	private bool creatingNewWorld = false;
 	public WorldBuilderBehaviour worldBuilder;
@@ -49,14 +52,16 @@ public class WorldHandlerBehaviour : MonoBehaviour
 			saveMapThread.Start();
 
 			mapState = MapState.World;
-			regionDrawer.drawRegions(ref worldData);
-			creatingNewWorld = false;
 
 			infoLayer.updateWorldData(worldData);
-			controllerState = ControllerState.Map;
+
+			loadRegionHub();
+         
+			creatingNewWorld = false;
 		}
 
 		handleInput();
+		handleListControllers();
 	}
 
 	private void checkForMapPanning()
@@ -69,34 +74,118 @@ public class WorldHandlerBehaviour : MonoBehaviour
         }
     }
 
-	private void checkHoverTile(InfoLayerJob.InfoJob job)
+	private RowInfoInitializer convertTileInfoToRowInfo(TileInfo currentTile)
     {
-        if (cursor.CurrentTile != null)
+        if (currentTile != null)
         {
-            if (cursor.CurrentTile.ID >= 0)
+            if (currentTile.ID >= 0)
             {
-                infoLayer.sendJob(new InfoLayerJob(job, cursor.CurrentTile.ID));
-
-                if (job.Equals(InfoLayerJob.InfoJob.RegionPreview) || job.Equals(InfoLayerJob.InfoJob.TownPreview))
-				{
-					infoLayer.toggleRightPanel();
-				}
+                return new RowInfoInitializer(
+                currentTile.IsRegion ? RowInfo.Type.Region : RowInfo.Type.Town,
+                currentTile.ID,
+                currentTile.Position,
+                "");
             }
         }
-		else
-        {
-            infoLayer.sendJob(new InfoLayerJob(InfoLayerJob.InfoJob.Clear, 0));
-        }
+
+		return new RowInfoInitializer(
+                RowInfo.Type.Town,
+                -1,
+			    new Vector2(0f,0f),
+                "");
     }
 
-    private void handleInput()
+    private RowInfoInitializer getCurrentTile()
 	{
+		if (listController.State.Equals(ListController.ListState.Focused))
+		{
+			return listController.getSelectedRow();
+		}
+
+		return convertTileInfoToRowInfo(cursor.CurrentTile);
+	}
+
+	private void checkHoverTile(InfoLayerJob.InfoJob job)
+    {
+		RowInfoInitializer tile = getCurrentTile();
+
+		if (tile.ID >= 0)
+		{
+			infoLayer.sendJob(new InfoLayerJob(job, tile.ID));
+			highlightSelection(tile);
+		}
+		else
+		{
+			infoLayer.sendJob(new InfoLayerJob(InfoLayerJob.InfoJob.Clear, 0));
+		}
+    }
+
+	private void highlightSelection(RowInfoInitializer tile)
+	{
+		if (tile.Type.Equals(RowInfo.Type.Region))
+		{
+			regionDrawer.highlightRegion(tile);
+		}
+		else if (tile.Type.Equals(RowInfo.Type.Town))
+        {
+			topLayer.highlightTown(tile);
+        }
+	}
+
+	private void handleInput()
+	{
+		handleUIListeners();
+
 		if (controllerState.Equals(ControllerState.Map))
 		{
 			handleMapInput();
-            
 		}
 	}
+
+	private void handleUIListeners()
+	{
+		if (Input.GetKeyDown(KeyCode.M))
+		{
+			if (uIHandler.isDisplaying())
+			{
+				uIHandler.hideAllUI();
+				controllerState = ControllerState.None;
+			}
+			else
+			{
+				uIHandler.showUI(UIHandlerBehaviour.Type.Map);
+				infoLayer.sendJob(new InfoLayerJob(InfoLayerJob.InfoJob.Parameters, 5));
+				controllerState = ControllerState.Map;
+			}
+		}
+
+        if (!controllerState.Equals(ControllerState.None))
+		{
+			if (Input.GetKeyDown(KeyCode.R))
+			{
+				uIHandler.showUI(uIHandler.getPreviousType());
+			}
+			else if (Input.GetKeyDown(KeyCode.T))
+			{
+				uIHandler.showUI(uIHandler.getNextType());	
+			}
+		}
+	}
+
+	private void handleListControllers()
+    {
+        if (listController.State.Equals(ListController.ListState.Clicked))
+        {
+            RowInfoInitializer rowInfo = listController.getSelectedRow();
+            if (rowInfo.ID >= 0)
+            {
+                rowClick(ref worldData, rowInfo);
+            }
+            listController.acknowledgeClick();
+        }
+
+        listController.resolveSelection();
+    }
 
 	private void handleMapInput()
 	{
@@ -119,41 +208,21 @@ public class WorldHandlerBehaviour : MonoBehaviour
 
 		mapDrawer.handleInput();
 
-		checkForMapPanning();
-
-		if (Input.GetKeyDown(KeyCode.R))
-		{
-			checkHoverTile(InfoLayerJob.InfoJob.TownPreview);
-		}
-
 		checkHoverTile(InfoLayerJob.InfoJob.Town);
-	}
-
-	private void loadRegionHub()
-	{
-		mapDrawer.setActive(false);
-		regionDrawer.setActive(true);
-		regionDrawer.drawRegions(ref worldData);
-		mapState = MapState.World;
-		cursor.setMovement(0.5f);
-		topLayer.cleanTileMap();
-	}
+	}   
 
 	private void handleWorldMapInput()
 	{
-		if (Input.GetKeyDown(KeyCode.Space))
-		{
-			loadRegion();
-		}
+		//if (Input.GetKeyDown(KeyCode.Space))
+		//{
+		//	loadRegion();
+		//}
 
-		if (Input.GetKeyDown(KeyCode.R))
-		{
-			checkHoverTile(InfoLayerJob.InfoJob.RegionPreview);
-		}
+
 
 		checkHoverTile(InfoLayerJob.InfoJob.Region);
 	}
-
+       
 	private void loadRegion()
 	{
 		if (cursor.CurrentTile != null)
@@ -161,13 +230,51 @@ public class WorldHandlerBehaviour : MonoBehaviour
 			if (cursor.CurrentTile.ID >= 0)
 			{
 				regionDrawer.setActive(false);
+				regionDrawer.toggleLegend(false);
 				mapDrawer.setActive(true);
 				mapDrawer.drawRegion(ref worldData, cursor.CurrentTile.ID);
 				mapState = MapState.Region;
+				listController.addRows(MapMenuUtils.generateTownRowInfos(cursor.CurrentTile.ID, ref worldData));
+                listController.focusOnList();
 				cursor.setMovement(0.04f);            
 			}
 		}
 	}
+
+    private void loadRegion(int regionIndex)
+	{
+        regionDrawer.setActive(false);
+		regionDrawer.toggleLegend(false);
+        mapDrawer.setActive(true);
+        mapDrawer.drawRegion(ref worldData, regionIndex);
+        mapState = MapState.Region;
+		listController.addRows(MapMenuUtils.generateTownRowInfos(regionIndex, ref worldData));
+        listController.focusOnList();
+        cursor.setMovement(0.04f);  
+	}
+
+	private void loadRegionHub()
+    {
+        mapDrawer.setActive(false);
+        regionDrawer.setActive(true);
+		regionDrawer.toggleLegend(true);
+        regionDrawer.drawRegions(ref worldData);
+        mapState = MapState.World;
+		cursor.setMovement(0.5f);
+		listController.addRows(MapMenuUtils.generateRegionRowInfos(ref worldData));
+        listController.focusOnList();
+        topLayer.cleanTileMap();
+    }
+
+	private void rowClick(ref DataPool worldData, RowInfoInitializer rowInfo)
+    {
+        if (rowInfo.Type.Equals(RowInfo.Type.Region))
+        {
+			loadRegion(rowInfo.ID);
+            listController.addRows(MapMenuUtils.generateTownRowInfos(rowInfo.ID, ref worldData));
+            listController.focusOnList();
+        }
+    }
 
 	public void advanceWeek(){
 		TournamentHandlerProtocol.simTournamentsAndTraining(ref worldData);

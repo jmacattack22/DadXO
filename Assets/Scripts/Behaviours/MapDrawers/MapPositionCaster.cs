@@ -27,25 +27,25 @@ public class MapPositionCaster : MonoBehaviour {
 
     private void handleInput()
 	{
-        if (Input.GetKey(KeyCode.D) && !targetSet && transform.position.x <= 7.75f)
+        if (Input.GetKey(KeyCode.D) && !targetSet && transform.position.x <= 3.5f)
 		{
 			Vector3 direction = new Vector3(1, 0, 0);
 			setNewTarget(direction);
 		}
 
-		if (Input.GetKey(KeyCode.A) && !targetSet && transform.position.x >= -7.75f)
+		if (Input.GetKey(KeyCode.A) && !targetSet && transform.position.x >= -3.5f)
         {
             Vector3 direction = new Vector3(-1, 0, 0);
 			setNewTarget(direction);
         }
         
-        if (Input.GetKey(KeyCode.W) && !targetSet && transform.position.y <= 3.75f)
+        if (Input.GetKey(KeyCode.W) && !targetSet && transform.position.y <= 3.5f)
         {
             Vector3 direction = new Vector3(0, 1, 0);
 			setNewTarget(direction);
         }
 
-        if (Input.GetKey(KeyCode.S) && !targetSet && transform.position.y >= -3.75f)
+        if (Input.GetKey(KeyCode.S) && !targetSet && transform.position.y >= -3.5f)
         {
             Vector3 direction = new Vector3(0, -1, 0);
 			setNewTarget(direction);
@@ -88,14 +88,23 @@ public class MapPositionCaster : MonoBehaviour {
 
     private TileInfo mapCast()
     {
-        Vector3 fwd = transform.TransformDirection(Vector3.forward);
+		for (float x = -0.02f; x < 0.02f; x += 0.005f)
+		{
+			for (float y = -0.02f; y < 0.02f; y += 0.005f)
+			{
+				Vector3 fwd = transform.TransformDirection(Vector3.forward);
 
-        RaycastHit hit;
+				fwd.x += x;
+				fwd.y += y;
 
-        if (Physics.Raycast(transform.position, fwd, out hit))
-        {
-            return hit.transform.gameObject.GetComponent<TileInfo>();
-        }
+				RaycastHit hit;
+
+                if (Physics.Raycast(transform.position, fwd, out hit))
+                {
+                    return hit.transform.gameObject.GetComponent<TileInfo>();
+                }
+			}
+		}
 
 		return null;
     }
@@ -108,7 +117,7 @@ public class MapPositionCaster : MonoBehaviour {
         
 		transform.Translate(direction * cursorSpeed * elapsed);
 
-        if (Mathf.Abs(Vector3.Dot(direction, Vector3.Normalize(goal - transform.position)) + 1) < 0.2f)
+        if (Mathf.Abs(Vector3.Dot(direction, Vector3.Normalize(goal - transform.position)) + 1) < 0.25f)
         {
             transform.Translate(goal - transform.position);
         }
@@ -124,7 +133,7 @@ public class MapPositionCaster : MonoBehaviour {
 
 	public void setMovement(float movement)
 	{
-		transform.position = new Vector3(0.0f, 0.0f, -5.0f);
+		transform.position = new Vector3(0.0f, 0.0f, -6.0f);
 		cursorMovement = movement;
 	}
 

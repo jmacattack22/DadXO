@@ -59,8 +59,9 @@ public static class RegionCreator
 
         //Choose gradient points to build island peaks
         gradientPoints.Add(new Vector2(100, 100));
-        gradientPoints.Add(new Vector2(150, 130));
-        gradientPoints.Add(new Vector2(110, 125));
+		gradientPoints.Add(new Vector2(Rng.generateRandomInt(60, 120), Rng.generateRandomInt(60, 120)));
+        //gradientPoints.Add(new Vector2(60, 90));
+        //gradientPoints.Add(new Vector2(90, 60));
         //gradientPoints.Add(new Vector2(225, 175));
         //gradientPoints.Add(new Vector2(175, 125));
         //gradientPoints.Add(new Vector2(175, 225));

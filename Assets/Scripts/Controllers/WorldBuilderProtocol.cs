@@ -276,7 +276,7 @@ public static class WorldBuilderProtocol {
 						List<Vector2Int> path = worldData.Dijkstras.shortestPath(new Vector2Int(0, 0), worldData.Regions[regionIndex].Position);
 						int regionDistance = path.Count;
 						worldData.Towns.Add(new Town(worldData.generateTownName(), new Vector2Int(x, y), regionDistance));
-						//worldData.WorldMap[x, y] = Region.TileType.Town;
+						worldData.Regions[regionIndex].Map[x, y] = RegionCreator.TileType.Town;
 						createManagerBasedOnTown(ref worldData, worldData.Towns.Count - 1, regionIndex);
 						worldData.Towns[worldData.Towns.Count - 1].setTournament(
 							createTournamentBasedOnRegion(ref worldData, worldData.Towns[worldData.Towns.Count - 1].RegionLevel, generateDateFromOffset(x + y)));

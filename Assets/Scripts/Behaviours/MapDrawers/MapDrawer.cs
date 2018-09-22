@@ -3,7 +3,8 @@ using System.Collections.Generic;
 
 public class MapDrawer: MonoBehaviour
 {
-	private float offset = 0.0f;
+	private float xOffset = 0.0f;
+	private float yOffset = 0.0f;
     private Vector3 scaler = new Vector3(0.001f, 0.001f, 0.0f);
 
     private float scaleFloor = 0.05f;
@@ -38,8 +39,6 @@ public class MapDrawer: MonoBehaviour
         {
             Destroy(child.gameObject);
         }
-
-        transform.localScale = new Vector3(1.0f, 1.0f);
     }
 
 	private bool MoveTowardsPoint(Vector3 goal, float elapsed)
@@ -50,7 +49,7 @@ public class MapDrawer: MonoBehaviour
 
         transform.Translate(direction * mapPanSpeed * elapsed);
 
-        if (Mathf.Abs(Vector3.Dot(direction, Vector3.Normalize(goal - transform.position)) + 1) < 0.2f)
+        if (Mathf.Abs(Vector3.Dot(direction, Vector3.Normalize(goal - transform.position)) + 1) < 0.28f)
         {
             transform.Translate(goal - transform.position);
         }
@@ -104,9 +103,10 @@ public class MapDrawer: MonoBehaviour
 		isMapPanning = true;
 	}
 
-    public void setOffset(float offset)
+	public void setOffsets(float x, float y)
     {
-        this.offset = offset;
+		this.xOffset = x;
+		this.yOffset = y;
     }
 
     public void setScaleCeiling(float ceiling)
@@ -135,9 +135,14 @@ public class MapDrawer: MonoBehaviour
     }
 
     //Getters
-    public float Offset
+    public float XOffset
 	{
-		get { return offset; }
+		get { return xOffset; }
+	}
+
+    public float YOffset
+	{
+		get { return yOffset; }
 	}
 
 	public Vector3 Scaler

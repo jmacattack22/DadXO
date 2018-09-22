@@ -5,7 +5,7 @@ public class InfoLayerJob
 {
     public enum InfoJob
 	{
-		Clear, Region, Town, RegionPreview, TownPreview
+		Clear, Region, Town, RegionPreview, TownPreview, Parameters
 	}
 
 	private InfoJob job;
@@ -26,17 +26,26 @@ public class InfoLayerJob
 	{
 		if (job.Equals(InfoJob.Region))
 		{
-			labels.Add(InfoLayerBehaviour.Labels.Title);
+			labels.Add(InfoLayerBehaviour.Labels.RightInfoPanelTitle);
+            labels.Add(InfoLayerBehaviour.Labels.RightInfoPanelSubTitle);
+            labels.Add(InfoLayerBehaviour.Labels.MapRegionTitle);
+            labels.Add(InfoLayerBehaviour.Labels.MapTownTitle);
+			calendarVisible = true;
 		} 
 		else if (job.Equals(InfoJob.Town))
 		{
-			labels.Add(InfoLayerBehaviour.Labels.Title);
+			labels.Add(InfoLayerBehaviour.Labels.RightInfoPanelTitle);
+            labels.Add(InfoLayerBehaviour.Labels.RightInfoPanelSubTitle);
+			labels.Add(InfoLayerBehaviour.Labels.MapRegionTitle);
+            labels.Add(InfoLayerBehaviour.Labels.MapTownTitle);
+			calendarVisible = false;
 		}
 		else if (job.Equals(InfoJob.RegionPreview))
 		{
 			labels.Add(InfoLayerBehaviour.Labels.RightInfoPanelTitle);
 			labels.Add(InfoLayerBehaviour.Labels.RightInfoPanelSubTitle);
 			labels.Add(InfoLayerBehaviour.Labels.MapRegionTitle);
+			labels.Add(InfoLayerBehaviour.Labels.MapTownTitle);
 
 			calendarVisible = true;
 		}
@@ -45,6 +54,24 @@ public class InfoLayerJob
 			labels.Add(InfoLayerBehaviour.Labels.RightInfoPanelTitle);
             labels.Add(InfoLayerBehaviour.Labels.RightInfoPanelSubTitle);
 			labels.Add(InfoLayerBehaviour.Labels.MapTownTitle);
+
+			calendarVisible = false;
+		}
+		else if (job.Equals(InfoJob.Parameters))
+		{
+			labels.Add(InfoLayerBehaviour.Labels.Accuracy);
+			labels.Add(InfoLayerBehaviour.Labels.Endurance);
+			labels.Add(InfoLayerBehaviour.Labels.Health);
+			labels.Add(InfoLayerBehaviour.Labels.Speed);
+			labels.Add(InfoLayerBehaviour.Labels.Strength);
+
+			labels.Add(InfoLayerBehaviour.Labels.AccuracyLevel);
+            labels.Add(InfoLayerBehaviour.Labels.EnduranceLevel);
+			labels.Add(InfoLayerBehaviour.Labels.HealthLevel);
+			labels.Add(InfoLayerBehaviour.Labels.SpeedLevel);
+			labels.Add(InfoLayerBehaviour.Labels.StrengthLevel);
+
+			calendarVisible = false;         
 		}
 	}
 

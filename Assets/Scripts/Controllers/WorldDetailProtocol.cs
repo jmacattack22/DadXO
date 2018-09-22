@@ -42,6 +42,19 @@ public static class WorldDetailProtocol {
         return managerIndexes;
     }
 
+    public static int getRegionIndexFromTownIndex(ref DataPool worldData, int townIndex)
+	{
+		for (int i = 0; i < worldData.Regions.Count; i++)
+		{
+			if (worldData.Regions[i].getRegionsTownIndexes().Contains(townIndex))
+			{
+				return i;
+			}
+		}
+
+		return -1;
+	}
+
 	public static Dictionary<TournamentProtocol.Level, Dictionary<int, List<int>>> getRegionTournamentsForMonth(
 	    ref DataPool worldData, int regionIndex, int monthModifier)
 	{

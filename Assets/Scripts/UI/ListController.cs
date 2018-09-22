@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,6 +16,8 @@ public class ListController : MonoBehaviour {
 	{
 		None, Focused, Clicked
 	}
+
+	public Button unfocusButton;
 
 	private Transform content;
 	private Dictionary<RowColor, Transform> rowOptions;
@@ -56,6 +58,9 @@ public class ListController : MonoBehaviour {
 	{
 		cleanupList();
 		currentList.Clear();
+
+		rowInfos = rowInfos.OrderBy(x => x.Text).ToList();
+
 		foreach (RowInfoInitializer info in rowInfos)
 		{
 			Transform tile = Instantiate(rowOptions[rowColour], new Vector3(0.0f, 0.0f), Quaternion.identity) as Transform;
@@ -89,10 +94,39 @@ public class ListController : MonoBehaviour {
 		state = ListState.Clicked;
 	}
 
+    public void resolveSelection()
+	{
+		if (state.Equals(ListState.Focused))
+		{
+			RowInfoInitializer infoInitializer = getSelectedRow();
+			if (infoInitializer.ID == -1)
+			{
+				focusOnList();
+			}
+		}
+	}
+
     public void focusOnList()
 	{
-		content.GetChild(0).GetComponent<Button>().Select();
+		foreach (Transform btn in content)
+        {
+            btn.GetComponent<Button>().interactable = true;
+        }
+
+		content.GetChild(0).GetComponent<Button>().Select();         
 		state = ListState.Focused;
+	}
+
+    public void unfocusList()
+	{
+		unfocusButton.Select();
+
+        foreach (Transform btn in content)
+		{
+			btn.GetComponent<Button>().interactable = false;
+		}
+
+		state = ListState.None;
 	}
 
     public RowInfoInitializer getSelectedRow()

@@ -3,12 +3,7 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags:
-  - RightInfoTitle
-  - RightInfoSubTitle
-  - RightInfoCalendar
-  - MapRegionTitle
-  - MapTownTitle
+  tags: []
   layers:
   - Default
   - TransparentFX
@@ -18,10 +13,10 @@ TagManager:
   - UI
   - 
   - 
-  - 
-  - 
-  - 
-  - 
+  - Solid
+  - OneWay
+  - Bumper
+  - Ladders
   - 
   - 
   - 
